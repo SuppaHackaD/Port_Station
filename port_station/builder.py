@@ -148,6 +148,9 @@ class Builder:
             self.emit('Port Station '+__version__+' — verificando entradas')
             lock=check_lock(self.emit,self.cancel,full=False)
             inputs={x.relative_to(game).as_posix():digest(x)for x in sorted(tree(game))}
+            if p['adapter']=='breath':
+                from . import breath
+                breath.inspect(game,self.run)
             write_json(output/'project.json',p)
             generated=output/'generated';catalog=resources=blob=None
             if p['adapter']!='none':catalog,resources,blob=assets.make_catalog(p,base,output/'achievements')
@@ -172,6 +175,10 @@ class Builder:
             target=prefix/'drive_c/Games'/slug;self.copy(game,target)
             for overlay in p['overlays']:
                 self.checkpoint();dest=target/relative_file(overlay['destination']);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(resolve_path(overlay['source'],base),dest)
+            if p['adapter']=='breath':
+                self.emit('Breath: preparando e verificando a ponte de conquistas na cópia da build…')
+                compatibility=breath.prepare(target,self.run)
+                write_json(output/'breath-compatibility.json',compatibility)
             if p['profile']=='nwjs-canvas':
                 from .nwjs import prepare_fonts
                 compatibility=prepare_fonts(target,prefix);write_json(output/'nwjs-compatibility.json',compatibility)

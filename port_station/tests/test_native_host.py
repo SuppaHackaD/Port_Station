@@ -10,6 +10,32 @@ from port_station.project import WORKSPACE, read_project
 from port_station.builder import Builder
 
 class NativeHostTests(unittest.TestCase):
+    def test_cached_breath_prefix_receives_bridge_update_without_reinstalling_game(self):
+        with tempfile.TemporaryDirectory(prefix='station-breath-update-')as temp:
+            root=Path(temp);package=root/'package';data=root/'data';generated=root/'generated'
+            p=read_project(WORKSPACE/'port_station/examples/breath.ps5port.json')
+            native.generate(p,generated,{'achievements':[]},{},b'{}')
+            folder='prefixes/breath/drive_c/Games/breath/'
+            assembly=folder+'Breath_Data/Managed/Assembly-CSharp.dll'
+            bridge=folder+'Breath_Data/Managed/BreathPS5Bridge.dll'
+            paths={assembly:b'own assembly v1',bridge:b'own bridge v1',folder+'level.dat':b'own unchanged scene','profiles/breath.profile':b'own profile','profiles/profiles.lst':b'breath.profile\n'}
+            for rel,b in paths.items():
+                q=package/'seed'/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+            (package/'seed-files.tsv').write_text(''.join(f'{len(b)}\t{zlib.crc32(b):08x}\t{rel}\n'for rel,b in paths.items()),encoding='utf8',newline='\n')
+            (root/'driver.c').write_text('#include "studio_bootstrap.h"\nint main(int argc,char**argv){return argc==2?studio_bootstrap(argv[1]):99;}\n')
+            exe=root/'test.exe'
+            subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-O2','-I'+str(generated),'-DSTUDIO_DATA_ROOT="'+data.as_posix()+'"','-DSTUDIO_PACKAGE_ROOT="'+package.as_posix()+'"',str(generated/'studio_bootstrap.c'),str(root/'driver.c'),'-o',str(exe)],check=True,capture_output=True)
+            subprocess.run([exe,data.as_posix()],check=True)
+            save=data/folder/'save.dat';save.write_bytes(b'own saved progress')
+            (package/'seed'/assembly).write_bytes(b'own assembly v2')
+            (package/'seed'/bridge).write_bytes(b'own bridge v2')
+            (package/'seed'/folder/'level.dat').write_bytes(b'own replacement scene')
+            subprocess.run([exe,data.as_posix()],check=True)
+            self.assertEqual((data/assembly).read_bytes(),b'own assembly v2')
+            self.assertEqual((data/bridge).read_bytes(),b'own bridge v2')
+            self.assertEqual((data/folder/'level.dat').read_bytes(),b'own unchanged scene')
+            self.assertEqual(save.read_bytes(),b'own saved progress')
+
     def test_bootstrap_first_copy_preserves_game_and_updates_profile_on_reopen(self):
         with tempfile.TemporaryDirectory(prefix='studio-bootstrap-')as temp:
             root=Path(temp);package=root/'package';data=root/'data';generated=root/'generated'

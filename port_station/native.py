@@ -36,6 +36,10 @@ def generate(p, out, catalog=None, resources=None, blob=None):
     owned=''
     if adapter=='nwjs-steam':
         owned=','.join(['']+[json.dumps('prefixes/'+slug+'/drive_c/Games/'+slug+'/www/js/'+n)for n in ['prospero_file_bridge.js','port_studio_achievements.js']])
+    elif adapter=='breath':
+        # A cached prefix must receive the integration when an older build was
+        # installed from an unprepared copy. Load both files before Wine starts.
+        owned=','.join(['']+[json.dumps('prefixes/'+slug+'/drive_c/Games/'+slug+'/Breath_Data/Managed/'+n)for n in ['BreathPS5Bridge.dll','Assembly-CSharp.dll']])
     sync=sync.replace('@STUDIO_FILES@',owned)
     s=s.replace('int studio_bootstrap(const char*root){',sync+'\nint studio_bootstrap(const char*root){')
     s=s.replace('int result=install(root);','int result=install(root);if(!result)result=sync_profiles(root);')

@@ -3799,7 +3799,7 @@
     "src/breath/wine_title/breath_bootstrap.h": "f31e1efad42514a34215e31d6372429010f79d6c1284e4661f84e7d9463573bc",
     "src/breath/wine_title/BreathPS5Bridge.cs": "1d18caa876d8414736294ee1ef97449d2aee903e3e508f5110a2c1e787941480",
     "src/breath/wine_title/CMakeLists.txt": "eddee59807b535b1ca244382b1c969455a7d72302a051e9a20997db524ef9191",
-    "src/breath/wine_title/PatchBreathAchievements.cs": "9fd8f6323bb5f5fc9ecc0ee4a8eb16fa76f50a34aeea70d71181b30cc5dccca2",
+    "src/breath/wine_title/PatchBreathAchievements.cs": "2c587a10e508beff8fef184d0b8f5cd40c57e6ca2c99d2dbc46b05a93ce98613",
     "src/breath/wine_title/test_achievements.c": "61a6bda7c4cbe4036ced51a66ef48b6bfb0b5b72b58cbdf00a20de802933c969",
     "src/breath/wine_title/test_bootstrap.c": "cb73d4f863b90089abad353d3cf7bfba7dd680d5fa72a744d71848c1eca7e065",
     "src/breath/wine_title/TestBreathPS5Bridge.cs": "d2dbb01762d33d2570896caca07b6625b8a30a5bf276cfb57fc1505cb0df0d42",
@@ -30828,7 +30828,8 @@
     "tools/port-studio-audio/build.json": "178af7a8e99e7d1cb78d0bcc674ff63c0ce40161f5a87357eea7280b626dd2bf",
     "tools/port-studio-audio/port-at9-encode.exe": "952b6412b0f423f18ea4f17359682ec067a400c7331b4cd8b2d885f6630e9b2b",
     "tools/port-studio-audio/ffmpeg/LICENSE": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
-    "tools/port-studio-audio/ffmpeg/README.txt": "f0d71e37d6ec056f15ecb095bcf080fa3f4b9d9164a140fb88779f7237e53d18"
+    "tools/port-studio-audio/ffmpeg/README.txt": "f0d71e37d6ec056f15ecb095bcf080fa3f4b9d9164a140fb88779f7237e53d18",
+    "build/release-managed/PatchBreathAchievements.exe": "93859e36fd76c1d44d0230e0d4b4dff1089fef465c162439464901588abce431"
   },
   "previous_lock_sha256": "a564face4002968c6d0dec27537dcf3c230a035ac77bb53b7e7b38b0cca467c8",
   "distribution": "public deploy: unused research and optional external FFmpeg excluded; public docs/examples sanitized",
