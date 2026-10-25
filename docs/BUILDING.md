@@ -20,6 +20,7 @@ python -m port_station verify-runtime
 python -m unittest discover -s port_station/tests -v
 node port_station/tests/test_nw_bridge.js
 python release_support/test-prepare-game.py
+dotnet run --project release_support/managed/VerifierTests -c Release
 ```
 
 Sem FFmpeg, os testes de conversão de áudio são pulados. Instale-o com `python release_support/install-ffmpeg.py` para executar esses testes também.

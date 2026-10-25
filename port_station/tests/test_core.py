@@ -61,6 +61,8 @@ class CoreTests(unittest.TestCase):
             bootstrap=(out/'generated/studio_bootstrap.c').read_text(encoding='utf8')
             self.assertIn('prefixes/breath-isolated',bootstrap)
             self.assertIn('/data/port-studio/ppsa99999',bootstrap)
+            self.assertIn('prefixes/breath-isolated/drive_c/Games/breath-isolated/Breath_Data/Managed/BreathPS5Bridge.dll',bootstrap)
+            self.assertIn('prefixes/breath-isolated/drive_c/Games/breath-isolated/Breath_Data/Managed/Assembly-CSharp.dll',bootstrap)
 
     def test_duplicate_canonical_ids_rejected(self):
         self.p['achievements'].append(copy.deepcopy(self.p['achievements'][0]))

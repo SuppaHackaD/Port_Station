@@ -12,15 +12,19 @@ Receita: `port_station/examples/breath.ps5port.json`.
 - Perfil: `dxvk-xinput`, Direct3D 11 e janela 1280×720.
 - Conquistas: 11 originais e platina opcional.
 
-Prepare a cópia local com:
+Selecione a pasta da sua cópia original na receita. A build prepara automaticamente a ponte de conquistas **na cópia de saída**, sem alterar a instalação do PC. Cópias já preparadas também são aceitas: a conexão da ponte é verificada e não recebe o patch novamente.
+
+Se preferir manter uma cópia preparada separada, o comando opcional é:
 
 ```powershell
 python release_support/prepare-game.py breath --source "D:/Jogos/Breath" --output "D:/Preparados/Breath"
 ```
 
-O preparador acrescenta a ponte própria e adapta duas rotinas de conquistas em uma cópia. Ele reconhece o assembly original pelo SHA-256 `b98be2ab162e9f7f2ff4029b0bf8221db075df052d5782b96c73424c6ee95f18`; outra versão é rejeitada em vez de receber uma alteração incorreta.
+O preparador acrescenta a ponte própria e adapta duas rotinas de conquistas em uma cópia. Ele reconhece o assembly original pelo SHA-256 `b98be2ab162e9f7f2ff4029b0bf8221db075df052d5782b96c73424c6ee95f18`; outra versão é rejeitada em vez de receber uma alteração incorreta. A ponte encaminha os eventos ao backend antes da consulta à Steam: sem ela, a captura da enguia na cópia original pode solicitar o encerramento do jogo ao tentar inicializar a Steam no console.
 
-Abra a receita e selecione a pasta preparada. Ícone, fundos, título e música podem ser personalizados como em qualquer projeto.
+Ícone, fundos, título e música podem ser personalizados como em qualquer projeto.
+
+Ao atualizar uma instalação existente com uma build nova, o launcher sincroniza a ponte e o assembly de conquistas preparados antes de iniciar o Wine. Não é necessário apagar o prefixo nem os saves para receber essa correção. O relatório `breath-compatibility.json` da build informa se a entrada era original ou já preparada e registra os hashes resultantes.
 
 Para testar uma instalação separada, escolha outro Title ID. Se quiser também uma lista de conquistas independente no backend, escolha outra ID estável do jogo, por exemplo `breathy`. O adaptador aceita essa personalização e continua usando as 11 IDs originais das conquistas, que correspondem aos eventos emitidos pelo jogo.
 

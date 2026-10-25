@@ -1,5 +1,6 @@
-/* Profiles and the Studio's injected bridge scripts are package-owned.
- * Never replace original game content, fonts, registry or user saves here. */
+/* Synchronize profiles and the selected adapter's packaged integration files:
+ * NW.js bridge scripts, or Breath's verified managed bridge/achievement assembly.
+ * Other game assets, fonts, registry and user saves are not refreshed here. */
 #ifdef _WIN32
 #include <windows.h>
 #define profile_replace(a,b) (MoveFileExA(a,b,MOVEFILE_REPLACE_EXISTING)?0:-1)

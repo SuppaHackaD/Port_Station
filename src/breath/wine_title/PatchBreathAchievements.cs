@@ -7,6 +7,44 @@ using Mono.Cecil.Cil;
 
 public static class PatchBreathAchievements
 {
+    private static bool Calls(Instruction instruction, MethodDefinition target)
+    {
+        var reference = instruction.Operand as MethodReference;
+        var scope = reference == null ? null : reference.DeclaringType.Scope as AssemblyNameReference;
+        return instruction.OpCode == OpCodes.Call && reference != null &&
+            reference.FullName == target.FullName && scope != null &&
+            scope.Name == target.Module.Assembly.Name.Name;
+    }
+
+    private static void VerifyPrepared(string assemblyPath, string bridgePath)
+    {
+        using var module = ModuleDefinition.ReadModule(assemblyPath);
+        using var bridge = ModuleDefinition.ReadModule(bridgePath);
+        var type = module.GetType("SteamAchievments");
+        var bridgeType = bridge.GetType("BreathPS5Bridge");
+        if (type == null || bridgeType == null) throw new InvalidDataException("Breath bridge types not found");
+        MethodDefinition unlock = null, start = null, route = null, announce = null;
+        foreach (var method in type.Methods)
+        { if (method.Name == "Conquista") unlock = method; if (method.Name == "Start") start = method; }
+        foreach (var method in bridgeType.Methods)
+        { if (method.Name == "TryUnlock") route = method; if (method.Name == "SessionStart") announce = method; }
+        if (unlock == null || start == null || route == null || announce == null ||
+            !unlock.IsStatic || unlock.Parameters.Count != 1 || !route.IsStatic ||
+            route.Parameters.Count != 1 || route.Parameters[0].ParameterType.FullName != "System.Int32" ||
+            route.ReturnType.FullName != "System.Boolean" || !announce.IsStatic ||
+            announce.Parameters.Count != 0 || announce.ReturnType.FullName != "System.Void" ||
+            !start.HasBody || !unlock.HasBody)
+            throw new InvalidDataException("Unexpected prepared Breath signature");
+        var init = start.Body.Instructions;
+        var instructions = unlock.Body.Instructions;
+        if (init.Count < 2 || !Calls(init[0], announce) || instructions.Count < 5 ||
+            instructions[0].OpCode != OpCodes.Ldarg_0 || !Calls(instructions[1], route) ||
+            instructions[2].OpCode != OpCodes.Brfalse || instructions[2].Operand != instructions[4] ||
+            instructions[3].OpCode != OpCodes.Ret)
+            throw new InvalidDataException("Breath achievement calls are not connected to the PS5 bridge. Use the supported original copy or prepare it again.");
+        Console.WriteLine("Verified Breath bridge: session announcement and unlock route before Steam access.");
+    }
+
     private static IEnumerable<TypeDefinition> Types(IEnumerable<TypeDefinition> list)
     {
         foreach (TypeDefinition type in list)
@@ -41,6 +79,12 @@ public static class PatchBreathAchievements
 
     public static int Main(string[] args)
     {
+        if (args.Length == 3 && args[0] == "--verify")
+        {
+            try { VerifyPrepared(args[1], args[2]); return 0; }
+            catch (Exception error)
+            { Console.Error.WriteLine("Breath preparation check failed: " + error.Message); return 2; }
+        }
         if (args.Length != 3) throw new ArgumentException("original assembly, bridge assembly, new output");
         byte[] input = File.ReadAllBytes(args[0]);
         string hash = BitConverter.ToString(SHA256.Create().ComputeHash(input)).Replace("-", "").ToLowerInvariant();
@@ -83,6 +127,7 @@ public static class PatchBreathAchievements
             Console.WriteLine("changed=" + method.FullName);
         }
         if (changed != 2 || total != before.Count) throw new InvalidDataException("Method inventory changed");
+        VerifyPrepared(args[2], args[1]);
         Console.WriteLine("Verified " + total + " method bodies: only achievement Start and Conquista changed.");
         return 0;
     }
