@@ -77,13 +77,17 @@ def prepare_presentation(p, base, destination, run, log):
 
 def make_catalog(p, base, destination):
     resources={}
+    def description(value):
+        # The backend requires nonempty display text. Preserve missing metadata
+        # in the project/extractor report; this is only a truthful display label.
+        return value if value.strip() else 'Descrição não informada.'
     def resource(path):
         data=png_bytes(resolve_path(path or p["icon"],base)); digest=hashlib.sha256(data).hexdigest();resources[digest]=data;return digest
     catalog=dict(schema=1,game_id=p["game_id"],title=p["title"],catalog_version=p["catalog_version"],icon=resource(p["icon"]),achievements=[])
     for a in p["achievements"]:
-        catalog["achievements"].append(dict(id=a["id"],title=a["title"],description=a.get("description",""),target=1,hidden=bool(a.get("hidden",False)),icon=resource(a.get("icon"))))
+        catalog["achievements"].append(dict(id=a["id"],title=a["title"],description=description(a.get("description","")),target=1,hidden=bool(a.get("hidden",False)),icon=resource(a.get("icon"))))
     if p["platinum"]:
-        catalog["achievements"].append(dict(id=p["platinum_id"],title=p["platinum_title"],description=p["platinum_description"],target=1,completion=True,icon=resource(p["platinum_icon"])))
+        catalog["achievements"].append(dict(id=p["platinum_id"],title=p["platinum_title"],description=description(p["platinum_description"]),target=1,completion=True,icon=resource(p["platinum_icon"])))
     blob=__import__('json').dumps(catalog,ensure_ascii=False,separators=(',',':')).encode('utf8')
     if len(blob)>128*1024: raise ProjectError("Catálogo excede 128 KiB.")
     destination.mkdir(parents=True,exist_ok=True)

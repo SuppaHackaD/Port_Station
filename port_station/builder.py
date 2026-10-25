@@ -154,6 +154,9 @@ class Builder:
             write_json(output/'project.json',p)
             generated=output/'generated';catalog=resources=blob=None
             if p['adapter']!='none':catalog,resources,blob=assets.make_catalog(p,base,output/'achievements')
+            if p['adapter']!='none':
+                missing=sum(not a.get('description','').strip()for a in p['achievements'])+int(p['platinum'] and not p['platinum_description'].strip())
+                if missing:self.emit(f'Catálogo: {missing} itens sem descrição; exibindo "Descrição não informada.". Revise os textos quando disponíveis.')
             native.generate(p,generated,catalog,resources,blob)
             (output/'CMakeLists.txt').write_text(native.cmake(p,generated),encoding='utf8',newline='\n')
             profile=make_profile(p,architecture);(output/'game.profile').write_text(profile,encoding='utf8',newline='\n')

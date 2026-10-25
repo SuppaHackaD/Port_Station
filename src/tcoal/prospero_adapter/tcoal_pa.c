@@ -3,6 +3,9 @@
 #include "pa_file_bridge.h"
 #include "tcoal_pa_assets.h"
 #include "ps5log.h"
+#include "pw_diagnostics.h"
+#undef PS5LOG_LOG
+#define PS5LOG_LOG(...) pw_diagnostics_log(__VA_ARGS__)
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
@@ -39,9 +42,9 @@ static void *worker(void *unused){
         if(ready){
             int rc=pa_file_bridge_poll(&bridge);
             if(rc)PS5LOG_LOG("TCOAL PA stream rc=%d offset=%ld handshake=%d",rc,bridge.offset,bridge.handshake);
-            if(bridge.handshake&&!logged){logged=1;PS5LOG_LOG("TCOAL PA JS hook ready user=%s",owner);}
+            if(bridge.handshake&&!logged){logged=1;PS5LOG_LOG("TCOAL PA bridge handshake user=%s",owner);}
             if(now>=pump_at&&!__atomic_load_n(&stop,__ATOMIC_ACQUIRE)){
-                rc=pa_sdk_pump_with_callback(&sdk,unlocked,NULL);if(rc!=previous||rc>0)PS5LOG_LOG("TCOAL PA pump rc=%d HTTP=%d instance=%s",rc,sdk.last_http_status,sdk.synced_instance);
+                rc=pa_sdk_pump_with_callback(&sdk,unlocked,NULL);if(rc!=previous||rc>0)PS5LOG_LOG("TCOAL PA pump rc=%d HTTP=%d stage=%s errno=%d instance=%s",rc,sdk.last_http_status,sdk.last_stage?sdk.last_stage:"?",sdk.last_errno,sdk.synced_instance);
                 previous=rc;if(rc<0){delay=delay<30000?delay*2:60000;if(delay>60000)delay=60000;}else delay=1000;
                 pump_at=ms()+delay;
             }

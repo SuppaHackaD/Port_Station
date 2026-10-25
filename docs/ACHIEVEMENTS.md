@@ -17,6 +17,8 @@ Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada ite
 
 Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.
 
+Uma lista extraída pode não ter descrições. Na conversão para o backend, esses campos recebem o texto de exibição “Descrição não informada.”, pois o protocolo exige uma descrição não vazia. O projeto e o relatório da extração mantêm a ausência do texto original; você pode preencher os campos depois, sem inventar condições de desbloqueio.
+
 Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
 
 ## Escolher o adaptador
@@ -29,6 +31,8 @@ Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das
 | `breath` | Integração específica da receita de Breath. |
 
 Uma lista pronta no editor não identifica sozinha quando o jogador cumpriu uma condição. Se o jogo não usa uma das APIs suportadas, ele precisa de integração. Isso também vale para jogos de outras engines que ofereçam conquistas em outra plataforma.
+
+Com `file-v1`, o launcher envia o catálogo, mas espera que uma ponte própria do jogo produza os arquivos de eventos. O extrator separado gera definições; ele não instala essa ponte. Se a lista aparece com todos os itens bloqueados, confirme primeiro se o jogo possui o produtor de eventos antes de repetir condições de conquista.
 
 O caminho para adicionar um adaptador está em [Integração](INTEGRATION.md), com um exemplo do SDK. As receitas de Breath e TCOAAL já fornecem suas integrações.
 
