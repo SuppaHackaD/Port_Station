@@ -48,6 +48,8 @@ As receitas usam placeholders próprios e não incluem música. Veja [Exemplos](
 
 ## Documentação
 
+O [Achievement Extractor](achievement_extractor/README.md) é uma ferramenta experimental separada para montar listas importáveis a partir dos arquivos locais de um jogo. Seu pacote Windows tem uma release própria; a função ainda não está integrada à interface do Port Station.
+
 - [Guia rápido](docs/QUICKSTART.md)
 - [Configurar e testar um novo jogo](docs/NEW_GAME.md)
 - [Conquistas e backend](docs/ACHIEVEMENTS.md)

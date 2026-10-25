@@ -1,0 +1,25 @@
+import argparse
+from .core import scan, export, save_report, ExtractionError
+
+def main():
+    parser=argparse.ArgumentParser(description='Extrator local de catálogos para Port Station; não executa o jogo.')
+    parser.add_argument('--game-dir');parser.add_argument('--exe');parser.add_argument('--output')
+    parser.add_argument('--metadata',help='Schema JSON/VDF/binário local adicional')
+    parser.add_argument('--language',default='brazilian')
+    parser.add_argument('--include-candidates',action='store_true',help='Inclui strings nativas sem relação de chamada comprovada; revise antes de usar')
+    args=parser.parse_args()
+    if not any([args.game_dir,args.exe,args.output]):
+        from .gui import main as gui_main
+        gui_main();return
+    if not all([args.game_dir,args.exe,args.output]):parser.error('Informe --game-dir, --exe e --output juntos.')
+    try:
+        result=scan(args.game_dir,args.exe,args.language,args.metadata,print)
+        if args.include_candidates:
+            for row in result['entries']:row['selected']=True
+        if not any(row['selected'] for row in result['entries']):
+            report=save_report(result,args.output)
+            parser.exit(2,'Nenhuma definição selecionada; relatório salvo em '+str(report)+'\n')
+        print(export(result,args.output))
+    except (ExtractionError,OSError,ValueError) as e:parser.exit(2,str(e)+'\n')
+
+if __name__=='__main__':main()
