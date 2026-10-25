@@ -3788,7 +3788,7 @@
     "sdk/ps5-game-port/runtime/heap.c": "69745767cefe3ff8d219fdb5dccd5318b207c7114a45d5f6513e8f4936ea8732",
     "sdk/ps5-game-port/runtime/heap.h": "de97262b09a6a8c9b8666d17514f3510399079e63aefa2eec32e7d2701a91179",
     "sdk/ps5-game-port/runtime/trace.c": "752f7eba2853bfa8be19ad34ab9dad31a373106e58df0e71393bc9c66fee722a",
-    "src/breath/prospero_adapter/breath_pa.c": "ec4728addb9fe39c10855a71b6bfb97e6018c9248cc49bb1fa35af0cbf7abd85",
+    "src/breath/prospero_adapter/breath_pa.c": "a325603ec2a34301d018fd7b7dec596945935cc0285b032e669c2aeb07de9e36",
     "src/breath/prospero_adapter/breath_pa.h": "29489b8cbfa20e773a493ff0865b9875b5bf96ddf83cb6bea4860f9175db4e34",
     "src/breath/prospero_adapter/breath_pa_ps5.c": "43ba112455bc1555081645b5abe7682fb6af61a8dcbbca621abdf46cdf165347",
     "src/breath/prospero_adapter/test_breath_pa.c": "5672287c20ef483a1f7ff24901df02274d2a6e01b98d9e7e75ef8f185f689ed4",

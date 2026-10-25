@@ -22,6 +22,8 @@ O preparador acrescenta a ponte própria e adapta duas rotinas de conquistas em 
 
 Abra a receita e selecione a pasta preparada. Ícone, fundos, título e música podem ser personalizados como em qualquer projeto.
 
+Para testar uma instalação separada, escolha outro Title ID. Se quiser também uma lista de conquistas independente no backend, escolha outra ID estável do jogo, por exemplo `breathy`. O adaptador aceita essa personalização e continua usando as 11 IDs originais das conquistas, que correspondem aos eventos emitidos pelo jogo.
+
 ## The Coffin of Andy and Leyley — TCOAAL
 
 Receita: `port_station/examples/tcoaal.ps5port.json`.

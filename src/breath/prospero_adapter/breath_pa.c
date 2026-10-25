@@ -3,13 +3,16 @@
 #include "breath_pa_assets.h"
 #include <stdio.h>
 #include <string.h>
+#ifndef BREATH_PA_GAME_ID
+#define BREATH_PA_GAME_ID "breath"
+#endif
 static const char *ids[]={"COROA","OCULOS","SONIC","OLHOSARANHA","ARANHA","ENGUIA","MORCEGO","TARTARUGA","THEEND","BUG","SPEEDRUN"};
 int breath_pa_open(BreathPA *a,const char *root,uint32_t user,unsigned port){
     char path[800],owner[9];memset(a,0,sizeof(*a));
     int n=snprintf(path,sizeof(path),"%s/achievements/users/%08x/prospero-v1",root,user);
     if(n<0||(size_t)n>=sizeof(path))return PA_SDK_INVALID;
     snprintf(owner,sizeof(owner),"%08x",user);
-    int rc=pa_sdk_init(&a->sdk,path,"breath",owner,port);if(rc)return rc;
+    int rc=pa_sdk_init(&a->sdk,path,BREATH_PA_GAME_ID,owner,port);if(rc)return rc;
     for(size_t i=0;i<sizeof(breath_pa_assets)/sizeof(breath_pa_assets[0]);i++){
         char hash[65];rc=pa_sdk_asset(&a->sdk,breath_pa_assets[i].data,breath_pa_assets[i].size,hash);
         if(rc)return rc;if(strcmp(hash,breath_pa_assets[i].hash))return PA_SDK_INVALID;

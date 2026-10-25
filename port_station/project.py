@@ -106,7 +106,7 @@ def validate(project, base, files=True):
         if len(p["platinum_description"].encode("utf8")) > 2048: raise ProjectError("Descrição da platina longa demais.")
     if p["adapter"] != "none" and not ids: raise ProjectError("O adaptador precisa de um catálogo.")
     if p["adapter"] == "none" and ids: raise ProjectError("Escolha um adaptador para enviar o catálogo/conquistas.")
-    if p["adapter"] == "breath" and (p["game_id"] != "breath" or ids != BREATH_IDS): raise ProjectError("A receita Breath mantém game_id=breath e as 11 IDs originais.")
+    if p["adapter"] == "breath" and ids != BREATH_IDS: raise ProjectError("O adaptador Breath requer as 11 IDs originais de conquistas; a ID do jogo pode ser personalizada.")
     if p["adapter"] == "nwjs-steam" and p["profile"] != "nwjs-canvas": raise ProjectError("Adaptador NW.js requer o perfil nwjs-canvas.")
     options = p["profile_options"]
     if not isinstance(options, dict): raise ProjectError("profile_options deve ser objeto JSON.")

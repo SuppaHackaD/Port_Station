@@ -38,6 +38,30 @@ class CoreTests(unittest.TestCase):
         self.assertTrue(Path(inspect.getfile(Builder)).resolve().is_relative_to(WORKSPACE/'port_station'))
         self.assertFalse((WORKSPACE/'port_studio').exists())
 
+    def test_breath_accepts_an_isolated_application_and_achievement_namespace(self):
+        p=read_project(self.base/'breath.ps5port.json')
+        p.update(title='Breath',title_id='PPSA99999',game_id='breathy',version='01.000.001')
+        validate(p,self.base,False)
+
+    def test_breath_still_requires_original_achievement_ids(self):
+        p=read_project(self.base/'breath.ps5port.json');p['game_id']='breathy'
+        p['achievements'][0]['id']='RENAMED'
+        with self.assertRaisesRegex(ProjectError,'11 IDs originais'):
+            validate(p,self.base,False)
+
+    def test_breath_generated_catalog_and_prefix_use_the_custom_namespace(self):
+        p=read_project(self.base/'breath.ps5port.json')
+        p.update(title_id='PPSA99999',game_id='breath.isolated')
+        with tempfile.TemporaryDirectory()as temp:
+            out=Path(temp);catalog,resources,blob=assets.make_catalog(p,self.base,out/'catalog')
+            native.generate(p,out/'generated',catalog,resources,blob)
+            self.assertEqual(json.loads(blob)['game_id'],'breath.isolated')
+            header=(out/'generated/breath_pa_assets.h').read_text(encoding='ascii')
+            self.assertIn('#define BREATH_PA_GAME_ID '+native.c_string('breath.isolated'),header)
+            bootstrap=(out/'generated/studio_bootstrap.c').read_text(encoding='utf8')
+            self.assertIn('prefixes/breath-isolated',bootstrap)
+            self.assertIn('/data/port-studio/ppsa99999',bootstrap)
+
     def test_duplicate_canonical_ids_rejected(self):
         self.p['achievements'].append(copy.deepcopy(self.p['achievements'][0]))
         with self.assertRaises(ProjectError):validate(self.p,self.base,False)

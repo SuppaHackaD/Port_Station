@@ -50,6 +50,7 @@ def generate(p, out, catalog=None, resources=None, blob=None):
     for i,digest in enumerate(resources):h+=f'{{pa_icon_{i},sizeof(pa_icon_{i})-1,"{digest}"}},\n'
     h+='};\n'
     if adapter=='breath':
+        h+='#define BREATH_PA_GAME_ID '+c_string(game)+'\n'
         h+='#define BREATH_PA_CATALOG_TITLES 1\nstatic const struct{const char*id,*title;}breath_pa_titles[]={'+','.join('{'+c_string(i)+','+c_string(t)+'}'for i,t in zip(names,titles))+'};\n'
     else:
         h+='static const char *const studio_ids[]={'+','.join(c_string(i)for i in names)+'};\n'
