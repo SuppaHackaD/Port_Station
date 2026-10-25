@@ -1,0 +1,9 @@
+# File bridge 0.1.0 — Node/NW.js
+
+Add-on to the C SDK 0.1.1. Compile pa_file_bridge.c in the game's native adapter and link the existing SDK archive. Load prospero_file_bridge.js in Node/NW.js. The C worker creates an owned context containing the game ID and active console user, then consumes the corresponding per-user append-only source stream. It must prepare SDK/catalog first and call poll only from its worker.
+
+The game provides an explicit whitelist of achievement IDs. One accepted original game award calls publisher.unlock(id); no save-state heuristic or Steam login is needed. This unlock-only transport reserves the achievement ID itself as a stable event ID in the backend's game/user namespace. Do not reuse those event IDs for unrelated SDK events. Full 64-character IDs are supported. The retained source stream supports recovery across process restarts; the SDK outbox remains the network delivery queue.
+
+The publisher syncs each rare event append, retries failed appends when flush is called, and prefixes records with a newline to isolate incomplete writes. The consumer validates exact canonical records, user/game/ID, incomplete and oversized lines, and advances only after the SDK has durably accepted the event. Duplicate input and replay are idempotent. No HTTP operation runs in the game's JavaScript frame loop. The native adapter performs network calls on its own worker. A single writer/worker owns each context/stream.
+
+Wire records (ASCII, LF): PA_FILE_CONTEXT_V1\tgame\tuser; PA_FILE_BRIDGE_V1\tgame\tuser; PA_FILE_UNLOCK_V1\tgame\tuser\tachievement. Context filename is game-context-v1.txt and stream filename game-user.tsv inside the prefix drive_c/ProsperoAchievements. TCOAL supplies the first complete integration example. This module does not register system trophies or import foreign account histories.

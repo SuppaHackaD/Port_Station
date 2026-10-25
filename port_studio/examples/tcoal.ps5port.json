@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "title": "The Coffin of Andy and Leyley",
+  "title_id": "PPSA99411",
+  "game_id": "tcoal",
+  "version": "01.000.002",
+  "game_dir": "${workspace}/local-games/tcoal",
+  "executable": "Game.exe",
+  "profile": "nwjs-canvas",
+  "arguments": "",
+  "adapter": "nwjs-steam",
+  "catalog_version": 10,
+  "icon": "assets/tcoal-icon.png",
+  "background": "assets/tcoal-background.png",
+  "launch_background": "",
+  "sound": "",
+  "platinum": true,
+  "platinum_id": "PLATINUM",
+  "platinum_title": "TCOAL — Conjunto completo",
+  "platinum_description": "Obtenha todas as outras conquistas.",
+  "platinum_icon": "assets/tcoal-achievement.png",
+  "achievements": [
+    {
+      "id": "EP1_CLEAR",
+      "title": "Episode 1 Clear",
+      "description": "Cleared episode 1.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "ep1_clear"
+    },
+    {
+      "id": "HITMAN_WINS",
+      "title": "Hitman Wins!",
+      "description": "Found the hitman.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "hitman_wins"
+    },
+    {
+      "id": "VISION_WATCHER",
+      "title": "Vision Watcher",
+      "description": "Found an unexpected spectator.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "vision_watcher"
+    },
+    {
+      "id": "PRESENT",
+      "title": "Present",
+      "description": "Found a present.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "present"
+    },
+    {
+      "id": "SUMMON_LU",
+      "title": "Unknown Summon",
+      "description": "Summoned an unknown entity.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "summon_lu"
+    },
+    {
+      "id": "EP2_CLEAR",
+      "title": "Episode 2 Clear",
+      "description": "Cleared episode 2.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "ep2_clear"
+    },
+    {
+      "id": "WARDEN_WINS",
+      "title": "Warden Wins",
+      "description": "Got caught.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "warden_wins"
+    },
+    {
+      "id": "TIME_CAPSULE",
+      "title": "Time Capsule",
+      "description": "Found a time capsule.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "time_capsule"
+    },
+    {
+      "id": "UNDETECTED",
+      "title": "Undetected",
+      "description": "Left the gas stop relatively unnoticed.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "undetected"
+    },
+    {
+      "id": "NO_WITNESSES",
+      "title": "No Witnesses",
+      "description": "Left no witnesses.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "no_witnesses"
+    },
+    {
+      "id": "HAPPY_END",
+      "title": "Happy end!",
+      "description": "The ending you deserve.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "happy_end"
+    },
+    {
+      "id": "PROPHECY_FULFILLER",
+      "title": "Prophecy Fulfiller",
+      "description": "Win at tag, just as the prophecy foretold!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "prophecy_fulfiller"
+    },
+    {
+      "id": "LEYLEYWINS_END",
+      "title": "_____ in a Box",
+      "description": "Don't grow a spine.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "leyleywins_end"
+    },
+    {
+      "id": "FULL_MARKS",
+      "title": "Full marks!",
+      "description": "Got full marks on a... test?",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "full_marks"
+    },
+    {
+      "id": "SISTER_SLAUGHTERER",
+      "title": "Sister Slaughterer",
+      "description": "Ran out of Ashleys.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "sister_slaughterer"
+    },
+    {
+      "id": "SPLAT",
+      "title": "Splat!",
+      "description": "Reached the Deadest of Dead-ends End.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "splat"
+    },
+    {
+      "id": "SHOTSEND",
+      "title": "Shots and Such",
+      "description": "Reached the Shots and Such ending.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "shotsend"
+    },
+    {
+      "id": "MATH",
+      "title": "Little Mathematician",
+      "description": "Did Leyley's homework right.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "math"
+    },
+    {
+      "id": "EP3D_CLEAR",
+      "title": "Decaying Along",
+      "description": "Survived Episode 3: Decay.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "ep3d_clear"
+    },
+    {
+      "id": "TRUEEND",
+      "title": "Cleared Burial",
+      "description": "Reached the Truest of True-ends ending.",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/tcoal-achievement.png",
+      "source_id": "trueend"
+    }
+  ],
+  "overlays": [],
+  "profile_options": {},
+  "age": 18
+}

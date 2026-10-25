@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "title": "Breath",
+  "title_id": "PPSA99410",
+  "game_id": "breath",
+  "version": "01.000.002",
+  "game_dir": "${workspace}/local-games/breath",
+  "executable": "Breath.exe",
+  "profile": "dxvk-xinput",
+  "arguments": "-force-d3d11 -screen-width 1280 -screen-height 720 -screen-fullscreen 0 -logFile C:\\Breath-Player.log",
+  "adapter": "breath",
+  "catalog_version": 10,
+  "icon": "assets/breath-icon.png",
+  "background": "assets/breath-background.png",
+  "launch_background": "",
+  "sound": "",
+  "platinum": true,
+  "platinum_id": "PLATINUM",
+  "platinum_title": "Breath — Platina",
+  "platinum_description": "Obtenha as 11 conquistas originais de Breath.",
+  "platinum_icon": "assets/breath-achievement.png",
+  "achievements": [
+    {
+      "id": "COROA",
+      "title": "All hail the King!",
+      "description": "Only the best can be the king!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "COROA"
+    },
+    {
+      "id": "OCULOS",
+      "title": "You are amazing!",
+      "description": "You showed them who's the boss",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "OCULOS"
+    },
+    {
+      "id": "SONIC",
+      "title": "That was fast!",
+      "description": "I bet you can go even faster now!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "SONIC"
+    },
+    {
+      "id": "OLHOSARANHA",
+      "title": "Web Hunter",
+      "description": "Not hit kill anymore!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "OLHOSARANHA"
+    },
+    {
+      "id": "ARANHA",
+      "title": "First Kill: Wall hugger",
+      "description": "I'm not afraid of you!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "ARANHA"
+    },
+    {
+      "id": "ENGUIA",
+      "title": "First Kill: Eletric guy",
+      "description": "Stop running away",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "ENGUIA"
+    },
+    {
+      "id": "MORCEGO",
+      "title": "First Kill: Screamer",
+      "description": "The sky is the limit",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "MORCEGO"
+    },
+    {
+      "id": "TARTARUGA",
+      "title": "First Kill: Hard Shell",
+      "description": "I can use it",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "TARTARUGA"
+    },
+    {
+      "id": "THEEND",
+      "title": "The End",
+      "description": "Have you found the crown?",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "THEEND"
+    },
+    {
+      "id": "BUG",
+      "title": "That's not a bug",
+      "description": "I knew you could do it!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "BUG"
+    },
+    {
+      "id": "SPEEDRUN",
+      "title": "Speedrun Strats!",
+      "description": "Smart guy!",
+      "target": 1,
+      "hidden": false,
+      "icon": "assets/breath-achievement.png",
+      "source_id": "SPEEDRUN"
+    }
+  ],
+  "overlays": [],
+  "profile_options": {},
+  "age": 0
+}

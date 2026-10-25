@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/griches/PS5_ArtSwap",
+  "revision": "03a5c40b9b34bba20deaae46aa0de272f21065cf",
+  "license": "GPL-3.0-or-later; tables contain LibAtrac9 MIT notice",
+  "files": {
+    "at9.c": {
+      "url": "https://raw.githubusercontent.com/griches/PS5_ArtSwap/03a5c40b9b34bba20deaae46aa0de272f21065cf/helper/src/at9.c",
+      "sha256": "9d892b9b8302d85e992f2faf9cd75690dedcf00f72328fc8700a9c5df994cb31"
+    },
+    "at9.h": {
+      "url": "https://raw.githubusercontent.com/griches/PS5_ArtSwap/03a5c40b9b34bba20deaae46aa0de272f21065cf/helper/src/at9.h",
+      "sha256": "f31ea5c05f4a3f9f26c6464e50702a79e16df3e64e5419c3ce40502d80d16eea"
+    },
+    "at9_tables.c": {
+      "url": "https://raw.githubusercontent.com/griches/PS5_ArtSwap/03a5c40b9b34bba20deaae46aa0de272f21065cf/helper/src/at9_tables.c",
+      "sha256": "e544ddd189b16009e560bd60b0454e6b68726bd6c9b8b57524915c69fed2bd26"
+    },
+    "LICENSE": {
+      "url": "https://raw.githubusercontent.com/griches/PS5_ArtSwap/03a5c40b9b34bba20deaae46aa0de272f21065cf/LICENSE",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  },
+  "integration": "Unmodified codec source; local artswap.h supplies only the buffer interface for the Windows host driver."
+}

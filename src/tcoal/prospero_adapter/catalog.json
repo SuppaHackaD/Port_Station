@@ -1,0 +1,227 @@
+{
+  "game_id": "tcoal",
+  "steam_app_id": 2378900,
+  "source": "https://steamcommunity.com/stats/2378900/achievements/?l=english",
+  "items": [
+    {
+      "internal_key": 512,
+      "api_name": "EP1_CLEAR",
+      "name": "Episode 1 Clear",
+      "description": "Cleared episode 1.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 513,
+      "api_name": "HITMAN_WINS",
+      "name": "Hitman Wins!",
+      "description": "Found the hitman.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 514,
+      "api_name": "VISION_WATCHER",
+      "name": "Vision Watcher",
+      "description": "Found an unexpected spectator.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 515,
+      "api_name": "PRESENT",
+      "name": "Present",
+      "description": "Found a present.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 516,
+      "api_name": "SUMMON_LU",
+      "name": "Unknown Summon",
+      "description": "Summoned an unknown entity.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 517,
+      "api_name": "EP2_CLEAR",
+      "name": "Episode 2 Clear",
+      "description": "Cleared episode 2.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 518,
+      "api_name": "WARDEN_WINS",
+      "name": "Warden Wins",
+      "description": "Got caught.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 519,
+      "api_name": "TIME_CAPSULE",
+      "name": "Time Capsule",
+      "description": "Found a time capsule.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 520,
+      "api_name": "UNDETECTED",
+      "name": "Undetected",
+      "description": "Left the gas stop relatively unnoticed.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 521,
+      "api_name": "NO_WITNESSES",
+      "name": "No Witnesses",
+      "description": "Left no witnesses.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 522,
+      "api_name": "HAPPY_END",
+      "name": "Happy end!",
+      "description": "The ending you deserve.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 523,
+      "api_name": "PROPHECY_FULFILLER",
+      "name": "Prophecy Fulfiller",
+      "description": "Win at tag, just as the prophecy foretold!",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 524,
+      "api_name": "LEYLEYWINS_END",
+      "name": "_____ in a Box",
+      "description": "Don't grow a spine.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 525,
+      "api_name": "FULL_MARKS",
+      "name": "Full marks!",
+      "description": "Got full marks on a... test?",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 526,
+      "api_name": "SISTER_SLAUGHTERER",
+      "name": "Sister Slaughterer",
+      "description": "Ran out of Ashleys.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 527,
+      "api_name": "SPLAT",
+      "name": "Splat!",
+      "description": "Reached the Deadest of Dead-ends End.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 528,
+      "api_name": "SHOTSEND",
+      "name": "Shots and Such",
+      "description": "Reached the Shots and Such ending.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 529,
+      "api_name": "MATH",
+      "name": "Little Mathematician",
+      "description": "Did Leyley's homework right.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 530,
+      "api_name": "EP3D_CLEAR",
+      "name": "Decaying Along",
+      "description": "Survived Episode 3: Decay.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/55f956539371a92bd5d24a0a72d84cf983eb4b82.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/8909a9950e3deb1c38afce9a4b427d5f7dfb461b.jpg",
+      "groupid": 0
+    },
+    {
+      "internal_key": 531,
+      "api_name": "TRUEEND",
+      "name": "Cleared Burial",
+      "description": "Reached the Truest of True-ends ending.",
+      "hidden": false,
+      "archived": false,
+      "icon_achieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/bbf79d72bc0e2facb855e8b3948f027f095fd8f5.jpg",
+      "icon_unachieved": "https://shared.fastly.steamstatic.com/community_assets/images/apps/2378900/a1b2202cc108825b979d379a7bd60e51f16267b3.jpg",
+      "groupid": 0
+    }
+  ]
+}
