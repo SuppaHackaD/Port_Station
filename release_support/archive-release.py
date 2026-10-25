@@ -33,16 +33,17 @@ def archive(dest,entries,prefix='',stored=False):
     print(json.dumps(result),flush=True);return result
 
 def main(root):
-    root=root.resolve();repo=root/'Port_Station';kit=root/'_staging/Port_Station';out=root/'releases/0.2.2';out.mkdir(parents=True,exist_ok=True)
+    root=root.resolve();repo=root/'Port_Station';kit=root/'_staging/Port_Station';out=root/'releases/0.3.0';out.mkdir(parents=True,exist_ok=True)
     staged=json.loads((root/'staging.json').read_text(encoding='utf8'))
     # Only entries listed before tests/compilations can enter the runtime archive.
     kitfiles={name:kit/name for name in staged['kit_files']}
+    if any(n.startswith('port_studio/')or n=='docs/RELEASING.md' for n in kitfiles):raise ValueError('Obsolete package or maintainer guide in kit')
     if any(n.endswith(('Assembly-CSharp.dll','UnityPlayer.dll','Breath.exe','Game.exe','steam_api64.dll','steam_api.dll'))for n in kitfiles):raise ValueError('Commercial game filename detected')
     if any(n.endswith('/ffmpeg.exe')for n in kitfiles):raise ValueError('Optional external FFmpeg must not be redistributed here')
     sourcefiles=files(repo)
     if any(p.stat().st_size>90*1024**2 for p in sourcefiles.values()):raise ValueError('Oversized source file; use a release asset')
     results=[]
-    results.append(archive(out/'Port_Station-0.2.2-source.zip',sourcefiles,'Port_Station/'))
+    results.append(archive(out/'Port_Station-0.3.0-source.zip',sourcefiles,'Port_Station/'))
     payload={n:kit/n for n in kitfiles if n.startswith(('src/prospero_achievements/','sdk/prospero-achievements/','build/prospero-achievements/ps5/','LICENSES/','docs/'))or n in ('scripts/build-prospero-achievements.py','scripts/test-prospero-achievements.py','LICENSE','NOTICE.md','THIRD_PARTY.md','README.md')}
     results.append(archive(out/'Prospero_Achievements-0.1.0-SDK-0.1.2.zip',payload,'Prospero_Achievements/'))
     old=root/'releases/upstream-sources.zip'
@@ -53,8 +54,8 @@ def main(root):
         if (out/old.name).exists():raise ValueError('Preserve existing source archive')
         os.link(old,out/old.name);results.append(item)
     else:results.append(archive(out/'upstream-sources.zip',files(root/'_sources'),'upstream-sources/',stored=True))
-    results.append(archive(out/'Port_Station-0.2.2-windows-kit.zip',kitfiles,'Port_Station/'))
-    (out/'release.json').write_text(json.dumps({'schema':1,'version':'0.2.2','files':results,'games_included':False,'official_game_art_or_music_included':False,'ffmpeg_binary_included':False},indent=2)+'\n',encoding='utf8')
+    results.append(archive(out/'Port_Station-0.3.0-windows-kit.zip',kitfiles,'Port_Station/'))
+    (out/'release.json').write_text(json.dumps({'schema':1,'version':'0.3.0','files':results,'games_included':False,'official_game_art_or_music_included':False,'ffmpeg_binary_included':False},indent=2)+'\n',encoding='utf8')
     (out/'SHA256SUMS').write_text(''.join(x['sha256']+'  '+x['file']+'\n'for x in results),encoding='ascii')
     print('Release archives completed; no upload performed.',flush=True)
 

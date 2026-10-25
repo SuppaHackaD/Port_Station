@@ -1,76 +1,81 @@
-# Compilação
+# Compilar o Port Station
 
-## Ambiente e organização
+Este guia é para desenvolvimento do projeto. Para gerar uma homebrew com o kit pronto, use [Guia rápido](QUICKSTART.md) ou [Novo jogo](NEW_GAME.md).
 
-O frontend é Python puro/Tk; não existe um .exe Windows obrigatório. A release leva o código que ele executa, junto dos compiladores e binários públicos. Requisitos externos: Windows x64, Python 3.13 x64/Tk e, para recompilar a ponte gerenciada, .NET SDK 10. Node.js é usado nos testes JavaScript. Pillow está no kit; em checkout sem kit instale Pillow 13.0.0.
+## Ambiente de desenvolvimento
 
-Extraia o kit da release em uma pasta nova. Para trabalhar num clone do Git, copie o conteúdo do kit para a raiz do clone e mantenha seus fontes da versão correspondente. `build/` e `tools/` contêm também dependências de desenvolvimento; `.gitignore` distingue essas dependências dos fontes rastreados.
+O frontend usa Python 3.13/Tk e Pillow 13.0.0. A base de compilação Windows inclui Clang/LLD 18.1.8, SDK público v0.44, CMake, Ninja e Zig nas versões verificadas pelo kit. Node.js executa os testes JavaScript. O .NET SDK 10 é necessário somente para recompilar o preparador gerenciado de Breath.
+
+Clone o repositório e instale as dependências Python:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Para compilar títulos, use os diretórios `build/` e `tools/` do Windows kit da mesma versão. Eles contêm os binários públicos e o prefixo limpo, que não fazem parte do download source-only. Depois:
 
 ```powershell
 python -m port_station doctor
 python -m port_station verify-runtime
-python -m unittest discover -s port_studio/tests -v
-node port_studio/tests/test_nw_bridge.js
+python -m unittest discover -s port_station/tests -v
+node port_station/tests/test_nw_bridge.js
+python release_support/test-prepare-game.py
 ```
 
-Os testes não precisam de jogos comerciais: arquitetura PE usa fixture sintética, exemplos são validados sem exigir a cópia local e os testes de fonte usam a fonte aberta do prefixo. O teste de áudio pode ser executado depois de instalar o FFmpeg opcional.
+Sem FFmpeg, os testes de conversão de áudio são pulados. Instale-o com `python release_support/install-ffmpeg.py` para executar esses testes também.
 
-## Frontend e título
+## Estrutura do código
 
-```powershell
-Port_Station.cmd
-python -m port_station validate port_studio/examples/tcoal.ps5port.json
-python -m port_station prepare port_studio/examples/tcoal.ps5port.json --output outputs/tcoal-review
-python -m port_station build port_studio/examples/tcoal.ps5port.json --output outputs/tcoal-build
-```
+- `port_station/`: interface, CLI, projetos, geradores e testes.
+- `sdk/prospero-achievements/`: SDK e pontes de eventos.
+- `src/prospero_achievements/`: servidor C e interface web embutida.
+- `sdk/ps5-game-port/`: integração do toolchain para os títulos.
+- `build/prospero-evaluation/source-v020/`: fontes do runtime consumidos pela build.
+- `release_support/`: preparação de exemplos e ferramentas de empacotamento do kit.
 
-Esses três últimos comandos exigem preparar a cópia local primeiro. Cada saída precisa ser uma pasta nova. O build gera C/CMake do título, compila o launcher e helper com Clang/SDK público, produz FSELF e `param.json`, copia Wine/prefixo limpo, aplica fontes/ponte na cópia e calcula manifestos. `--no-zip` dispensa o ZIP final, não a compilação.
+O projeto usa um único pacote Python, `port_station`. Os caminhos de dados do runtime e IDs de jogos são independentes desse nome.
 
-No console, segure **Options + clique do touchpad** por um segundo para encerrar pelo runtime. O fechamento pelo botão PS foi exercitado na base atual. Não usar o antigo atalho Create.
-
-## Backend e SDK de conquistas
+## Backend e SDK
 
 ```powershell
 python scripts/build-prospero-achievements.py --ps5
 python scripts/test-prospero-achievements.py
 ```
 
-O script embute `src/prospero_achievements/web/{index.html,app.css,app.js}` a partir dos fontes. Compila o servidor host real, probes de teste e os payloads PS5. Saídas: `build/prospero-achievements/host`, `build/prospero-achievements/ps5/prospero_achievements.elf`, `pa_stop.elf`, `pa_sdk_probe.elf` e `libprospero_achievements.a`. A API continua v1, servidor0.1.0 e SDK0.1.2.
+O build embute os arquivos de `src/prospero_achievements/web/` e compila o servidor host, probes, payloads PS5 e a biblioteca estática. As saídas ficam em `build/prospero-achievements/{host,ps5}`. Header e `.a` devem ser da mesma revisão.
 
-`pa_stop.elf` encerra o serviço para manutenção; não carregue junto como se fosse dependência obrigatória. Nunca teste o servidor host sobre uma pasta de dados real: os testes criam fixtures isoladas. A biblioteca estática e o header precisam ser da mesma revisão. O worker não deve executar rede no loop de renderização.
-
-## Ferramentas host
+## Ferramentas de recursos e título
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build-native-tools.ps1
-python -c "from port_studio.builder import build_profile_checker; build_profile_checker()"
+python -c "from port_station.builder import build_profile_checker; build_profile_checker()"
 python release_support/build-assets.py
 python scripts/build-port-studio-audio.py
 ```
 
-O primeiro comando compila a ferramenta nativa e gera `libc.prx` a partir dos manifestos públicos de `tools/PS5_Vulkan/tooling/native/runtime`; verifica os hashes esperados. O segundo recompila o validador de perfis. O terceiro recompila o encoder de imagens BC7. O quarto recompila o encoder ATRAC9 do Art Swap; instale o FFmpeg opcional antes caso queira atualizar o recibo completo das ferramentas de áudio.
+Esses comandos recompilam, respectivamente, o conversor nativo/libc pública, o validador de perfis, o encoder BC7 e o encoder ATRAC9. O script de áudio usa FFmpeg instalado para atualizar seu recibo completo.
 
-Uma recompilação intencional pode alterar hashes de binários por caminhos/toolchain. Preserve o lock anterior e revise as diferenças. Somente depois de testar, aceite a nova baseline explicitamente:
+A build de um jogo gera C/CMake específicos do título e recompila launcher e helper. `python -m port_station build <projeto> --output <pasta-nova>` usa o mesmo caminho da interface.
 
-```powershell
-python -m port_station lock --accept-current
-```
-
-Não aceite divergências desconhecidas para contornar a verificação.
-
-## Ponte Breath, sem Unity
+## Preparador gerenciado do exemplo Breath
 
 ```powershell
 dotnet build release_support/managed/Bridge/Bridge.csproj -c Release -o build/release-managed
 dotnet publish release_support/managed/Patcher/Patcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -o build/release-managed
 ```
 
-O restore busca `Microsoft.NETFramework.ReferenceAssemblies`1.0.3 e Mono.Cecil0.11.6 do NuGet. O primeiro projeto gera nossa DLL compatível com .NET Framework4, sem referências a Unity/Steam. O segundo é um patcher próprio, self-contained Windows. Os fontes estão em `src/breath/wine_title`; só o patcher lê o assembly privado fornecido pelo comprador. Ele exige o hash conhecido e verifica que apenas `SteamAchievments.Start` e `Conquista` foram alterados. Não publica o resultado.
+O restore usa Microsoft.NETFramework.ReferenceAssemblies 1.0.3 e Mono.Cecil 0.11.6. Os fontes da ponte e patcher estão em `src/breath/wine_title/`. O resultado modificado do jogo é produzido localmente pelo usuário, não pelo build do projeto.
 
-## Recompilar Wine, Mesa e o SDK público
+## Runtime e dependências upstream
 
-O kit usa os binários fixados e já exercitados do prospero-win0.2.0. A release `upstream-sources.zip` inclui os arquivos-fonte dos componentes principais nas revisões de `SOURCES.json`, além das fontes/patches locais ao lado do código. As ferramentas de build upstream estão no tar de prospero-win: `tools/build_wine_ps5.sh`, `tools/build_tls_ps5.sh` e scripts Mesa relacionados. O SDK público inclui os próprios scripts e patches.
+As revisões estão em `SOURCES.json` e `port_station/runtime.lock.json`; os snapshots principais acompanham o asset `upstream-sources.zip`. O snapshot de prospero-win inclui os patches Wine e scripts como `tools/build_wine_ps5.sh` e `tools/build_tls_ps5.sh`.
 
-Esses builds completos exigem ambiente POSIX/WSL ou Linux e os toolchains indicados pelos respectivos projetos. Extraia as fontes, preserve os commits/versões do manifesto e siga os READMEs upstream; o rebuild completo de Wine/Mesa **não é uma etapa Windows de um clique deste frontend**. O kit Windows recompila títulos, backend e nossas ferramentas sem reconstruir toda essa pilha. Não foi demonstrada equivalência byte a byte para uma reconstrução integral de todas as dependências.
+Reconstruir toda a pilha Wine/Mesa/SDK exige o ambiente POSIX e os toolchains indicados pelos projetos upstream. O frontend recompila títulos e componentes próprios no Windows usando a pilha fixada. Não há promessa de reprodução byte a byte de toda a pilha em qualquer máquina.
 
-FFmpeg é uma dependência opcional obtida diretamente pelo usuário; seu script de instalação, hash, URL, licença e configuração estão documentados. Não apresentamos o binário de terceiros como compilação própria. As ferramentas de desenvolvimento (.NET, LLVM, Zig, CMake) mantêm seus projetos, licenças e instruções de build upstream.
+Após uma alteração intencional e testada nas ferramentas ou runtime, a baseline pode ser atualizada com:
+
+```powershell
+python -m port_station lock --accept-current
+```
+
+O comando preserva o lock anterior. Uma divergência inesperada deve ser investigada antes de aceitar outra baseline. Licenças, créditos e revisões por componente estão em [THIRD_PARTY](../THIRD_PARTY.md).

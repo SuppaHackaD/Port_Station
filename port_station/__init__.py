@@ -1,2 +1,2 @@
-"""Public entry point for Port Station; legacy implementation API preserved."""
-from port_studio import __version__
+"""Local, reproducible Windows/Wine homebrew build frontend."""
+__version__ = "0.3.0"

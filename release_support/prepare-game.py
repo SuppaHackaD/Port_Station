@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse,hashlib,json,re,shutil,subprocess,sys
 R=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(R))
-from port_studio.builder import tree
+from port_station.builder import tree
 
 def sha(p):
     with p.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -52,5 +52,5 @@ def prepare(kind,source,output):
     print('Select this directory in the matching .ps5port.json recipe. Never commit it.')
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('game',choices=['breath','tcoal']);ap.add_argument('--source',required=True,type=Path);ap.add_argument('--output',required=True,type=Path)
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('game',choices=['breath','tcoaal','tcoal']);ap.add_argument('--source',required=True,type=Path);ap.add_argument('--output',required=True,type=Path)
     a=ap.parse_args();prepare(a.game,a.source,a.output)

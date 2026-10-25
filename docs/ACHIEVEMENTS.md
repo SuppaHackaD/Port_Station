@@ -1,14 +1,41 @@
-# Prospero Achievements
+# Conquistas e interface web
 
-O pacote separado contém o payload compilado, SDK0.1.2, fontes C do servidor/cliente, ponte por arquivo e a web. Para recompilar, use as ferramentas públicas do kit Port Station e os comandos em BUILDING.md; compiladores não são duplicados no pacote menor.
+Prospero Achievements é um payload independente que recebe catálogos e eventos dos jogos. Ele mantém o progresso por usuário e oferece uma interface web para consultar as listas. O jogo integrado apresenta um popup após a confirmação de um desbloqueio.
 
-1. Copie `build/prospero-achievements/ps5/prospero_achievements.elf` para o diretório de payloads aceito pelo seu loader e carregue-o uma vez.
-2. Abra `http://IP_DO_CONSOLE:38765/` no navegador da mesma LAN. O serviço permanece independente do jogo.
-3. Abra um título integrado. O cliente registra imagens e catálogo e envia eventos reais quando as condições do jogo ocorrem. Escolha o usuário local na web.
-4. Para manutenção, feche os jogos clientes antes de carregar `pa_stop.elf`. Reiniciar o serviço conserva os journals em `/data/prospero-achievements`.
+## Ativar o backend
 
-Não execute duas instâncias sobre a mesma pasta. Não compartilhe uma outbox entre processos concorrentes. A UI é de consulta; nenhuma tela web concede conquistas ou apaga progresso. A persistência/deduplicação é local, não é autenticação de uma conta de plataforma.
+1. Copie `build/prospero-achievements/ps5/prospero_achievements.elf` do kit para o local de payloads do seu loader.
+2. Carregue o payload uma vez.
+3. Abra `http://IP_DO_CONSOLE:38765/` em um navegador da mesma rede.
+4. Inicie um jogo integrado e selecione o usuário na página.
 
-`pa_sdk_probe.elf` é somente um teste de transporte com catálogo próprio, não concede itens dos jogos. Logs essenciais persistem em disco. Nunca publique journals reais ou saves em um relatório de bug.
+O serviço continua independente do jogo. Se estiver indisponível, o cliente guarda eventos pendentes e tenta enviá-los depois. `pa_stop.elf` é usado para encerrar o serviço quando necessário; não é uma dependência a carregar junto dele.
 
-O payload não instala troféus Sony, não sincroniza com PSN e não altera o serviço de troféus do sistema. Os ícones dos exemplos públicos são placeholders. O título é responsável por fornecer dados, condições e a apresentação do popup após confirmação.
+## Configurar o catálogo
+
+Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada item. A ID canônica identifica a conquista no backend. **ID emitida pelo jogo** permite associar um nome diferente vindo da engine, por exemplo `first_win` a `FIRST_WIN`.
+
+Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.
+
+Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
+
+## Escolher o adaptador
+
+| Adaptador | Uso |
+|---|---|
+| `none` | Jogar sem catálogo ou eventos de conquistas. |
+| `nwjs-steam` | Jogos NW.js que usem `Steam.awardAchievement` ou `Steam.API.activateAchievement`. A ponte associa as IDs e conserva a chamada original. |
+| `file-v1` | Integração própria: o jogo publica eventos pelo protocolo da ponte de arquivos. |
+| `breath` | Integração específica da receita de Breath. |
+
+Uma lista pronta no editor não identifica sozinha quando o jogador cumpriu uma condição. Se o jogo não usa uma das APIs suportadas, ele precisa de integração. Isso também vale para jogos de outras engines que ofereçam conquistas em outra plataforma.
+
+O caminho para adicionar um adaptador está em [Integração](INTEGRATION.md), com um exemplo do SDK. As receitas de Breath e TCOAAL já fornecem suas integrações.
+
+## Testar um desbloqueio
+
+Confirme primeiro que o catálogo aparece na web. Obtenha uma conquista durante a partida, confira o popup e atualize a página. Feche e reabra o jogo para verificar a persistência sem repetir o aviso.
+
+Usar a mesma ID estável do jogo mantém a mesma entrada no backend entre builds. Usuários diferentes têm progresso separado.
+
+Estas são conquistas próprias do Port Station/Prospero Achievements; não aparecem na lista oficial de troféus Sony e não sincronizam com PSN. A interface web é de consulta e deve ser usada na rede local.

@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync('port_station/templates/nwjs_achievements.js','utf8').replace('__CONFIG__',JSON.stringify({gameId:'fixture',ids:['WARDEN_WINS'],aliases:{warden_wins:'WARDEN_WINS'}}));
+const events=[],calls=[],timers=[];let test=false;
+const ctx={Steam:{awardAchievement:function(id){calls.push([this,id]);return 17;},API:{activateAchievement:function(){throw new Error('original failure');}}},Utils:{isOptionValid:()=>test},ProsperoFileBridge:{create:()=>({unlock:id=>events.push(id),markReady(){},flush(){}})},setTimeout:fn=>timers.push(fn)};
+vm.runInNewContext(source,ctx);
+assert.equal(ctx.Steam.awardAchievement('warden_wins'),17);assert.deepEqual(events,['WARDEN_WINS']);assert.equal(calls[0][1],'warden_wins');assert.equal(calls[0][0],ctx.Steam);
+assert.throws(()=>ctx.Steam.API.activateAchievement('warden_wins'),/original failure/);
+test=true;ctx.Steam.awardAchievement('warden_wins');assert.equal(events.length,2);
+test=false;ctx.Steam.awardAchievement('unknown');assert.equal(events.length,2);
+ctx.Steam.awardAchievement=function(){return 99;};timers.shift()();assert.equal(ctx.Steam.awardAchievement('WARDEN_WINS'),99);assert.equal(events.length,3);
+console.log('NW bridge: canonical alias, original arguments/this/return/exception, test mode, unknown IDs and replacement passed.');

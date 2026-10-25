@@ -1,6 +1,6 @@
 # Prospero Achievements SDK 0.1.2
 
-Cliente C/C++ para o payload `prospero_achievements.elf`, API HTTP v1, sem APIs de troféus Sony. Continuidade no PS5 e integrações Breath/TCOAL foram confirmadas em testes manuais; ver README raiz para o escopo.
+Cliente C/C++ para o payload `prospero_achievements.elf`, API HTTP v1, sem APIs de troféus Sony. Continuidade no PS5 e integrações Breath/TCOAAL foram confirmadas em testes manuais; ver README raiz para o escopo.
 
 O jogo fornece catálogo, ícones e eventos. O payload persiste progresso por usuário/jogo e serve uma interface web embutida. A biblioteca estática e o header público permitem integrar um port sem incluir o servidor. A homebrew de exemplo vincula exatamente essa biblioteca.
 
@@ -52,5 +52,5 @@ cJSON 1.7.19 (MIT) e SHA-256 de Brad Conte (domínio público) estão incluídos
 - Até 4096 eventos por usuário/jogo; ainda sem compactação. Agregue progresso em marcos, nunca por frame.
 - Usuário fornecido pelo adaptador. Não consulta contas Sony nem autentica conquistas de jogos de terceiros.
 - Escrita por loopback, sem Origin; interface LAN de consulta.
-- Adaptadores Breath/TCOAL e popup de confirmação no port são incluídos. Autoload do payload e migração genérica de condições ainda não são implementados.
+- Adaptadores Breath/TCOAAL e popup de confirmação no port são incluídos. Autoload do payload e migração genérica de condições ainda não são implementados.
 - Sincronização depende de operações do filesystem retornarem sucesso. Falha real de energia no PS5 não foi ensaiada.
