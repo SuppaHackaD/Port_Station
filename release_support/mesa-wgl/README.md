@@ -3,6 +3,11 @@
 This is a **diagnostic x64 provider**, not a release runtime or a resolution-switching fix.
 It adds `STATION_MESA` messages around context, framebuffer, resource and display-target
 destruction. It does not relax Vulkan display ownership or grant achievements.
+Revision 2 also records display-target resource reference operations, including
+the caller, destination slot and counts before the unchanged reference helper.
+This distinguishes resources retained by other owners from a window destruction
+callback that was never reached. Run only the short two-window probe with this
+provider; logging every displayed frame can produce large logs in a real game.
 
 Build on Linux with Python 3.12, Ninja and the pinned Python tools from the workflow:
 

@@ -13,7 +13,33 @@ PINNED = {
  'src/gallium/drivers/zink/zink_resource.c':'f75d2111cd39a6864c4b1799516d7b78c007dfcdfde907a38aff8e18480724fc',
  'src/gallium/drivers/zink/zink_kopper.c':'f815a4a0cb2a853ccc5d83820679e1ad8187054f89f0ba34c7f674d7f2cbe715',
  'src/gallium/drivers/zink/zink_context.c':'75a14ded04d9d8e3aaf5b482fae9da20a841c7b51a1b4dd14d5bf6031a7abcbf',
+ 'src/gallium/auxiliary/util/u_inlines.h':'2646f611e8f2666ab177f8f03d3d9e6f208891e1c72efae76aedb8df81302277',
 }
+
+# Keep the original reference helper intact. This wrapper evaluates each argument
+# once and records counts before the call, since old_dst may be freed by it.
+REFERENCE_TRACE = r'''
+/* STATION_MESA_REF_BEGIN */
+static inline void
+station_resource_reference(struct pipe_resource **dst, struct pipe_resource *src,
+                           const char *file, int line, const char *function)
+{
+   struct pipe_resource *old_dst = *dst;
+   if (old_dst != src &&
+       ((old_dst && (old_dst->bind & PIPE_BIND_DISPLAY_TARGET)) ||
+        (src && (src->bind & PIPE_BIND_DISPLAY_TARGET)))) {
+      fprintf(stderr, "STATION_MESA resource_ref slot=%p old=%p old_refs=%lld src=%p src_refs=%lld file=%s line=%d func=%s\n",
+              (void *)dst, (void *)old_dst,
+              old_dst ? (long long)p_atomic_read(&old_dst->reference.count) : 0,
+              (void *)src, src ? (long long)p_atomic_read(&src->reference.count) : 0,
+              file, line, function);
+   }
+   pipe_resource_reference(dst, src);
+}
+#define pipe_resource_reference(dst, src) \
+   station_resource_reference((dst), (src), __FILE__, __LINE__, __func__)
+/* STATION_MESA_REF_END */
+'''
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 
@@ -51,6 +77,8 @@ def instrument(source):
          '   fprintf(stderr,"STATION_MESA displaytarget_deinit dt=%p surface=%p\\n",(void*)cdt,(void*)(uintptr_t)cdt->surface);\n   if (!cdt->surface)\n      return;')
     edit('zink_context.c','   struct pipe_framebuffer_state fb = {0};\n   pctx->set_framebuffer_state(pctx, &fb);',
          '   fprintf(stderr,"STATION_MESA zink_context_destroy ctx=%p\\n",(void*)ctx);\n   struct pipe_framebuffer_state fb = {0};\n   pctx->set_framebuffer_state(pctx, &fb);')
+    edit('u_inlines.h', '   *dst = src;\n}\n\nstatic inline void\npipe_resource_release',
+         '   *dst = src;\n}\n' + REFERENCE_TRACE + '\nstatic inline void\npipe_resource_release')
     for name,text in staged.items():
         if '#include <stdio.h>' not in text:
             at=text.index('#include ');text=text[:at]+'#include <stdio.h>\n'+text[at:]

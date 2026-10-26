@@ -91,7 +91,7 @@ needs_exe_wrapper = true
         p=modified/name;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/name,p)
     for p in Path(__file__).parent.glob('*.py'):shutil.copy2(p,modified/p.name)
     shutil.copy2(Path(__file__).with_name('README.md'),artifacts/'README.md')
-    manifest={'variant':'wgl-lifecycle-diagnostic-1','mesa_source':mesa,'compiler_url':COMPILER_URL,
+    manifest={'variant':'wgl-lifecycle-diagnostic-2','mesa_source':mesa,'compiler_url':COMPILER_URL,
               'compiler_sha256':COMPILER_SHA,'console_validated':False,'behavior_patch':False,
               'source_changes':patches,'build_script_sha256':sha(__file__),
               'files':{p.name:{'sha256':sha(p),'bytes':p.stat().st_size,'imports':imports[p.name]}for p in output.glob('*.dll')}}
