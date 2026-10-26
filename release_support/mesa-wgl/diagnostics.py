@@ -43,7 +43,7 @@ station_resource_reference(struct pipe_resource **dst, struct pipe_resource *src
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 
-def instrument(source):
+def instrument(source, release_pending_present=False):
     source=Path(source);staged={};manifest={}
     for name,wanted in PINNED.items():
         data=(source/name).read_bytes()
@@ -79,6 +79,20 @@ def instrument(source):
          '   fprintf(stderr,"STATION_MESA zink_context_destroy ctx=%p\\n",(void*)ctx);\n   struct pipe_framebuffer_state fb = {0};\n   pctx->set_framebuffer_state(pctx, &fb);')
     edit('u_inlines.h', '   *dst = src;\n}\n\nstatic inline void\npipe_resource_release',
          '   *dst = src;\n}\n' + REFERENCE_TRACE + '\nstatic inline void\npipe_resource_release')
+    if release_pending_present:
+        # The context owns this reference even when unbinding already emptied
+        # fb_state, so set_framebuffer_state(empty) cannot release it. Wait for
+        # queues and batch cleanup as usual, then drop exactly this owned ref.
+        edit('zink_context.c',
+             '   util_dynarray_fini(&ctx->di.global_bindings);\n\n   ralloc_free(ctx);',
+             '   util_dynarray_fini(&ctx->di.global_bindings);\n'
+             '\n/* STATION_MESA_PENDING_PRESENT_BEGIN */\n'
+             '   if (ctx->needs_present) {\n'
+             '      fprintf(stderr,"STATION_MESA pending_present_release ctx=%p resource=%p refs=%d\\n",(void*)ctx,(void*)ctx->needs_present,p_atomic_read(&ctx->needs_present->base.b.reference.count));\n'
+             '      zink_resource_reference(&ctx->needs_present, NULL);\n'
+             '   }\n'
+             '/* STATION_MESA_PENDING_PRESENT_END */\n'
+             '\n   ralloc_free(ctx);')
     for name,text in staged.items():
         if '#include <stdio.h>' not in text:
             at=text.index('#include ');text=text[:at]+'#include <stdio.h>\n'+text[at:]

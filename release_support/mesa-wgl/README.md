@@ -9,6 +9,16 @@ This distinguishes resources retained by other owners from a window destruction
 callback that was never reached. Run only the short two-window probe with this
 provider; logging every displayed frame can produce large logs in a real game.
 
+An experimental variant adds `--release-pending-present`. After the existing
+queue waits and batch cleanup, context destruction releases its remaining
+`needs_present` resource reference. Unbinding may already have cleared the
+framebuffer, leaving this independently owned reference behind. The variant
+logs the released field and uses the normal resource reference helper. It does
+not force reference counts, destroy another context's resource or change WSI
+ownership rules. Its manifest has `behavior_patch: true`; the default command
+below remains diagnostic only. The current workflow builds the experimental
+variant for the two-window console test. Neither variant is a release runtime.
+
 Build on Linux with Python 3.12, Ninja and the pinned Python tools from the workflow:
 
 ```sh
