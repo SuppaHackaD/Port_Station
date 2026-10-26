@@ -1,4 +1,4 @@
-"""Add bounded lifetime logging to the pinned public Mesa source, without fixes.
+"""Apply bounded lifetime logging or a pinned context-owned resource cleanup.
 
 Mesa retains its original copyright and licence headers. Added diagnostics:
 Copyright 2026 Port Station contributors, SPDX-License-Identifier: MIT.
@@ -42,6 +42,24 @@ station_resource_reference(struct pipe_resource **dst, struct pipe_resource *src
 '''
 
 def sha(data):return hashlib.sha256(data).hexdigest()
+
+def clean_pending_present(source):
+    """Apply only the console-probed reference release; no diagnostic logging."""
+    name='src/gallium/drivers/zink/zink_context.c'
+    path=Path(source)/name
+    data=path.read_bytes()
+    if sha(data)!=PINNED[name]:raise ValueError('Mesa source differs from pin: '+name)
+    text=data.decode('utf-8')
+    old='   util_dynarray_fini(&ctx->di.global_bindings);\n\n   ralloc_free(ctx);'
+    new=('   util_dynarray_fini(&ctx->di.global_bindings);\n'
+         '\n   /* The pending presentation reference outlives framebuffer unbinding. */\n'
+         '   if (ctx->needs_present)\n'
+         '      zink_resource_reference(&ctx->needs_present, NULL);\n'
+         '\n   ralloc_free(ctx);')
+    if text.count(old)!=1:raise ValueError('Ambiguous pending presentation cleanup anchor')
+    result=text.replace(old,new).encode('utf-8')
+    path.write_bytes(result)
+    return {name:{'before':PINNED[name],'after':sha(result)}}
 
 def instrument(source, release_pending_present=False):
     source=Path(source);staged={};manifest={}

@@ -1,23 +1,30 @@
-# Mesa WGL lifetime diagnostic
+# Pinned Mesa WGL provider builds
 
-This is a **diagnostic x64 provider**, not a release runtime or a resolution-switching fix.
-It adds `STATION_MESA` messages around context, framebuffer, resource and display-target
-destruction. It does not relax Vulkan display ownership or grant achievements.
-Revision 2 also records display-target resource reference operations, including
-the caller, destination slot and counts before the unchanged reference helper.
-This distinguishes resources retained by other owners from a window destruction
-callback that was never reached. Run only the short two-window probe with this
-provider; logging every displayed frame can produce large logs in a real game.
+This helper cross-compiles the pinned Windows x64 WGL/Zink provider in three
+variants. They do not change Vulkan display ownership rules or grant achievements.
 
-An experimental variant adds `--release-pending-present`. After the existing
-queue waits and batch cleanup, context destruction releases its remaining
-`needs_present` resource reference. Unbinding may already have cleared the
-framebuffer, leaving this independently owned reference behind. The variant
-logs the released field and uses the normal resource reference helper. It does
-not force reference counts, destroy another context's resource or change WSI
-ownership rules. Its manifest has `behavior_patch: true`; the default command
-below remains diagnostic only. The current workflow builds the experimental
-variant for the two-window console test. Neither variant is a release runtime.
+| Options | Result |
+| --- | --- |
+| No additional options | Lifetime logging only; original reference behavior. |
+| `--release-pending-present` | Lifetime logging and context-owned resource cleanup. |
+| `--release-pending-present --clean` | Only context-owned resource cleanup, without added logging. |
+
+After existing queue waits and batch cleanup, the cleanup releases the context's
+remaining `needs_present` resource reference. Unbinding may already have cleared
+the framebuffer, leaving this independently owned reference behind. It uses the
+normal resource reference helper and never forces reference counts. The clean
+variant changes only `zink_context.c`; the manifest records `behavior_patch: true`
+and `lifetime_logging: false`.
+
+The instrumented cleanup passed the separate console probe: both 1280x720 and
+1920x1080 windows rendered 30 frames without OpenGL errors, and display targets
+were destroyed between windows. In-game mode changes remain to be validated.
+These are test artifacts, not an updated release runtime. The current workflow
+builds the clean variant for that next validation.
+
+Lifetime logging records context/framebuffer destruction and display-target
+reference operations, including caller, destination slot and counts. Use logging
+variants only for short probes; they can generate large logs in a real game.
 
 Build on Linux with Python 3.12, Ninja and the pinned Python tools from the workflow:
 

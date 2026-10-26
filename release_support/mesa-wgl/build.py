@@ -1,4 +1,4 @@
-"""Build a diagnostic Windows x64 WGL/Zink provider from pinned public sources.
+"""Build a Windows x64 WGL/Zink provider from pinned public sources.
 
 The cross-build flags follow prospero-win/tools/build_mesa_zink.sh (LGPL-2.1+).
 This diagnostic orchestration and added logging are MIT; Mesa's notices remain.
@@ -6,7 +6,7 @@ No game installation, firmware dump, console account or proprietary SDK is used.
 """
 from pathlib import Path
 import argparse,hashlib,json,os,re,shutil,subprocess,sys,tarfile,urllib.request
-from diagnostics import instrument
+from diagnostics import instrument,clean_pending_present
 
 REPO=Path(__file__).resolve().parents[2]
 COMPILER_URL='https://github.com/mstorsjo/llvm-mingw/releases/download/20260922/llvm-mingw-20260922-ucrt-ubuntu-22.04-x86_64.tar.xz'
@@ -31,7 +31,8 @@ def extract(archive,destination):
 def run(*args):
     print('>',*map(str,args),flush=True);subprocess.run(list(map(str,args)),check=True)
 
-def build(work,jobs,release_pending_present=False):
+def build(work,jobs,release_pending_present=False,clean=False):
+    if clean and not release_pending_present:raise ValueError('Clean variant requires the pending presentation cleanup')
     if os.name!='posix':raise ValueError('Run the cross-build on Linux or the repository CI')
     work=work.resolve();work.mkdir(parents=True,exist_ok=False)
     pins=json.loads((REPO/'SOURCES.json').read_text(encoding='utf-8'))['archives']
@@ -42,7 +43,8 @@ def build(work,jobs,release_pending_present=False):
     fetch(mesa['url'],mesa['sha256'],source_archive);fetch(COMPILER_URL,COMPILER_SHA,compiler_archive)
     source=extract(source_archive,work/'source');compiler=extract(compiler_archive,work/'compiler')
     if (source/'VERSION').read_text().strip()!='26.2.0':raise ValueError('Mesa version mismatch')
-    patches=instrument(source,release_pending_present);(work/'patches.json').write_text(json.dumps(patches,indent=2)+'\n')
+    patches=clean_pending_present(source) if clean else instrument(source,release_pending_present)
+    (work/'patches.json').write_text(json.dumps(patches,indent=2)+'\n')
     cross=work/'cross.ini'
     cross.write_text(f'''[binaries]
 c = '{compiler}/bin/x86_64-w64-mingw32-clang'
@@ -91,9 +93,11 @@ needs_exe_wrapper = true
         p=modified/name;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/name,p)
     for p in Path(__file__).parent.glob('*.py'):shutil.copy2(p,modified/p.name)
     shutil.copy2(Path(__file__).with_name('README.md'),artifacts/'README.md')
-    manifest={'variant':'wgl-pending-present-fix-1' if release_pending_present else 'wgl-lifecycle-diagnostic-2','mesa_source':mesa,'compiler_url':COMPILER_URL,
+    variant='wgl-pending-present-clean-1' if clean else 'wgl-pending-present-fix-1' if release_pending_present else 'wgl-lifecycle-diagnostic-2'
+    manifest={'variant':variant,'mesa_source':mesa,'compiler_url':COMPILER_URL,
               'compiler_sha256':COMPILER_SHA,'console_validated':False,'behavior_patch':release_pending_present,
               'pending_present_release':release_pending_present,
+              'lifetime_logging':not clean,
               'source_changes':patches,'build_script_sha256':sha(__file__),
               'files':{p.name:{'sha256':sha(p),'bytes':p.stat().st_size,'imports':imports[p.name]}for p in output.glob('*.dll')}}
     (artifacts/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
@@ -102,6 +106,8 @@ needs_exe_wrapper = true
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--work',type=Path,required=True);parser.add_argument('--jobs',type=int,default=2)
     parser.add_argument('--release-pending-present',action='store_true',help='Experimental context-owned resource cleanup; console validation required')
+    parser.add_argument('--clean',action='store_true',help='Apply only the pending presentation cleanup, without lifetime logging')
     args=parser.parse_args()
     if not 1<=args.jobs<=8:parser.error('--jobs must be between 1 and 8')
-    build(args.work,args.jobs,args.release_pending_present)
+    if args.clean and not args.release_pending_present:parser.error('--clean requires --release-pending-present')
+    build(args.work,args.jobs,args.release_pending_present,args.clean)
