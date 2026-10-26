@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 from . import __version__
 from .core import scan,export,save_report
-from .official import fetch,enrich,detect_app_id,select_confirmed
+from .official import fetch,enrich,detect_app_id,select_confirmed,confirmed_ids
 
 
 class App:
@@ -42,11 +42,15 @@ class App:
         self.table=ttk.Treeview(frame,columns=columns,show='headings',selectmode='browse')
         for col,title,width in [('selected','Usar',48),('id','ID emitida pelo jogo',205),('title','Nome',235),('description','Descrição',290),('review','Revisar',180)]:
             self.table.heading(col,text=title);self.table.column(col,width=width)
-        self.table.grid(row=9,column=0,columnspan=3,sticky='nsew');self.table.bind('<Double-1>',lambda _:self.edit())
-        actions=ttk.Frame(frame);actions.grid(row=10,column=0,columnspan=3,sticky='w',pady=10)
+        self.official_only=tk.BooleanVar(value=True)
+        ttk.Checkbutton(frame,text='Somente oficiais: cruzar IDs locais com o catálogo Steam (AppID obrigatório)',
+            variable=self.official_only,command=self.official_mode_changed).grid(row=9,column=0,columnspan=3,sticky='w',pady=(0,6))
+        frame.rowconfigure(9,weight=0);frame.rowconfigure(10,weight=1)
+        self.table.grid(row=10,column=0,columnspan=3,sticky='nsew');self.table.bind('<Double-1>',lambda _:self.edit())
+        actions=ttk.Frame(frame);actions.grid(row=11,column=0,columnspan=3,sticky='w',pady=10)
         for label,command in [('Incluir / excluir',self.toggle),('Editar item / ver origem',self.edit),('Só IDs oficiais',self.confirmed),('Exportar JSON',self.save),('Salvar só relatório',self.report),('Abrir saída',self.open_output)]:ttk.Button(actions,text=label,command=command).pack(side='left',padx=(0,8))
-        self.status=tk.StringVar(value='Selecione a pasta e o executável.');ttk.Label(frame,textvariable=self.status,wraplength=1000).grid(row=11,column=0,columnspan=3,sticky='w')
-        self.log=tk.Text(frame,height=5,font=('Consolas',9),state='disabled');self.log.grid(row=12,column=0,columnspan=3,sticky='ew',pady=(10,0))
+        self.status=tk.StringVar(value='Selecione a pasta e o executável.');ttk.Label(frame,textvariable=self.status,wraplength=1000).grid(row=12,column=0,columnspan=3,sticky='w')
+        self.log=tk.Text(frame,height=5,font=('Consolas',9),state='disabled');self.log.grid(row=13,column=0,columnspan=3,sticky='ew',pady=(10,0))
         root.after(100,self.poll)
     def choose_folder(self):
         path=filedialog.askdirectory(parent=self.root)
@@ -90,7 +94,9 @@ class App:
             elif kind in ('official','lookup_error'):
                 self.lookup_busy=False;self.lookup_button.configure(state='normal')
                 if kind=='official':
-                    self.result=value;self.refresh();self.status.set(value['warnings'][-1])
+                    self.result=value
+                    if self.official_only.get():select_confirmed(self.result)
+                    self.refresh();self.status.set(value['warnings'][-1])
                 else:
                     self.status.set(value);messagebox.showwarning('Textos oficiais',value,parent=self.root)
             elif kind=='result':
@@ -99,6 +105,10 @@ class App:
             else:self.scan_button.configure(state='normal');self.status.set(value);messagebox.showerror('Extração',value,parent=self.root)
         self.root.after(100,self.poll)
     def refresh(self):
+        if self.official_only.get() and self.result.get('official_lookup'):
+            allowed=confirmed_ids(self.result)
+            for row in self.result['entries']:
+                if row['source_id'] not in allowed:row['selected']=False
         self.table.delete(*self.table.get_children())
         labels={'title':'nome','description':'descrição','hidden':'secreta','icon':'ícone'}
         for i,row in enumerate(self.result['entries']):self.table.insert('','end',iid=str(i),values=('✓' if row['selected'] else '',row['source_id'],row['title'],row['description'],', '.join(labels.get(x,x.replace('conflict:','conflito: ')) for x in row['review'])))
@@ -110,6 +120,10 @@ class App:
         if not self.result or self.lookup_busy:return
         try:select_confirmed(self.result);self.refresh()
         except ValueError as e:messagebox.showinfo('IDs oficiais',str(e),parent=self.root)
+    def official_mode_changed(self):
+        if not self.result:return
+        if self.official_only.get() and self.result.get('official_lookup'):select_confirmed(self.result)
+        self.refresh()
     def toggle(self):
         if self.lookup_busy:return
         row=self.selected()
@@ -140,7 +154,7 @@ class App:
         try:
             if self.lookup_busy:raise ValueError('Aguarde a consulta oficial antes de exportar.')
             if not self.result:raise ValueError('Faça uma análise primeiro.')
-            path=export(self.result,self.output.get());self.status.set('Exportado: '+str(path));messagebox.showinfo('JSON pronto','No Port Station: Conquistas → Importar catálogo JSON → achievements.json.\n\nA platina pode ser acrescentada no Port Station.',parent=self.root)
+            path=export(self.result,self.output.get(),official_only=self.official_only.get(),steam_app_id=self.appid.get());self.status.set('Exportado: '+str(path));messagebox.showinfo('JSON pronto','No Port Station: Conquistas → Importar catálogo JSON → achievements.json.\n\nA platina pode ser acrescentada no Port Station.',parent=self.root)
         except Exception as e:messagebox.showerror('Exportação',str(e),parent=self.root)
     def open_output(self):
         import os

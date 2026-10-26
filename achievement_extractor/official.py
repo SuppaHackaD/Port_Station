@@ -100,3 +100,12 @@ def select_confirmed(result):
         raise LookupError('Consulte primeiro o catálogo oficial pelo AppID correto.')
     ids=set(result['official_lookup']['matched_ids'])
     for row in result['entries']: row['selected']=row['source_id'] in ids
+
+
+def confirmed_ids(result, steam_app_id=None):
+    lookup=result.get('official_lookup')
+    if not lookup or 'matched_ids' not in lookup:
+        raise LookupError('Somente oficiais exige uma consulta Steam concluída. Informe o AppID e busque o catálogo primeiro.')
+    if steam_app_id is not None and app_id(steam_app_id)!=lookup['appid']:
+        raise LookupError('O AppID mudou após a consulta. Busque novamente o catálogo antes de exportar somente oficiais.')
+    return set(lookup['matched_ids'])

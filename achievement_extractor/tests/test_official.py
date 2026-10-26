@@ -8,6 +8,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 from achievement_extractor.official import fetch,enrich,detect_app_id,LookupError,FALLBACK,select_confirmed
 from achievement_extractor.core import export
+from achievement_extractor.__main__ import main
 
 class OfficialTests(unittest.TestCase):
     def payload(self):
@@ -51,5 +52,35 @@ class OfficialTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path=Path(td)/'steam_appid.txt';path.write_text('123\n');self.assertEqual(detect_app_id(td),'123')
             path.write_text('not an id');self.assertEqual(detect_app_id(td),'')
+
+    def test_official_export_enforces_exact_intersection_even_after_manual_reselection(self):
+        rows=[dict(source_id=i,title='Same display name',description='',icon='',hidden=False,
+                   selected=True,review=['description'],evidence=[])for i in ('FIRST','first','UNSUPPORTED')]
+        schema={'appid':'123','language_requested':'english','provider':'steam','entries':{
+            i:dict(title='Same display name',description='Official',hidden=False)for i in ('FIRST','STEAM_ONLY')}}
+        result=enrich({'entries':rows,'warnings':[]},schema)
+        with tempfile.TemporaryDirectory() as td:
+            path=export(result,Path(td)/'strict',official_only=True,steam_app_id='123')
+            catalog=json.loads(path.read_text(encoding='utf-8'))
+            self.assertEqual([r['source_id']for r in catalog['achievements']],['FIRST'])
+            self.assertEqual(catalog['official_match']['count'],1)
+            self.assertEqual(len(result['entries']),3)
+
+    def test_official_export_requires_successful_lookup_for_current_appid(self):
+        row=dict(source_id='FIRST',title='First',description='',icon='',hidden=False,selected=True)
+        with tempfile.TemporaryDirectory() as td:
+            dest=Path(td)/'out'
+            for result,appid in [({'entries':[row]},'123'),({'entries':[row],
+                'official_lookup':{'appid':'123','matched_ids':['FIRST']}},'456')]:
+                with self.assertRaises(LookupError):export(result,dest,official_only=True,steam_app_id=appid)
+                self.assertFalse(dest.exists())
+
+    def test_cli_official_only_does_not_silently_export_local_ids_on_network_failure(self):
+        with tempfile.TemporaryDirectory() as td, patch('sys.argv',['extractor','--game-dir','game',
+             '--exe','game.exe','--output',str(Path(td)/'out'),'--steam-appid','123','--official-only']), \
+             patch('achievement_extractor.__main__.scan',return_value={'entries':[],'warnings':[]}), \
+             patch('achievement_extractor.official.fetch',side_effect=LookupError('Steam unavailable')):
+            with self.assertRaises(SystemExit)as e:main()
+            self.assertEqual(e.exception.code,2);self.assertFalse((Path(td)/'out').exists())
 
 if __name__=='__main__':unittest.main()

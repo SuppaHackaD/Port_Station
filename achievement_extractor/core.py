@@ -8,7 +8,7 @@ import shutil
 import struct
 import subprocess
 from . import __version__
-from .official import FALLBACK
+from .official import FALLBACK,confirmed_ids
 from .formats import read_metadata, definitions, localized, javascript_calls, native_candidates
 
 HERE = Path(__file__).resolve().parent
@@ -187,8 +187,11 @@ def save_report(result, path):
     return write_report(result,dest)
 
 
-def export(result, destination):
+def export(result, destination, official_only=False, steam_app_id=None):
     selected=[r for r in result['entries'] if r['selected']]
+    if official_only:
+        allowed=confirmed_ids(result,steam_app_id)
+        selected=[r for r in selected if r['source_id'] in allowed]
     if not selected:raise ExtractionError('Nenhuma conquista selecionada para exportação.')
     if len(selected)>256:raise ExtractionError('Port Station aceita no máximo 256 conquistas; reserve uma vaga se acrescentar platina.')
     dest=_new_destination(result,destination)
@@ -211,6 +214,9 @@ def export(result, destination):
                 (dest/'assets').mkdir(exist_ok=True);(dest/icon).write_bytes(data)
         items.append({'id':ident,'source_id':source,'title':row['title'],'description':row['description'].strip() or FALLBACK,'hidden':row['hidden'],'target':1,'icon':icon})
     catalog={'schema':1,'achievements':items}
+    if official_only:
+        catalog['official_match']={'provider':'steam','appid':result['official_lookup']['appid'],
+            'rule':'exact-source-id-intersection','count':len(items)}
     (dest/'achievements.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     write_report(result,dest)
     (dest/'IMPORTAR.txt').write_text('Port Station → Conquistas → Importar catálogo JSON → achievements.json.\nRevise os campos ausentes indicados em extraction-report.json. Configure o adaptador de eventos; a lista não implementa condições de desbloqueio. A platina pode ser acrescentada no Port Station.\n',encoding='utf-8')

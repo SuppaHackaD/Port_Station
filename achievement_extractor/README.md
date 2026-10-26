@@ -1,4 +1,4 @@
-# Achievement Extractor 0.2.0
+# Achievement Extractor 0.2.1
 
 Ferramenta separada para recuperar definições e IDs de conquistas de uma cópia local de um jogo Windows e gerar uma lista importável pelo Port Station. Não é necessário instalar o kit completo do Port Station para usar o extrator.
 
@@ -13,6 +13,10 @@ Instale Python 3.13 de 64 bits com Tk e abra `Achievement_Extractor.cmd` na raiz
 5. Opcionalmente, confirme o **AppID Steam** e clique em **Buscar textos oficiais no idioma escolhido**. A consulta usa apenas AppID/idioma, sem login ou progresso de jogadores. Somente IDs exatamente iguais são associadas. **Só IDs oficiais** seleciona apenas as correspondências da última consulta, mantendo as demais visíveis para revisão; isso ajuda quando uma assembly contém código de mais de uma edição/jogo.
 6. Confirme a nova pasta de saída e clique em **Exportar JSON**.
 7. No Port Station, abra **Conquistas → Importar catálogo JSON** e escolha `achievements.json`. Configure o adaptador dos eventos e, se desejar, marque a platina automática.
+
+**Somente oficiais** vem marcado na interface. Com ele ativo, a exportação exige uma consulta Steam bem-sucedida para o AppID atual e aceita apenas `ID extraída localmente ∩ ID retornada pela Steam`, com igualdade exata, incluindo maiúsculas/minúsculas. Nomes iguais não confirmam uma ID. Itens locais sem correspondência continuam no relatório, mas ficam fora do JSON mesmo se forem selecionados novamente. Se a consulta falhar ou o AppID mudar, consulte novamente antes de exportar; para um fluxo manual/offline, desmarque a opção.
+
+A lista estritamente oficial não acrescenta platina. Essa continua sendo uma escolha separada no Port Station; deixe-a desmarcada se desejar somente as conquistas originais.
 
 A saída contém `achievements.json`, `extraction-report.json`, instruções de importação e os ícones locais recuperados. As imagens permanecem relativas à lista, para que a pasta possa ser movida inteira. Uma saída existente não é substituída.
 
@@ -41,6 +45,8 @@ A partir da pasta que contém `achievement_extractor/`:
 ```powershell
 python -m achievement_extractor --game-dir "D:/Jogos/MeuJogo" --exe "Game.exe" --output "D:/Catalogos/MeuJogo" --language brazilian
 ```
+
+Use `--steam-appid 12345 --official-only` para exigir a interseção oficial também na linha de comando. Nesse modo, uma falha de consulta interrompe a exportação.
 
 Adicione `--steam-appid 12345` para consultar os textos oficiais após analisar os arquivos. Não há pesquisa por nome nem associação por posição: confirme o AppID correto na página Steam do seu jogo. Um `steam_appid.txt` na raiz apenas preenche uma sugestão na interface.
 

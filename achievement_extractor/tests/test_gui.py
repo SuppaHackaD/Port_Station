@@ -13,7 +13,20 @@ class GuiTests(unittest.TestCase):
             app.table.selection_set('0');app.toggle()
             self.assertFalse(app.result['entries'][0]['selected'])
             self.assertIn('descrição',app.table.item('0','values')[-1])
-            self.assertIn('0.2.0',root.title())
+            self.assertIn('0.2.1',root.title())
+        finally:root.destroy()
+
+    def test_persistent_official_mode_cannot_include_an_unconfirmed_row(self):
+        root=tk.Tk();root.withdraw()
+        try:
+            app=App(root);self.assertTrue(app.official_only.get())
+            app.result={'entries':[dict(source_id=i,title=i,description='',hidden=False,icon='',
+                review=[],selected=True,evidence=[])for i in ('OFFICIAL','LOCAL_ONLY')],
+                'official_lookup':{'appid':'123','matched_ids':['OFFICIAL']},'warnings':[]}
+            app.refresh();self.assertFalse(app.result['entries'][1]['selected'])
+            app.table.selection_set('1');app.toggle();self.assertFalse(app.result['entries'][1]['selected'])
+            app.official_only.set(False);app.table.selection_set('1');app.toggle();self.assertTrue(app.result['entries'][1]['selected'])
+            app.official_only.set(True);app.official_mode_changed();self.assertFalse(app.result['entries'][1]['selected'])
         finally:root.destroy()
 
 if __name__=='__main__':unittest.main()
