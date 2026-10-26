@@ -7,7 +7,7 @@ from pathlib import Path, PurePosixPath
 
 WORKSPACE = Path(__file__).resolve().parents[1]
 PROFILES = ("dxvk-xinput", "nwjs-canvas", "gdi-keyboard")
-ADAPTERS = ("none", "file-v1", "nwjs-steam", "breath")
+ADAPTERS = ("none", "file-v1", "unity-mono-steam", "nwjs-steam", "breath")
 BREATH_IDS = {"COROA", "OCULOS", "SONIC", "OLHOSARANHA", "ARANHA", "ENGUIA", "MORCEGO", "TARTARUGA", "THEEND", "BUG", "SPEEDRUN"}
 
 class ProjectError(ValueError):

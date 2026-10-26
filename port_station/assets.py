@@ -80,7 +80,7 @@ def make_catalog(p, base, destination):
     def description(value):
         # The backend requires nonempty display text. Preserve missing metadata
         # in the project/extractor report; this is only a truthful display label.
-        return value if value.strip() else 'Descrição não informada.'
+        return value if value.strip() else 'Descrição não fornecida'
     def resource(path):
         data=png_bytes(resolve_path(path or p["icon"],base)); digest=hashlib.sha256(data).hexdigest();resources[digest]=data;return digest
     catalog=dict(schema=1,game_id=p["game_id"],title=p["title"],catalog_version=p["catalog_version"],icon=resource(p["icon"]),achievements=[])

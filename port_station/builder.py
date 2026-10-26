@@ -156,8 +156,13 @@ class Builder:
             if p['adapter']!='none':catalog,resources,blob=assets.make_catalog(p,base,output/'achievements')
             if p['adapter']!='none':
                 missing=sum(not a.get('description','').strip()for a in p['achievements'])+int(p['platinum'] and not p['platinum_description'].strip())
-                if missing:self.emit(f'Catálogo: {missing} itens sem descrição; exibindo "Descrição não informada.". Revise os textos quando disponíveis.')
-            native.generate(p,generated,catalog,resources,blob)
+                if missing:self.emit(f'Catálogo: {missing} itens sem descrição; exibindo "Descrição não fornecida". Revise os textos quando disponíveis.')
+            managed_files=None
+            if p['adapter']=='unity-mono-steam':
+                from .managed import prepare
+                self.emit('Unity Mono: verificando o ponto de concessão e preparando a DLL genérica…')
+                managed_files=prepare(p,game,output/'managed',self.run)
+            native.generate(p,generated,catalog,resources,blob,managed_files=managed_files)
             (output/'CMakeLists.txt').write_text(native.cmake(p,generated),encoding='utf8',newline='\n')
             profile=make_profile(p,architecture);(output/'game.profile').write_text(profile,encoding='utf8',newline='\n')
             self.run([R/'build/port-studio/tools/check-profile.exe',output/'game.profile'])
@@ -182,6 +187,9 @@ class Builder:
                 self.emit('Breath: preparando e verificando a ponte de conquistas na cópia da build…')
                 compatibility=breath.prepare(target,self.run)
                 write_json(output/'breath-compatibility.json',compatibility)
+            if managed_files:
+                for rel,path in managed_files.items():
+                    dest=target/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
             if p['profile']=='nwjs-canvas':
                 from .nwjs import prepare_fonts
                 compatibility=prepare_fonts(target,prefix);write_json(output/'nwjs-compatibility.json',compatibility)

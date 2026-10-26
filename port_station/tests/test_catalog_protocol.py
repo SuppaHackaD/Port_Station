@@ -25,7 +25,7 @@ class CatalogTests(unittest.TestCase):
         with tempfile.TemporaryDirectory()as td:
             catalog,_,_=make_catalog(p,WORKSPACE/'port_station/examples',Path(td))
             self.assertEqual(p,before)
-            self.assertTrue(all(a['description']=='Descrição não informada.'for a in catalog['achievements']))
+            self.assertTrue(all(a['description']=='Descrição não fornecida'for a in catalog['achievements']))
     @unittest.skipUnless(SERVER.is_file(),'Requires the host backend from the Windows kit')
     def test_actual_backend_accepts_generated_catalog_and_rejects_raw_empty_description(self):
         p=self.project()

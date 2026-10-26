@@ -9,7 +9,7 @@ def c_string(value):
 def literal(data):
     return '\n'.join('"'+''.join(f'\\x{x:02x}'for x in data[i:i+256])+'"'for i in range(0,len(data),256))
 
-def generate(p, out, catalog=None, resources=None, blob=None):
+def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None):
     out.mkdir(parents=True,exist_ok=True)
     game=p['game_id'];slug=runtime_id(p); root='/data/port-studio/'+p['title_id'].lower(); adapter=p['adapter']
     s=(R/'port_station/templates/wine64_main.c.in').read_text(encoding='utf8')
@@ -41,8 +41,16 @@ def generate(p, out, catalog=None, resources=None, blob=None):
         # installed from an unprepared copy. Load both files before Wine starts.
         owned=','.join(['']+[json.dumps('prefixes/'+slug+'/drive_c/Games/'+slug+'/Breath_Data/Managed/'+n)for n in ['BreathPS5Bridge.dll','Assembly-CSharp.dll']])
     sync=sync.replace('@STUDIO_FILES@',owned)
+    if adapter=='unity-mono-steam':
+        from .managed import sync_rows
+        if not managed_files:raise ProjectError('Ponte gerenciada não foi preparada.')
+        rows=sync_rows(p,managed_files)
+        managed_sync=(R/'port_station/templates/sync_managed.c.inc').read_text(encoding='utf-8')
+        managed_sync=managed_sync.replace('@TITLE_ID@',p['title_id']).replace('@MANAGED_ROWS@',','.join('{'+c_string(name)+','+str(size)+'ULL,'+str(crc)+'u}'for name,size,crc in rows))
+        sync+='\n'+managed_sync
     s=s.replace('int studio_bootstrap(const char*root){',sync+'\nint studio_bootstrap(const char*root){')
     s=s.replace('int result=install(root);','int result=install(root);if(!result)result=sync_profiles(root);')
+    if adapter=='unity-mono-steam':s=s.replace('result=sync_profiles(root);','result=sync_profiles(root);if(!result)result=sync_managed(root);')
     (out/'studio_bootstrap.c').write_text(s,encoding='utf8',newline='\n')
     (out/'studio_bootstrap.h').write_text('int studio_bootstrap(const char *root);\n')
     if adapter=='none':return

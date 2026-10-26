@@ -7,6 +7,7 @@ def main():
     parser.add_argument('--metadata',help='Schema JSON/VDF/binário local adicional')
     parser.add_argument('--language',default='brazilian')
     parser.add_argument('--include-candidates',action='store_true',help='Inclui strings nativas sem relação de chamada comprovada; revise antes de usar')
+    parser.add_argument('--steam-appid',help='Consulta opcional de textos oficiais por AppID; nenhum progresso é consultado')
     args=parser.parse_args()
     if not any([args.game_dir,args.exe,args.output]):
         from .gui import main as gui_main
@@ -14,6 +15,10 @@ def main():
     if not all([args.game_dir,args.exe,args.output]):parser.error('Informe --game-dir, --exe e --output juntos.')
     try:
         result=scan(args.game_dir,args.exe,args.language,args.metadata,print)
+        if args.steam_appid:
+            from .official import fetch,enrich,LookupError
+            try:result=enrich(result,fetch(args.steam_appid,args.language))
+            except LookupError as e:result['warnings'].append(str(e));print(e)
         if args.include_candidates:
             for row in result['entries']:row['selected']=True
         if not any(row['selected'] for row in result['entries']):

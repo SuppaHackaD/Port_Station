@@ -17,7 +17,7 @@ Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada ite
 
 Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.
 
-Uma lista extraída pode não ter descrições. Na conversão para o backend, esses campos recebem o texto de exibição “Descrição não informada.”, pois o protocolo exige uma descrição não vazia. O projeto e o relatório da extração mantêm a ausência do texto original; você pode preencher os campos depois, sem inventar condições de desbloqueio.
+Uma lista extraída pode não ter descrições. Na conversão para o backend, esses campos recebem o texto de exibição “Descrição não fornecida”, pois o protocolo exige uma descrição não vazia. O projeto e o relatório da extração mantêm a ausência do texto original; você pode preencher os campos depois, sem inventar condições de desbloqueio.
 
 Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
 
@@ -27,6 +27,7 @@ Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das
 |---|---|
 | `none` | Jogar sem catálogo ou eventos de conquistas. |
 | `nwjs-steam` | Jogos NW.js que usem `Steam.awardAchievement` ou `Steam.API.activateAchievement`. A ponte associa as IDs e conserva a chamada original. |
+| `unity-mono-steam` | DLL genérica experimental para Unity Mono, com integrador conservador de wrappers Steamworks.NET. Veja [SDK gerenciado](../sdk/prospero-achievements/managed/README.md). |
 | `file-v1` | Integração própria: o jogo publica eventos pelo protocolo da ponte de arquivos. |
 | `breath` | Integração específica da receita de Breath. |
 

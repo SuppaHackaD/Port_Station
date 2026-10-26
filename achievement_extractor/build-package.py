@@ -9,7 +9,7 @@ def sha(p):
 
 def seal():
     exe=ROOT/'bin/AchievementScanner.exe'
-    (exe.parent/'helper.lock.json').write_text(json.dumps({'version':'0.1.0','sha256':sha(exe)},indent=2)+'\n',encoding='utf-8')
+    (exe.parent/'helper.lock.json').write_text(json.dumps({'version':'0.2.0','sha256':sha(exe)},indent=2)+'\n',encoding='utf-8')
 
 def package(output,source_only=False):
     if output.exists():raise ValueError('Choose a new output ZIP')
@@ -32,7 +32,7 @@ def package(output,source_only=False):
     output.parent.mkdir(parents=True,exist_ok=True)
     with zipfile.ZipFile(output,'x',zipfile.ZIP_DEFLATED,compresslevel=1)as z:
         for n,p in sorted(entries.items()):z.write(p,n)
-        z.writestr('PACKAGE-MANIFEST.json',json.dumps({'version':'0.1.0','files':hashes,'game_data_included':False,'managed_binary_included':not source_only},indent=2)+'\n')
+        z.writestr('PACKAGE-MANIFEST.json',json.dumps({'version':'0.2.0','files':hashes,'game_data_included':False,'managed_binary_included':not source_only},indent=2)+'\n')
     with zipfile.ZipFile(output)as z:
         assert z.testzip()is None
         for n,h in hashes.items():assert hashlib.sha256(z.read(n)).hexdigest()==h

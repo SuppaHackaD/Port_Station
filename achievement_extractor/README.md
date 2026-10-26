@@ -1,4 +1,4 @@
-# Achievement Extractor 0.1.0
+# Achievement Extractor 0.2.0
 
 Ferramenta separada para recuperar definições e IDs de conquistas de uma cópia local de um jogo Windows e gerar uma lista importável pelo Port Station. Não é necessário instalar o kit completo do Port Station para usar o extrator.
 
@@ -10,8 +10,9 @@ Instale Python 3.13 de 64 bits com Tk e abra `Achievement_Extractor.cmd` na raiz
 2. Se tiver um schema de conquistas local separado, selecione-o em **Metadados extras**. O campo é opcional.
 3. Escolha o idioma preferido. Quando não existir, o leitor tenta inglês e depois outro texto disponível; o relatório registra o idioma encontrado.
 4. Clique em **Analisar arquivos**. Revise os nomes, descrições, ícones e itens marcados para revisão. Dê dois cliques em um item para editar e consultar sua origem.
-5. Confirme a nova pasta de saída e clique em **Exportar JSON**.
-6. No Port Station, abra **Conquistas → Importar catálogo JSON** e escolha `achievements.json`. Configure o adaptador dos eventos e, se desejar, marque a platina automática.
+5. Opcionalmente, confirme o **AppID Steam** e clique em **Buscar textos oficiais no idioma escolhido**. A consulta usa apenas AppID/idioma, sem login ou progresso de jogadores. Somente IDs exatamente iguais são associadas. **Só IDs oficiais** seleciona apenas as correspondências da última consulta, mantendo as demais visíveis para revisão; isso ajuda quando uma assembly contém código de mais de uma edição/jogo.
+6. Confirme a nova pasta de saída e clique em **Exportar JSON**.
+7. No Port Station, abra **Conquistas → Importar catálogo JSON** e escolha `achievements.json`. Configure o adaptador dos eventos e, se desejar, marque a platina automática.
 
 A saída contém `achievements.json`, `extraction-report.json`, instruções de importação e os ícones locais recuperados. As imagens permanecem relativas à lista, para que a pasta possa ser movida inteira. Uma saída existente não é substituída.
 
@@ -29,7 +30,7 @@ Se nenhuma definição for encontrada, use **Salvar só relatório** para guarda
 
 Não é um extrator universal de engines, contêineres ou criptografia. Expressões dinâmicas, ofuscação, dados empacotados, IL2CPP e versões diferentes de schemas podem exigir um leitor futuro. O relatório registra limites, chamadas gerenciadas não resolvidas e falhas de leitura. Não encontrar uma ID não demonstra que o jogo não tenha conquistas.
 
-Nomes e descrições muitas vezes são fornecidos pela plataforma em vez de acompanhar o jogo. Quando não são recuperados, o título provisório é a própria ID e a descrição fica vazia, com indicação de revisão. Não há consulta de rede, tradução automática ou banco de listas prontas por jogo. Imagens remotas não são baixadas; PNG/JPEG locais de até 4 MiB podem acompanhar a exportação.
+Nomes e descrições muitas vezes são fornecidos pela plataforma em vez de acompanhar o jogo. Quando não são recuperados, o título provisório é a própria ID e a ausência da descrição permanece indicada no editor/relatório. A exportação usa **“Descrição não fornecida”** para produzir um catálogo aceito pelo backend. A consulta opcional busca a localização oficial da Steam; não gera traduções por IA ou serviços externos. O serviço pode responder em inglês quando não houver o idioma solicitado. Edite nomes e descrições por duplo clique para traduzir manualmente; os campos que você alterar ficam protegidos de consultas posteriores. Os textos oficiais recebidos permanecem no relatório para comparação. Uma falha de rede mantém os textos existentes e permite continuar offline. Imagens remotas não são baixadas; PNG/JPEG locais de até 4 MiB podem acompanhar a exportação.
 
 O catálogo não implementa condições de desbloqueio, não importa progresso de jogadores e não concede conquistas. A conexão dos eventos ao backend continua sendo uma etapa do port. Mantenha `source_id` igual ao valor emitido pelo jogo; uma ID canônica incompatível com o formato do Port Station recebe um nome estável, preservando o valor original em `source_id`.
 
@@ -40,6 +41,8 @@ A partir da pasta que contém `achievement_extractor/`:
 ```powershell
 python -m achievement_extractor --game-dir "D:/Jogos/MeuJogo" --exe "Game.exe" --output "D:/Catalogos/MeuJogo" --language brazilian
 ```
+
+Adicione `--steam-appid 12345` para consultar os textos oficiais após analisar os arquivos. Não há pesquisa por nome nem associação por posição: confirme o AppID correto na página Steam do seu jogo. Um `steam_appid.txt` na raiz apenas preenche uma sugestão na interface.
 
 Use `--metadata "D:/Schemas/achievements.json"` para um schema local adicional. `--include-candidates` inclui também as strings nativas não confirmadas: use apenas depois de revisar sua origem. Sem argumentos, abre a interface.
 
@@ -59,6 +62,7 @@ O pacote Windows inclui o scanner próprio compilado e seu SHA-256. Um clone só
 
 Código próprio sob a licença do Port Station, incluída no pacote. Mono.Cecil 0.11.6 é distribuído sob MIT; o runtime .NET tem os avisos e licenças incluídos em `LICENSES/`.
 
+- [API pública de catálogos Steam](https://api.steampowered.com/IPlayerService/GetGameAchievements/v1/): consulta opcional por AppID e idioma; sua disponibilidade depende da Valve.
 - [Mono.Cecil](https://github.com/jbevain/cecil): leitura estática de metadados e CIL.
 - [Documentação Steamworks de conquistas](https://partner.steamgames.com/doc/features/achievements): diferença entre IDs e atributos de exibição.
 - [KeyValues da Valve](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/tier1/KeyValues.cpp): referência de formato; o leitor desta ferramenta é uma implementação própria.

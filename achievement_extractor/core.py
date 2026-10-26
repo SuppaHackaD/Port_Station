@@ -8,6 +8,7 @@ import shutil
 import struct
 import subprocess
 from . import __version__
+from .official import FALLBACK
 from .formats import read_metadata, definitions, localized, javascript_calls, native_candidates
 
 HERE = Path(__file__).resolve().parent
@@ -208,7 +209,7 @@ def export(result, destination):
             if ext and len(data)<=4*1024*1024:
                 icon='assets/'+hashlib.sha256(data).hexdigest()+ext
                 (dest/'assets').mkdir(exist_ok=True);(dest/icon).write_bytes(data)
-        items.append({'id':ident,'source_id':source,'title':row['title'],'description':row['description'],'hidden':row['hidden'],'target':1,'icon':icon})
+        items.append({'id':ident,'source_id':source,'title':row['title'],'description':row['description'].strip() or FALLBACK,'hidden':row['hidden'],'target':1,'icon':icon})
     catalog={'schema':1,'achievements':items}
     (dest/'achievements.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     write_report(result,dest)

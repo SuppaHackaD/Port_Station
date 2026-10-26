@@ -133,7 +133,7 @@ class App:
         ttk.Label(f,text='Adaptador de eventos').grid(row=0,column=0,sticky='w')
         ttk.Combobox(f,textvariable=self.var('adapter'),values=ADAPTERS,state='readonly').grid(row=0,column=1,sticky='ew')
         self.field(f,1,'Versão do catálogo','catalog_version')
-        ttk.Label(f,text='Catálogo do Prospero Achievements. A criação da lista não cria condições de desbloqueio.\nnone: sem conquistas · file-v1: ponte própria · nwjs-steam: duas APIs Steam conhecidas · breath: receita existente.',wraplength=900,style='Sub.TLabel').grid(row=2,column=0,columnspan=3,sticky='w',pady=10)
+        ttk.Label(f,text='Catálogo do Prospero Achievements. A criação da lista não cria condições de desbloqueio.\nnone: sem conquistas · file-v1: ponte própria · unity-mono-steam: ponte experimental para wrappers compatíveis · nwjs-steam: duas APIs Steam conhecidas · breath: receita existente.',wraplength=900,style='Sub.TLabel').grid(row=2,column=0,columnspan=3,sticky='w',pady=10)
         self.ach_tree=ttk.Treeview(f,columns=('id','title','source','hidden'),show='headings',height=9,selectmode='browse')
         for col,label,width in [('id','ID canônica',150),('title','Nome',330),('source','ID emitida pelo jogo',190),('hidden','Secreta',65)]:self.ach_tree.heading(col,text=label);self.ach_tree.column(col,width=width)
         self.ach_tree.grid(row=3,column=0,columnspan=3,sticky='nsew');self.ach_tree.bind('<Double-1>',lambda e:self.edit_achievement())
