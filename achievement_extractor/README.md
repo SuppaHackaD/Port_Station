@@ -1,6 +1,6 @@
-# Achievement Extractor 0.2.1
+# Achievement Extractor 0.3.0
 
-Ferramenta separada para recuperar definições e IDs de conquistas de uma cópia local de um jogo Windows e gerar uma lista importável pelo Port Station. Não é necessário instalar o kit completo do Port Station para usar o extrator.
+Ferramenta disponível na aba **Conquistas → Extrair do jogo…** do Port Station e também como programa independente, para recuperar definições e IDs de conquistas de uma cópia local de um jogo Windows e gerar uma lista importável pelo Port Station. Não é necessário instalar o kit completo do Port Station para usar o extrator.
 
 ## Começar
 
@@ -30,9 +30,10 @@ Se nenhuma definição for encontrada, use **Salvar só relatório** para guarda
 | VDF textual e KeyValues binário legado com terminador 8 | Definições explícitas de conquistas; `stats` do tipo 4 com `bits`. Outras variantes binárias são recusadas. |
 | Chamadas JavaScript literais conhecidas, como `Steam.awardAchievement("ID")` e `greenworks.activateAchievement("ID", ...)` | IDs e localização no script. Comentários, strings contendo código, regex e argumentos dinâmicos não se tornam IDs confirmadas. |
 | Assemblies gerenciados, incluindo scripts de jogos Unity Mono | Strings passadas diretamente a APIs de conquistas e mapas locais de retorno de string usados nessas chamadas. O scanner lê metadados/CIL com Mono.Cecil. |
+| Pacotes LÖVE/ZIP, inclusive anexados a um PE, e dumps LuaJIT v1/v2 | Constantes locais com origem/hash do membro, cruzadas por igualdade exata com IDs oficiais. Não interpreta instruções nem prova chamadas de desbloqueio. |
 | Strings `ACH_…`, `ACHIEVEMENT_…`, `ACHV_…` e `TROPHY_…` no executável | Candidatos para revisão, desmarcados por padrão. Não há relação de chamada comprovada. |
 
-Não é um extrator universal de engines, contêineres ou criptografia. Expressões dinâmicas, ofuscação, dados empacotados, IL2CPP e versões diferentes de schemas podem exigir um leitor futuro. O relatório registra limites, chamadas gerenciadas não resolvidas e falhas de leitura. Não encontrar uma ID não demonstra que o jogo não tenha conquistas.
+Não é um extrator universal de engines, contêineres ou criptografia. Expressões dinâmicas, ofuscação, formatos de pacote não suportados, IL2CPP e versões diferentes de schemas podem exigir um leitor futuro. O relatório registra limites, chamadas gerenciadas não resolvidas e falhas de leitura. Não encontrar uma ID não demonstra que o jogo não tenha conquistas.
 
 Nomes e descrições muitas vezes são fornecidos pela plataforma em vez de acompanhar o jogo. Quando não são recuperados, o título provisório é a própria ID e a ausência da descrição permanece indicada no editor/relatório. A exportação usa **“Descrição não fornecida”** para produzir um catálogo aceito pelo backend. A consulta opcional busca a localização oficial da Steam; não gera traduções por IA ou serviços externos. O serviço pode responder em inglês quando não houver o idioma solicitado. Edite nomes e descrições por duplo clique para traduzir manualmente; os campos que você alterar ficam protegidos de consultas posteriores. Os textos oficiais recebidos permanecem no relatório para comparação. Uma falha de rede mantém os textos existentes e permite continuar offline. Imagens remotas não são baixadas; PNG/JPEG locais de até 4 MiB podem acompanhar a exportação.
 
@@ -50,7 +51,7 @@ Use `--steam-appid 12345 --official-only` para exigir a interseção oficial tam
 
 Adicione `--steam-appid 12345` para consultar os textos oficiais após analisar os arquivos. Não há pesquisa por nome nem associação por posição: confirme o AppID correto na página Steam do seu jogo. Um `steam_appid.txt` na raiz apenas preenche uma sugestão na interface.
 
-Use `--metadata "D:/Schemas/achievements.json"` para um schema local adicional. `--include-candidates` inclui também as strings nativas não confirmadas: use apenas depois de revisar sua origem. Sem argumentos, abre a interface.
+Use `--metadata "D:/Schemas/achievements.json"` para um schema local adicional. `--include-candidates` inclui também as strings nativas não confirmadas: use apenas depois de revisar sua origem. Sem argumentos, abre a interface. No Port Station, **Aplicar ao projeto** usa o mesmo exportador e importador de JSON, preservando as opções do projeto. A lista não escolhe automaticamente um adaptador de eventos.
 
 ## Compilar e testar
 
@@ -69,6 +70,7 @@ O pacote Windows inclui o scanner próprio compilado e seu SHA-256. Um clone só
 Código próprio sob a licença do Port Station, incluída no pacote. Mono.Cecil 0.11.6 é distribuído sob MIT; o runtime .NET tem os avisos e licenças incluídos em `LICENSES/`.
 
 - [API pública de catálogos Steam](https://api.steampowered.com/IPlayerService/GetGameAchievements/v1/): consulta opcional por AppID e idioma; sua disponibilidade depende da Valve.
+- [Formato de dumps LuaJIT](https://github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_bcdump.h) e [leitor upstream](https://github.com/LuaJIT/LuaJIT/blob/v2.0/src/lj_bcread.c): referência para o leitor próprio de constantes; o runtime LuaJIT não é incluído nem executado.
 - [Mono.Cecil](https://github.com/jbevain/cecil): leitura estática de metadados e CIL.
 - [Documentação Steamworks de conquistas](https://partner.steamgames.com/doc/features/achievements): diferença entre IDs e atributos de exibição.
 - [KeyValues da Valve](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/tier1/KeyValues.cpp): referência de formato; o leitor desta ferramenta é uma implementação própria.

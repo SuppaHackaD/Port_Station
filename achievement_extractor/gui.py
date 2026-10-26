@@ -12,11 +12,13 @@ from .official import fetch,enrich,detect_app_id,select_confirmed,confirmed_ids
 
 
 class App:
-    def __init__(self,root):
+    def __init__(self,root,on_import=None,integrated=False):
         self.root=root;self.result=None;self.events=queue.Queue();self.cancel=threading.Event();self.lookup_busy=False
+        self.on_import=on_import;self.closed=False;self.after_id=None
         root.title('Achievement Extractor '+__version__+' · Port Station');root.geometry('1120x740');root.minsize(920,600)
-        style=ttk.Style(root);style.theme_use('clam')
-        style.configure('TFrame',background='#17212d');style.configure('TLabel',background='#17212d',foreground='#ecf0f5');style.configure('Title.TLabel',font=('Segoe UI',18,'bold'))
+        if not integrated:
+            style=ttk.Style(root);style.theme_use('clam')
+            style.configure('TFrame',background='#17212d');style.configure('TLabel',background='#17212d',foreground='#ecf0f5');style.configure('Title.TLabel',font=('Segoe UI',18,'bold'))
         frame=ttk.Frame(root,padding=20);frame.pack(fill='both',expand=True);frame.columnconfigure(1,weight=1);frame.rowconfigure(9,weight=1)
         ttk.Label(frame,text='Achievement Extractor',style='Title.TLabel').grid(row=0,column=0,columnspan=3,sticky='w')
         ttk.Label(frame,text='Catálogos locais + textos oficiais → JSON para importar no Port Station',padding=(0,6)).grid(row=1,column=0,columnspan=3,sticky='w')
@@ -49,9 +51,23 @@ class App:
         self.table.grid(row=10,column=0,columnspan=3,sticky='nsew');self.table.bind('<Double-1>',lambda _:self.edit())
         actions=ttk.Frame(frame);actions.grid(row=11,column=0,columnspan=3,sticky='w',pady=10)
         for label,command in [('Incluir / excluir',self.toggle),('Editar item / ver origem',self.edit),('Só IDs oficiais',self.confirmed),('Exportar JSON',self.save),('Salvar só relatório',self.report),('Abrir saída',self.open_output)]:ttk.Button(actions,text=label,command=command).pack(side='left',padx=(0,8))
+        if on_import:ttk.Button(actions,text='Aplicar ao projeto',command=self.apply).pack(side='left')
         self.status=tk.StringVar(value='Selecione a pasta e o executável.');ttk.Label(frame,textvariable=self.status,wraplength=1000).grid(row=12,column=0,columnspan=3,sticky='w')
         self.log=tk.Text(frame,height=5,font=('Consolas',9),state='disabled');self.log.grid(row=13,column=0,columnspan=3,sticky='ew',pady=(10,0))
-        root.after(100,self.poll)
+        root.protocol('WM_DELETE_WINDOW',self.close)
+        self.after_id=root.after(100,self.poll)
+    def close(self):
+        self.closed=True;self.cancel.set()
+        if self.after_id:self.root.after_cancel(self.after_id)
+        self.root.destroy()
+    def apply(self):
+        try:
+            if self.lookup_busy or self.scan_button['state']=='disabled':raise ValueError('Aguarde a análise/consulta antes de aplicar.')
+            if not self.result:raise ValueError('Faça uma análise primeiro.')
+            path=export(self.result,self.output.get(),official_only=self.official_only.get(),steam_app_id=self.appid.get())
+            if self.on_import(path) is False:raise ValueError('O catálogo foi exportado, mas não foi aplicado ao projeto.')
+            self.status.set('Catálogo aplicado ao projeto. A integração dos eventos exige um adaptador compatível.')
+        except Exception as e:messagebox.showerror('Aplicar catálogo',str(e),parent=self.root)
     def choose_folder(self):
         path=filedialog.askdirectory(parent=self.root)
         if path:
@@ -86,6 +102,7 @@ class App:
             except Exception as e:self.events.put(('lookup_error',str(e)))
         threading.Thread(target=work,daemon=True).start()
     def poll(self):
+        if self.closed:return
         while True:
             try:kind,value=self.events.get_nowait()
             except queue.Empty:break
@@ -101,9 +118,9 @@ class App:
                     self.status.set(value);messagebox.showwarning('Textos oficiais',value,parent=self.root)
             elif kind=='result':
                 self.result=value;self.refresh();self.scan_button.configure(state='normal')
-                if not value['entries']:self.status.set('Nenhuma definição recuperada. Tente fornecer um schema local no campo de metadados extras.')
+                if not value['entries']:self.status.set('Constantes locais recuperadas; informe o AppID Steam para cruzar as IDs oficiais.'if value.get('constant_candidates')else'Nenhuma definição recuperada. Tente fornecer um schema local no campo de metadados extras.')
             else:self.scan_button.configure(state='normal');self.status.set(value);messagebox.showerror('Extração',value,parent=self.root)
-        self.root.after(100,self.poll)
+        self.after_id=self.root.after(100,self.poll)
     def refresh(self):
         if self.official_only.get() and self.result.get('official_lookup'):
             allowed=confirmed_ids(self.result)

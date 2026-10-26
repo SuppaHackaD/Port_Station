@@ -13,7 +13,7 @@ class GuiTests(unittest.TestCase):
             app.table.selection_set('0');app.toggle()
             self.assertFalse(app.result['entries'][0]['selected'])
             self.assertIn('descrição',app.table.item('0','values')[-1])
-            self.assertIn('0.2.1',root.title())
+            self.assertIn('0.3.0',root.title())
         finally:root.destroy()
 
     def test_persistent_official_mode_cannot_include_an_unconfirmed_row(self):

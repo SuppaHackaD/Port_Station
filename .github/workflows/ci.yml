@@ -28,3 +28,5 @@ jobs:
       - run: python sdk/prospero-achievements/managed/build.py
       - run: dotnet run --project sdk/prospero-achievements/managed/Tests -c Release -- build/port-studio/managed/ProsperoManagedIntegrator.exe build/port-studio/managed/ProsperoAchievements.dll
       - run: python -m unittest port_station.tests.test_managed -v
+
+      - run: python -m unittest port_station.tests.test_extractor_gui -v

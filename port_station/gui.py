@@ -139,7 +139,7 @@ class App:
         self.ach_tree.grid(row=3,column=0,columnspan=3,sticky='nsew');self.ach_tree.bind('<Double-1>',lambda e:self.edit_achievement())
         f.rowconfigure(3,weight=1)
         bar=ttk.Frame(f);bar.grid(row=4,column=0,columnspan=3,sticky='w',pady=8)
-        for label,command in [('Adicionar',lambda:self.edit_achievement(True)),('Editar',self.edit_achievement),('Remover',self.remove_achievement),('Importar catálogo JSON',self.import_catalog),('Exportar lista JSON',self.export_catalog)]:ttk.Button(bar,text=label,command=command).pack(side='left',padx=(0,5))
+        for label,command in [('Extrair do jogo…',self.extract_achievements),('Adicionar',lambda:self.edit_achievement(True)),('Editar',self.edit_achievement),('Remover',self.remove_achievement),('Importar catálogo JSON',self.import_catalog),('Exportar lista JSON',self.export_catalog)]:ttk.Button(bar,text=label,command=command).pack(side='left',padx=(0,5))
         self.platinum=tk.BooleanVar();ttk.Checkbutton(f,text='Acrescentar platina automática ao obter todas as conquistas regulares',variable=self.platinum).grid(row=5,column=0,columnspan=3,sticky='w',pady=8)
         self.field(f,6,'Nome da platina','platinum_title');self.field(f,7,'Ícone da platina (opcional)','platinum_icon',lambda:self.choose('platinum_icon'))
 
@@ -179,8 +179,26 @@ class App:
     def import_catalog(self):
         file=filedialog.askopenfilename(parent=self.root,filetypes=[('Catálogo JSON','*.json')])
         if not file:return
+        return self.load_catalog(Path(file))
+
+    def extract_achievements(self):
+        if self.busy:return
         try:
-            path=Path(file);data=json.loads(path.read_text(encoding='utf-8-sig'));items=data.get('achievements',data.get('items',[]))if isinstance(data,dict)else data
+            from achievement_extractor.gui import App as Extractor
+            from achievement_extractor.official import detect_app_id
+            game=resolve_path(self.var('game_dir').get(),self.base)
+            window=tk.Toplevel(self.root);window.transient(self.root)
+            child=Extractor(window,on_import=self.load_catalog,integrated=True)
+            child.folder.set(str(game));child.exe.set(self.var('executable').get())
+            child.appid.set(detect_app_id(game))
+            child.output.set(str(WORKSPACE/'outputs'/('achievements-'+datetime.now().strftime('%Y%m%d-%H%M%S'))))
+            window.grab_set()
+            self.extractor=child
+        except Exception as e:messagebox.showerror('Extrator',str(e),parent=self.root)
+
+    def load_catalog(self,path):
+        try:
+            path=Path(path);data=json.loads(path.read_text(encoding='utf-8-sig'));items=data.get('achievements',data.get('items',[]))if isinstance(data,dict)else data
             if not isinstance(items,list):raise ValueError('Lista ausente.')
             regular=[]
             for item in items:
@@ -197,7 +215,8 @@ class App:
             self.project['achievements']=regular;self.refresh_achievements()
             if isinstance(data,dict)and 'catalog_version'in data:self.var('catalog_version').set(max(int(self.var('catalog_version').get()),int(data['catalog_version'])+1))
             self.status.set(f'Importadas {len(regular)} conquistas. Catálogo importado usa uma revisão nova; aumente novamente ao alterar uma lista já publicada.')
-        except Exception as e:messagebox.showerror('Importação',str(e),parent=self.root)
+            return True
+        except Exception as e:messagebox.showerror('Importação',str(e),parent=self.root);return False
 
     def export_catalog(self):
         path=filedialog.asksaveasfilename(parent=self.root,defaultextension='.json',filetypes=[('Lista editável','*.json')])

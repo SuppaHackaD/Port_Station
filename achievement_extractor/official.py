@@ -73,6 +73,13 @@ def fetch(steam_app_id, language='english'):
 def enrich(result, schema):
     """Exact-ID merge, no new rows/unlocks, manual edits preserved field by field."""
     result = copy.deepcopy(result)
+    known={row['source_id']for row in result['entries']}
+    for source in schema['entries']:
+        origins=result.get('constant_candidates',{}).get(source)
+        if origins and source not in known:
+            result['entries'].append({'source_id':source,'title':source,'description':'','hidden':False,'icon':'',
+                'evidence':copy.deepcopy(origins),'rank':1,'conflicts':[],'review':['title','description','icon'],
+                'selected':False})
     count = 0
     for row in result['entries']:
         official = schema['entries'].get(row['source_id'])

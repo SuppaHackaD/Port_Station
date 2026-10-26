@@ -12,6 +12,15 @@ def finalize(root):
     for rel,p in entries.items():copy_file(p,kit/rel)
     lock=json.loads((repo/'port_station/runtime.lock.json').read_text(encoding='utf8'));delta=[]
     managed_names=[]
+    scanner_manifest=repo/'achievement_extractor/bin/helper.lock.json'
+    if scanner_manifest.is_file():
+        declared=json.loads(scanner_manifest.read_text(encoding='utf8'))
+        exe='achievement_extractor/bin/AchievementScanner.exe'
+        if sha(repo/exe)!=declared['sha256']:raise ValueError('Extractor scanner differs from manifest')
+        for rel in (exe,'achievement_extractor/bin/helper.lock.json'):
+            copy_file(repo/rel,kit/rel);managed_names.append(rel)
+            actual=sha(kit/rel);old=lock['files'].get(rel)
+            if actual!=old:delta.append({'file':rel,'before':old,'after':actual});lock['files'][rel]=actual
     manifest=repo/'build/port-studio/managed/managed.lock.json'
     if manifest.is_file():
         declared=json.loads(manifest.read_text(encoding='utf8'))['files']

@@ -4,7 +4,7 @@ Este guia é para desenvolvimento do projeto. Para gerar uma homebrew com o kit 
 
 ## Ambiente de desenvolvimento
 
-O frontend usa Python 3.13/Tk e Pillow 13.0.0. A base de compilação Windows inclui Clang/LLD 18.1.8, SDK público v0.44, CMake, Ninja e Zig nas versões verificadas pelo kit. Node.js executa os testes JavaScript. O .NET SDK 10 é necessário somente para recompilar o preparador gerenciado de Breath.
+O frontend usa Python 3.13/Tk e Pillow 13.0.0. A base de compilação Windows inclui Clang/LLD 18.1.8, SDK público v0.44, CMake, Ninja e Zig nas versões verificadas pelo kit. Node.js executa os testes JavaScript. O .NET SDK 10 recompila as ferramentas gerenciadas: preparador de Breath, ponte Unity Mono e scanner do extrator.
 
 Clone o repositório e instale as dependências Python:
 
@@ -34,7 +34,7 @@ Sem FFmpeg, os testes de conversão de áudio são pulados. Instale-o com `pytho
 - `build/prospero-evaluation/source-v020/`: fontes do runtime consumidos pela build.
 - `release_support/`: preparação de exemplos e ferramentas de empacotamento do kit.
 
-O projeto usa um único pacote Python, `port_station`. Os caminhos de dados do runtime e IDs de jogos são independentes desse nome.
+O frontend está em `port_station`; o pacote `achievement_extractor` fornece a análise integrada e a interface independente. Os caminhos de dados do runtime e IDs de jogos são independentes desse nome.
 
 ## Backend e SDK
 
@@ -66,6 +66,18 @@ dotnet publish release_support/managed/Patcher/Patcher.csproj -c Release -r win-
 ```
 
 O restore usa Microsoft.NETFramework.ReferenceAssemblies 1.0.3 e Mono.Cecil 0.11.6. Os fontes da ponte e patcher estão em `src/breath/wine_title/`. O resultado modificado do jogo é produzido localmente pelo usuário, não pelo build do projeto.
+
+## Scanner integrado e ponte genérica
+
+```powershell
+dotnet publish achievement_extractor/managed/Scanner.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -o achievement_extractor/bin
+python achievement_extractor/build-package.py --seal-helper
+python sdk/prospero-achievements/managed/build.py
+python -m unittest discover -s achievement_extractor/tests -v
+python -m unittest port_station.tests.test_extractor_gui -v
+```
+
+O kit inclui os binários próprios e os hashes dos helpers. Os leitores de ZIP/LuaJIT são Python puro; não exigem Lua instalado nem executam o jogo. Veja o [SDK gerenciado](../sdk/prospero-achievements/managed/README.md) para os testes da ponte.
 
 ## Runtime e dependências upstream
 

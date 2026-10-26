@@ -21,7 +21,7 @@ O payload e o SDK nativo continuam responsáveis por persistência, tentativas d
 4. A build recebe uma cópia da assembly adaptada, a DLL genérica e `ProsperoAchievements.config.tsv`. A origem permanece intacta. Na abertura, o launcher também sincroniza esses três arquivos em um prefixo já preparado, verificando tamanho e CRC antes de substituir cada arquivo.
 5. Com o payload ativo, valide primeiro a abertura do jogo e o catálogo. Depois obtenha uma conquista legítima, confira o popup e a web, feche/reabra e confira a persistência.
 
-**Estado:** compilação e testes em Windows passaram, incluindo execução de um fixture próprio pela DLL compilada e sincronização nativa de arquivos grandes. A análise estática reconhece o wrapper da cópia de Kindergarten utilizada no desenvolvimento. A integração genérica ainda precisa de validação no PS5; a receita específica de Breath permanece disponível e já validada separadamente.
+**Estado:** compilação e testes em Windows passaram, incluindo execução de um fixture próprio pela DLL compilada e sincronização nativa de arquivos grandes. A análise estática reconhece o wrapper da cópia de Kindergarten utilizada no desenvolvimento. A integração foi validada em uma build de Kindergarten no PS5, com desbloqueio legítimo de Best Boyfriend Ever, popup e persistência no backend. Outros jogos/wrappers precisam de validação própria. A receita específica de Breath permanece disponível e validada separadamente.
 
 ### Limites do integrador automático
 
