@@ -1,52 +1,57 @@
 # Novidades
 
-## 0.4.0-preview.4
+## 0.4.0 — primeira versão pública
 
-O adaptador `file-v1` passa a incluir um produtor de eventos na revisão LÖVE
-verificada de Intravenous 2: Mercenarism. A ponte acompanha as chamadas originais
-de desbloqueio, associa as IDs ao catálogo configurado e grava os eventos por
-usuário para o trabalhador nativo. Instalar ou abrir o jogo não concede itens;
-as condições originais e os saves são preservados.
+O kit completo inclui frontend Python/Tk e CLI, runtime Wine/prospero-win,
+SDK público, compiladores e ferramentas de recursos. Não é necessário instalar
+previews ou aplicar uma sequência de updates. Python 3.13 x64 com Tcl/Tk é o
+pré-requisito externo; FFmpeg é opcional para decodificar arquivos de áudio.
 
-Recompile com `opengl-xinput` e `file-v1`, mantendo a ID estável e o catálogo
-oficial. Instale a pasta completa: o launcher atualiza o executável preparado
-e a nova `paevents.dll` no prefixo em cache. O relatório `love-compatibility.json`
-identifica a ponte como `love-platform-setachievement-v1`.
+### Empacotamento e apresentação
 
-Os testes locais verificam gravação durável, isolamento por usuário, encaminhamento
-Lua/FFI e preservação da API original. O desbloqueio real no console ainda precisa
-de validação nesta revisão. Conquistas já registradas pelo próprio jogo podem
-não gerar uma nova chamada ao repetir a condição.
+- Projetos reutilizáveis com perfis Direct3D/DXVK, OpenGL/Mesa-Zink,
+  NW.js/Canvas e GDI.
+- Título, ícone, fundos e música opcionais, conversão BC7 e encoder ATRAC9 local.
+- Desktop virtual automático ou configurável até 4K. O backend OpenGL libera
+  a referência de apresentação ao destruir o contexto, permitindo recriar a
+  janela ao trocar a resolução nas configurações do jogo compatível.
+- Atalho Options + clique do touchpad e fechamento pelo menu PS no ambiente
+  testado; preparação de dados graváveis e atualização de arquivos de
+  compatibilidade no prefixo em cache, preservando saves.
 
-## 0.4.0-preview.3
+### Conquistas
 
-O preparo LÖVE agora faz parte do empacotador: a DLL x64 11.4 verificada recebe
-a integração com `paenv.dll` na cópia da build. O executável verificado de
-Intravenous recebe também a correção do controle. O launcher atualiza esses
-arquivos no prefixo em cache antes de iniciar o jogo, sem substituir saves.
+- Extrator integrado com leitores JSON/VDF, JavaScript, Unity Mono e constantes
+  LuaJIT em pacotes LÖVE/ZIP, inclusive anexados ao executável.
+- Interseção exata com IDs oficiais Steam, consulta de textos oficiais por idioma
+  e edição manual, sem tradução automática por serviços externos.
+- Backend Prospero Achievements, fila persistente no SDK, popup confirmado,
+  progresso por usuário e platina opcional calculada pelo serviço.
+- Adaptadores NW.js, Unity Mono, Breath e protocolo de arquivos. A revisão
+  LÖVE verificada de Intravenous recebe um produtor de chamadas originais
+  `SetAchievement`, com fonte e DLL própria incluídos.
 
-As builds anteriores do teste tinham esses ajustes aplicados separadamente.
-Nesta revisão, a interface e a CLI geram o mesmo preparo e registram seus
-hashes em `love-compatibility.json`. Use o perfil `opengl-xinput` e recompile
-o projeto. A resolução 1920×1080 continua sendo uma seleção válida.
+### Compatibilidade e validação
 
-## 0.4.0-preview.2
+Os testes manuais no PS5 13.60 confirmaram funções de jogo e conquistas em
+Breath, TCOAAL, Kindergarten e na revisão x64 de Intravenous 2: Mercenarism 1.7.1.
+A ponte LÖVE passou no teste real de desbloqueio relatado pelo usuário. Em
+Intravenous, também foram testadas trocas 4K → 1080p → 720p → 4K e a seleção
+do mesmo adaptador sem tela preta. A cobertura é por função/trecho; não equivale
+a campanhas completas nem garante outras versões.
 
-- Resolução do desktop virtual em `auto` ou configurável até 3840×2160, pela
-  interface e por `display_resolution` nos projetos JSON. Projetos antigos usam
-  `auto`; `display.desktop` em Avançado continua tendo prioridade.
-- Perfil `opengl-xinput` para OpenGL/Mesa-Zink com XInput.
-- Correção no Zink para liberar a referência de apresentação ao destruir um
-  contexto. O port de teste x64 do Intravenous confirmou mudanças entre 4K,
-  1080p e 720p e seleção do mesmo adaptador sem a tela preta anterior.
+Os testes locais abrangem build, catálogos, fontes, transporte de eventos,
+isolamento por usuário, repetição, falhas de gravação e preservação da API do
+jogo. A CI verifica os fontes e o extrator sem depender dos arquivos comerciais.
+As receitas, revisões, hashes e instruções de reconstrução acompanham o kit.
 
-A detecção consulta o tamanho informado pelo console na abertura do título,
-com fallback para 1920×1080. O jogo controla sua resolução de renderização
-dentro do desktop escolhido. O tamanho físico da saída e a frequência de
-atualização continuam sob as configurações do console e do backend gráfico.
-Veja [resolução e tela](NEW_GAME.md#resolução-e-tela).
+### Instalação
 
-As builds existentes mantêm seu launcher e runtime. Para incorporar estas
-alterações a um port, recompile o projeto com o kit atualizado e instale a
-nova pasta do título. Os ajustes específicos e a compatibilidade de cada jogo
-continuam sendo validados separadamente.
+Baixe `Port_Station-0.4.0-windows-kit.zip`, extraia em uma pasta nova e abra
+`Port_Station.cmd`. Consulte o [guia rápido](QUICKSTART.md). Para projetos
+existentes, abra seu `.ps5port.json` no kit novo e gere outra build; o projeto
+não substitui automaticamente a instalação do jogo no console.
+
+As configurações de Breath e TCOAAL são exemplos com placeholders próprios.
+Nenhum jogo, save, arte oficial ou música comercial é distribuído. Os fontes
+completos, backend/SDK compilados e fontes upstream acompanham a release.
