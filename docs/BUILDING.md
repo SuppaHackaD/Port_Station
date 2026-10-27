@@ -58,6 +58,12 @@ Esses comandos recompilam, respectivamente, o conversor nativo/libc pública, o 
 
 A build de um jogo gera C/CMake específicos do título e recompila launcher e helper. `python -m port_station build <projeto> --output <pasta-nova>` usa o mesmo caminho da interface.
 
+O helper de perfil para a versão LÖVE suportada é recompilado com
+`python -m port_station.love`. O comando usa o Zig do kit e gera
+`build/port-studio/compat/pe64/{paenv.dll,helper.json}`. Seu código está em
+`port_station/native_compat/paenv.c`; o manifesto relaciona o fonte à DLL. Os
+arquivos comerciais são preparados localmente durante a build do port.
+
 ## Preparador gerenciado do exemplo Breath
 
 ```powershell

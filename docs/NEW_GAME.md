@@ -39,6 +39,20 @@ O perfil `nwjs-canvas` acrescenta `canvas` como primeiro argumento e configura u
 
 A correção de fontes NW.js instala as TTF/OTF locais referidas pelo CSS no prefixo e dá preferência ao carregamento local. Ela é aplicada automaticamente durante a build desse perfil.
 
+### LÖVE
+
+Use `opengl-xinput`. O Port Station reconhece por SHA-256 a DLL x64 LÖVE 11.4
+validada e prepara, na cópia da build, um helper para consultar o diretório do
+usuário no Wine. Na versão verificada de Intravenous 2: Mercenarism, também
+corrige o descritor de controle usado pelas opções do jogo. Os arquivos de
+origem são preservados; outras versões de DLL ou executável continuam exigindo
+validação própria.
+
+O relatório `love-compatibility.json` informa os arquivos preparados e seus
+hashes. A build inclui a atualização desses arquivos no prefixo em cache antes
+de iniciar o jogo, mantendo saves e outros recursos. Isso permite reinstalar
+uma build corrigida com o mesmo Title ID, usando a pasta completa gerada.
+
 Se um jogo falhar, altere uma configuração por vez. Trocar renderer, argumentos e controles ao mesmo tempo dificulta saber qual mudança resolveu o problema. Um perfil não supre automaticamente APIs ou componentes ausentes do runtime.
 
 ## 4. Argumentos de lançamento

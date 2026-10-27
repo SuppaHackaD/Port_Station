@@ -30,4 +30,10 @@ O WGL/Zink do kit inclui uma alteração do Port Station que libera a referênci
 de fonte e a associação dos binários estão em `release_support/mesa-wgl/`.
 Os avisos Mesa originais permanecem aplicáveis; o código adicionado segue MIT.
 
+O helper de diretório do usuário `paenv.dll` é código do Port Station sob
+GPL-3.0-or-later, com fonte em `port_station/native_compat/paenv.c`. Ele usa as
+APIs Windows de consulta do token do próprio processo e a variável USERPROFILE;
+não inclui componentes dos jogos. Os preparadores e demais arquivos mantêm
+suas licenças individuais.
+
 Créditos dos jogos: Breath é de Herbherth; The Coffin of Andy and Leyley é de Kit9 Studio. Os arquivos comerciais devem ser adquiridos de seus titulares. Nenhum vínculo, aprovação ou autorização dos criadores é alegado.

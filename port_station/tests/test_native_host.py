@@ -10,6 +10,32 @@ from port_station.project import WORKSPACE, read_project
 from port_station.builder import Builder
 
 class NativeHostTests(unittest.TestCase):
+    def test_compatibility_sync_updates_cached_files_and_preserves_saves(self):
+        with tempfile.TemporaryDirectory(prefix='station-compat-')as td:
+            root=Path(td);package=root/'package';data=root/'data';p=read_project(WORKSPACE/'port_station/examples/windows-game.ps5port.json');p.update(game_id='own.compat',title_id='PPSA99501',adapter='none')
+            folder='prefixes/own-compat/drive_c/Games/own-compat/'
+            old=b'owned old DLL';new=b'owned new DLL '*50000;shim=b'owned helper';owned=root/'owned';owned.mkdir()
+            (owned/'love.dll').write_bytes(new);(owned/'paenv.dll').write_bytes(shim)
+            files={'love.dll':owned/'love.dll','paenv.dll':owned/'paenv.dll'}
+            entries={folder+'love.dll':new,folder+'paenv.dll':shim,'profiles/own-compat.profile':b'own profile','profiles/profiles.lst':b'own-compat.profile\n'}
+            for name,b in entries.items():q=package/'seed'/name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+            (package/'seed-files.tsv').write_text(''.join(f'{len(b)}\t{zlib.crc32(b):08x}\t{n}\n'for n,b in entries.items()),encoding='utf-8',newline='\n')
+            generated=root/'generated';native.generate(p,generated,compat_files=files)
+            (root/'driver.c').write_text('#include "studio_bootstrap.h"\nint main(int argc,char**argv){return argc==2?studio_bootstrap(argv[1]):99;}\n')
+            exe=root/'test.exe'
+            subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-O2','-I'+str(generated),'-DSTUDIO_DATA_ROOT="'+data.as_posix()+'"','-DSTUDIO_PACKAGE_ROOT="'+package.as_posix()+'"',str(generated/'studio_bootstrap.c'),str(root/'driver.c'),'-o',str(exe)],check=True,capture_output=True)
+            subprocess.run([exe,data.as_posix()],check=True)
+            save=data/folder/'save.dat';save.write_bytes(b'owned progress');self.assertEqual((data/folder/'love.dll').read_bytes(),new)
+            # Simulate a cached prefix from a previous build, retaining its ready marker.
+            (data/'.port-station-love-ready').unlink();(data/folder/'love.dll').write_bytes(old)
+            subprocess.run([exe,data.as_posix()],check=True)
+            self.assertEqual((data/folder/'love.dll').read_bytes(),new);self.assertEqual(save.read_bytes(),b'owned progress')
+            # A sealed cache reopens without rewriting the game files.
+            before=(data/folder/'love.dll').stat().st_mtime_ns;subprocess.run([exe,data.as_posix()],check=True);self.assertEqual((data/folder/'love.dll').stat().st_mtime_ns,before)
+            # A corrupt packaged update is refused and cannot replace the cached file.
+            (data/'.port-station-love-ready').unlink();(data/folder/'love.dll').write_bytes(old);(package/'seed'/folder/'love.dll').write_bytes(b'bad source')
+            result=subprocess.run([exe,data.as_posix()]);self.assertNotEqual(result.returncode,0);self.assertEqual((data/folder/'love.dll').read_bytes(),old);self.assertEqual(save.read_bytes(),b'owned progress')
+
     def test_display_detection_fallback_and_aspect_preserving_ceiling(self):
         with tempfile.TemporaryDirectory(prefix='station-display-')as td:
             root=Path(td);source=root/'display.c';exe=root/'display.exe'

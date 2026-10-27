@@ -18,6 +18,7 @@ def package(base,output,kit=None):
                   'build/port-studio/managed/managed.lock.json',
                   'achievement_extractor/bin/AchievementScanner.exe',
                   'achievement_extractor/bin/helper.lock.json'}
+        compiled.update({'build/port-studio/compat/pe64/paenv.dll','build/port-studio/compat/pe64/helper.json'})
         compiled.add('build/prospero-evaluation/staged/PPSA99995/mesa-zink-manifest.json')
         compiled.update('build/prospero-evaluation/staged/PPSA99995/win/mesa-zink/'+arch+'/'+dll
                         for arch in ('i386-windows','x86_64-windows')

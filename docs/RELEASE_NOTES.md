@@ -1,5 +1,17 @@
 # Novidades
 
+## 0.4.0-preview.3
+
+O preparo LÖVE agora faz parte do empacotador: a DLL x64 11.4 verificada recebe
+a integração com `paenv.dll` na cópia da build. O executável verificado de
+Intravenous recebe também a correção do controle. O launcher atualiza esses
+arquivos no prefixo em cache antes de iniciar o jogo, sem substituir saves.
+
+As builds anteriores do teste tinham esses ajustes aplicados separadamente.
+Nesta revisão, a interface e a CLI geram o mesmo preparo e registram seus
+hashes em `love-compatibility.json`. Use o perfil `opengl-xinput` e recompile
+o projeto. A resolução 1920×1080 continua sendo uma seleção válida.
+
 ## 0.4.0-preview.2
 
 - Resolução do desktop virtual em `auto` ou configurável até 3840×2160, pela

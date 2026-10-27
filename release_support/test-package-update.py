@@ -42,6 +42,8 @@ class UpdateTests(unittest.TestCase):
                        for n in ('opengl32.dll','libgallium_wgl.dll')])
     def test_changed_runtime_is_rejected(self):
         self.run_case([MESA+'win/mesa-zink/x86_64-windows/libgallium_wgl.dll'],invalid=True)
+    def test_owned_love_helper_is_included(self):
+        self.run_case(['build/port-studio/compat/pe64/paenv.dll','build/port-studio/compat/pe64/helper.json'])
     def test_unapproved_binary_is_rejected(self):
         self.run_case([MESA+'win/mesa-zink/x86_64-windows/unapproved.dll'])
 

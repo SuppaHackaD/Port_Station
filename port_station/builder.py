@@ -151,6 +151,15 @@ class Builder:
             self.emit('Port Station '+__version__+' — verificando entradas')
             lock=check_lock(self.emit,self.cancel,full=False)
             inputs={x.relative_to(game).as_posix():digest(x)for x in sorted(tree(game))}
+            from . import love
+            compat_files=None;compatibility_plan=love.inspect(p,game)
+            if compatibility_plan:
+                self.emit('LÖVE: preparando a consulta de perfil e as correções verificadas na cópia da build…')
+                compat_files,report=love.prepare(compatibility_plan,game,output/'compatibility')
+                for overlay in p['overlays']:
+                    if overlay['destination'].casefold() in {n.casefold()for n in compat_files}:
+                        raise ProjectError('Overlay conflita com arquivo preparado pelo suporte LÖVE: '+overlay['destination'])
+                write_json(output/'love-compatibility.json',report)
             if p['adapter']=='breath':
                 from . import breath
                 breath.inspect(game,self.run)
@@ -165,7 +174,7 @@ class Builder:
                 from .managed import prepare
                 self.emit('Unity Mono: verificando o ponto de concessão e preparando a DLL genérica…')
                 managed_files=prepare(p,game,output/'managed',self.run)
-            native.generate(p,generated,catalog,resources,blob,managed_files=managed_files)
+            native.generate(p,generated,catalog,resources,blob,managed_files=managed_files,compat_files=compat_files)
             (output/'CMakeLists.txt').write_text(native.cmake(p,generated),encoding='utf8',newline='\n')
             profile=make_profile(p,architecture);(output/'game.profile').write_text(profile,encoding='utf8',newline='\n')
             self.run([R/'build/port-studio/tools/check-profile.exe',output/'game.profile'])
@@ -184,6 +193,9 @@ class Builder:
             self.emit('Copiando prefixo limpo e arquivos do jogo…')
             self.copy(KIT/'prefix',prefix)
             target=prefix/'drive_c/Games'/slug;self.copy(game,target)
+            if compat_files:
+                for rel,path in compat_files.items():
+                    dest=target/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
             for overlay in p['overlays']:
                 self.checkpoint();dest=target/relative_file(overlay['destination']);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(resolve_path(overlay['source'],base),dest)
             if p['adapter']=='breath':

@@ -9,7 +9,7 @@ def c_string(value):
 def literal(data):
     return '\n'.join('"'+''.join(f'\\x{x:02x}'for x in data[i:i+256])+'"'for i in range(0,len(data),256))
 
-def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None):
+def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None, compat_files=None):
     out.mkdir(parents=True,exist_ok=True)
     game=p['game_id'];slug=runtime_id(p); root='/data/port-studio/'+p['title_id'].lower(); adapter=p['adapter']
     s=(R/'port_station/templates/wine64_main.c.in').read_text(encoding='utf8')
@@ -49,9 +49,16 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
         managed_sync=(R/'port_station/templates/sync_managed.c.inc').read_text(encoding='utf-8')
         managed_sync=managed_sync.replace('@TITLE_ID@',p['title_id']).replace('@MANAGED_ROWS@',','.join('{'+c_string(name)+','+str(size)+'ULL,'+str(crc)+'u}'for name,size,crc in rows))
         sync+='\n'+managed_sync
+    if compat_files:
+        from .love import sync_rows
+        rows,stamp=sync_rows(p,compat_files)
+        compat_sync=(R/'port_station/templates/sync_compat.c.inc').read_text(encoding='utf-8')
+        compat_sync=compat_sync.replace('@TITLE_ID@',p['title_id']).replace('@COMPAT_STAMP@',c_string(stamp)).replace('@COMPAT_ROWS@',','.join('{'+c_string(name)+','+str(size)+'ULL,'+str(crc)+'u}'for name,size,crc in rows))
+        sync+='\n'+compat_sync
     s=s.replace('int studio_bootstrap(const char*root){',sync+'\nint studio_bootstrap(const char*root){')
     s=s.replace('int result=install(root);','int result=install(root);if(!result)result=sync_profiles(root);')
     if adapter=='unity-mono-steam':s=s.replace('result=sync_profiles(root);','result=sync_profiles(root);if(!result)result=sync_managed(root);')
+    if compat_files:s=s.replace('result=sync_profiles(root);','result=sync_profiles(root);if(!result)result=sync_compat(root);')
     (out/'studio_bootstrap.c').write_text(s,encoding='utf8',newline='\n')
     (out/'studio_bootstrap.h').write_text('int studio_bootstrap(const char *root);\n')
     if adapter=='none':return

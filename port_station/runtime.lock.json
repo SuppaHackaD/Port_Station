@@ -30838,7 +30838,12 @@
     "port_station/templates/display_policy.h": "660672616cb5c21b5f172b5918cc89d33f3ff02399f644526c66d9c430c546b2",
     "release_support/mesa-wgl/runtime.json": "906b9597795a2bebca10db83a16d0eee085382ee9a7c3f055dc0062c7f714fa4",
     "release_support/mesa-wgl/build.py": "86aec8015317decbc541b506caa341b1ded629d1649bd380f27fc14785a7e380",
-    "release_support/mesa-wgl/diagnostics.py": "e3b751e3f58996c87c54cb9ad26459628648cdf22ed10f6d9136599ff880f4f9"
+    "release_support/mesa-wgl/diagnostics.py": "e3b751e3f58996c87c54cb9ad26459628648cdf22ed10f6d9136599ff880f4f9",
+    "port_station/native_compat/paenv.c": "e072b0e2a7cf712bf65f946bf5ece01fe4d20d99e26402a527b14707b95ec2d9",
+    "port_station/templates/sync_compat.c.inc": "edc3b5ddaff09aa8bbe8c4a3c2d74365ac1d676ce28dbaf782a8829fd623647c",
+    "port_station/love.py": "1118f228cf5e14dd949111c988cb8d6d08784871a519cc4ce879d41bade39995",
+    "build/port-studio/compat/pe64/paenv.dll": "4f3e8a7193181bc274fdd2f1f2d7b7cbe7d523e2ad860381a273853b361d0aa1",
+    "build/port-studio/compat/pe64/helper.json": "d06d7b92bff53a6e202d24a8ed75fa90bd50d2b3820c4b030754354c1766eb1e"
   },
   "previous_lock_sha256": "a564face4002968c6d0dec27537dcf3c230a035ac77bb53b7e7b38b0cca467c8",
   "distribution": "public deploy: unused research and optional external FFmpeg excluded; public docs/examples sanitized",
