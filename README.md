@@ -131,6 +131,9 @@ license. See [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 This is an independent community project, unaffiliated with Sony, Valve or the
 developers of the example games. **No games, commercial game binaries, official
 game artwork or soundtracks are distributed.** Supply your own legally obtained
-files and support the creators:
-[Breath by Herbherth](https://store.steampowered.com/app/1475350/) and
+files and support the creators.
+Games tested:
+[Breath by Herbherth](https://store.steampowered.com/app/1475350/).
 [The Coffin of Andy and Leyley by Kit9 Studio](https://store.steampowered.com/app/2378900/).
+[Kindergarten by Con Man Games](https://store.steampowered.com/app/589590/).
+[Intravenous 2: Mercenarism by Explosive Squat Games](https://store.steampowered.com/app/2651330/)
