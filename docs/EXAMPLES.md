@@ -1,5 +1,7 @@
 # Configurações testadas
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 Os exemplos mostram duas integrações funcionais com perfis diferentes. Para configurar outro jogo, siga [Novo jogo](NEW_GAME.md); não é necessário adaptar uma dessas receitas.
 
 As imagens incluídas são placeholders próprios. A música de seleção fica desativada por padrão.

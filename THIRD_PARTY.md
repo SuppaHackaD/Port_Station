@@ -1,5 +1,7 @@
 # Créditos e licenças
 
+[Documentação](docs/INDEX.md) · [Início](README.pt-BR.md)
+
 Os projetos abaixo tornam esta ferramenta possível. A autoria upstream permanece indicada nos fontes e avisos originais. O projeto não reivindica a criação de Wine, drivers, SDK público ou codecs.
 
 | Componente | Autores/projeto e licença | Origem usada |
@@ -42,4 +44,4 @@ MIT. Seus fontes acompanham o projeto em
 `port_station/templates/love_achievements.lua`; o manifesto dos helpers liga
 os binários aos respectivos fontes. Não contêm scripts comerciais do jogo.
 
-Créditos dos jogos: Breath é de Herbherth; The Coffin of Andy and Leyley é de Kit9 Studio. Os arquivos comerciais devem ser adquiridos de seus titulares. Nenhum vínculo, aprovação ou autorização dos criadores é alegado.
+Créditos dos jogos: Breath é de Herbherth; The Coffin of Andy and Leyley é de Kit9 Studio; Kindergarten é de Con Man Games; Intravenous 2: Mercenarism é de Explosive Squat Games. Os arquivos comerciais devem ser adquiridos de seus titulares. Nenhum vínculo, aprovação ou autorização dos criadores é alegado.

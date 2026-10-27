@@ -1,5 +1,7 @@
 # Achievement Extractor 0.3.0
 
+[Documentação](../docs/INDEX.md) · [Início](../README.pt-BR.md)
+
 Ferramenta disponível na aba **Conquistas → Extrair do jogo…** do Port Station e também como programa independente, para recuperar definições e IDs de conquistas de uma cópia local de um jogo Windows e gerar uma lista importável pelo Port Station. Não é necessário instalar o kit completo do Port Station para usar o extrator.
 
 ## Começar
@@ -74,6 +76,6 @@ Código próprio sob a licença do Port Station, incluída no pacote. Mono.Cecil
 - [Mono.Cecil](https://github.com/jbevain/cecil): leitura estática de metadados e CIL.
 - [Documentação Steamworks de conquistas](https://partner.steamgames.com/doc/features/achievements): diferença entre IDs e atributos de exibição.
 - [KeyValues da Valve](https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/tier1/KeyValues.cpp): referência de formato; o leitor desta ferramenta é uma implementação própria.
-- [Arquivos de fontes upstream usados pelo Port Station 0.3.2](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.3.2/upstream-sources.zip), incluindo Mono.Cecil. O código do runtime .NET 10.0.13 incluído no scanner está em [dotnet/runtime v10.0.13](https://github.com/dotnet/runtime/tree/v10.0.13).
+- [Arquivos de fontes upstream usados pelo Port Station 0.4.0](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.4.0/upstream-sources.zip), incluindo Mono.Cecil. O código do runtime .NET 10.0.13 incluído no scanner está em [dotnet/runtime v10.0.13](https://github.com/dotnet/runtime/tree/v10.0.13).
 
 Não há vínculo com desenvolvedores de jogos, Valve ou Sony. O pacote não inclui arquivos, catálogos ou imagens de jogos comerciais. Use sua própria cópia e respeite os direitos dos autores ao compartilhar resultados extraídos.

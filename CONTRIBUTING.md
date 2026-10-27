@@ -1,6 +1,8 @@
 # Contribuir
 
-Correções, novas configurações testadas e novos adaptadores são bem-vindos. Para começar a usar a ferramenta, consulte o README; para desenvolver, consulte [Compilação](docs/BUILDING.md).
+[Documentação](docs/INDEX.md) · [Início](README.pt-BR.md)
+
+Correções, novas configurações testadas e novos adaptadores são bem-vindos. Para começar a usar a ferramenta, consulte o [README em português](README.pt-BR.md); para desenvolver, consulte [Compilação](docs/BUILDING.md).
 
 Ao relatar compatibilidade de um jogo, informe sua versão, perfil, executável, argumentos, mapeamento de controles e até onde o teste chegou. Diferencie o funcionamento do menu de uma partida completa e descreva como reproduzir a falha.
 

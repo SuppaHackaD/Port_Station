@@ -1,10 +1,12 @@
 # Prospero Achievements SDK 0.1.2
 
+[Documentação](../../docs/INDEX.md) · [Início](../../README.pt-BR.md)
+
 Cliente C/C++ para o payload `prospero_achievements.elf`, API HTTP v1, sem APIs de troféus Sony. Continuidade no PS5 e integrações Breath/TCOAAL foram confirmadas em testes manuais; ver README raiz para o escopo.
 
 O jogo fornece catálogo, ícones e eventos. O payload persiste progresso por usuário/jogo e serve uma interface web embutida. A biblioteca estática e o header público permitem integrar um port sem incluir o servidor. A homebrew de exemplo vincula exatamente essa biblioteca.
 
-A revisão 0.1.1 mantém o protocolo v1 e funciona com o backend 0.1.0. Adiciona leitura alternativa de diretórios via getdents de 64 KiB no PS5 e diagnóstico da fila em last_stage/last_errno/directory_method (1: readdir; 2: getdents). Estes campos descrevem operações de fila, não todos os erros de rede. Recompile os clientes com o header e o arquivo .a da mesma revisão: o tamanho de PA_SDK mudou. A correção ainda depende de confirmação no console.
+A revisão 0.1.1 mantém o protocolo v1 e funciona com o backend 0.1.0. Adiciona leitura alternativa de diretórios via getdents de 64 KiB no PS5 e diagnóstico da fila em last_stage/last_errno/directory_method (1: readdir; 2: getdents). Estes campos descrevem operações de fila, não todos os erros de rede. Recompile os clientes com o header e o arquivo .a da mesma revisão: o tamanho de PA_SDK mudou.
 
 A revisão 0.1.2 acrescenta pa_sdk_pump_with_callback sem alterar PA_SDK. O callback recebe somente IDs recém-desbloqueados em uma confirmação aceita com o event_id correto; replay/duplicate não repetem o aviso. Executa no trabalhador do adaptador e não deve reentrar o SDK. O port decide como apresentar o popup. O backend permanece 0.1.0/API1. Se uma resposta se perder, a conquista permanece no backend mesmo que o aviso não seja exibido. A correção de diretórios 0.1.1 já foi confirmada no console.
 
