@@ -19,7 +19,7 @@ Na aba **Conquistas**, clique em **Extrair do jogo…**. A janela usa a pasta e 
 
 O leitor suporta catálogos JSON/VDF, chamadas JavaScript conhecidas, metadados Unity Mono e constantes LuaJIT em pacotes LÖVE/ZIP, incluindo ZIP anexado ao executável. Constantes LuaJIT são evidências de presença da ID, não prova de que uma chamada de desbloqueio execute. O leitor não inicia o jogo nem executa o bytecode.
 
-A extração é integrada à interface, mas o adaptador de eventos continua sendo escolhido separadamente. LÖVE/LuaJIT ainda requer uma ponte própria; `unity-mono-steam` atende somente à família Unity Mono compatível.
+A extração é integrada à interface, mas o adaptador de eventos continua sendo escolhido separadamente. A revisão verificada de Intravenous 2: Mercenarism recebe uma ponte LÖVE com `file-v1`; outras revisões exigem validação própria. `unity-mono-steam` atende somente à família Unity Mono compatível.
 
 ## Configurar o catálogo
 
@@ -38,12 +38,14 @@ Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das
 | `none` | Jogar sem catálogo ou eventos de conquistas. |
 | `nwjs-steam` | Jogos NW.js que usem `Steam.awardAchievement` ou `Steam.API.activateAchievement`. A ponte associa as IDs e conserva a chamada original. |
 | `unity-mono-steam` | DLL genérica experimental para Unity Mono, com integrador conservador de wrappers Steamworks.NET. Veja [SDK gerenciado](../sdk/prospero-achievements/managed/README.md). |
-| `file-v1` | Integração própria: o jogo publica eventos pelo protocolo da ponte de arquivos. |
+| `file-v1` | Protocolo da ponte de arquivos. Inclui produtor automático para a revisão LÖVE verificada de Intravenous; outras integrações fornecem seu produtor. |
 | `breath` | Integração específica da receita de Breath. |
 
 Uma lista pronta no editor não identifica sozinha quando o jogador cumpriu uma condição. Se o jogo não usa uma das APIs suportadas, ele precisa de integração. Isso também vale para jogos de outras engines que ofereçam conquistas em outra plataforma.
 
-Com `file-v1`, o launcher envia o catálogo, mas espera que uma ponte própria do jogo produza os arquivos de eventos. O extrator integrado gera definições; ele não instala uma ponte arbitrária na engine. Se a lista aparece com todos os itens bloqueados, confirme primeiro se o jogo possui o produtor de eventos antes de repetir condições de conquista.
+Com `file-v1`, o launcher envia o catálogo e consome os arquivos publicados pelo jogo. Na revisão LÖVE verificada, o empacotador integra um produtor em torno de `love.platformAPI.SetAchievement`, preservando a chamada original e as condições de progresso/dificuldade. Somente as IDs do catálogo são encaminhadas; **ID emitida pelo jogo** define o mapeamento quando necessário. `love-compatibility.json` registra o produtor e a quantidade de IDs mapeadas.
+
+Essa integração não importa conquistas de saves nem altera flags internas. Se o jogo já considera uma conquista obtida, repetir sua condição pode não gerar outra chamada; teste uma ainda bloqueada no próprio jogo. A platina continua sendo calculada pelo backend. Outras engines/revisões precisam de um produtor compatível: extrair definições não cria uma integração arbitrária.
 
 O caminho para adicionar um adaptador está em [Integração](INTEGRATION.md), com um exemplo do SDK. As receitas de Breath e TCOAAL já fornecem suas integrações.
 

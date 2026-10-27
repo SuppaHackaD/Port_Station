@@ -48,6 +48,12 @@ corrige o descritor de controle usado pelas opções do jogo. Os arquivos de
 origem são preservados; outras versões de DLL ou executável continuam exigindo
 validação própria.
 
+Para conquistas nessa revisão, importe o catálogo oficial e escolha `file-v1`.
+A build integra um publicador local das chamadas originais de desbloqueio;
+o relatório deve incluir `achievement_producer` com o tipo
+`love-platform-setachievement-v1`. Outros executáveis LÖVE não recebem essa
+ponte automaticamente. Veja [Conquistas](ACHIEVEMENTS.md).
+
 O relatório `love-compatibility.json` informa os arquivos preparados e seus
 hashes. A build inclui a atualização desses arquivos no prefixo em cache antes
 de iniciar o jogo, mantendo saves e outros recursos. Isso permite reinstalar

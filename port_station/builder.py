@@ -155,7 +155,10 @@ class Builder:
             compat_files=None;compatibility_plan=love.inspect(p,game)
             if compatibility_plan:
                 self.emit('LÖVE: preparando a consulta de perfil e as correções verificadas na cópia da build…')
-                compat_files,report=love.prepare(compatibility_plan,game,output/'compatibility')
+                compat_files,report=love.prepare(compatibility_plan,game,output/'compatibility',project=p)
+                if report['achievement_producer']:
+                    self.emit('LÖVE: ponte de eventos integrada para '+str(report['achievement_producer']['mapped_ids'])+' conquistas do catálogo.')
+                elif p['adapter']=='file-v1':self.emit('LÖVE: catálogo habilitado; este executável ainda precisa de um produtor de eventos próprio.')
                 for overlay in p['overlays']:
                     if overlay['destination'].casefold() in {n.casefold()for n in compat_files}:
                         raise ProjectError('Overlay conflita com arquivo preparado pelo suporte LÖVE: '+overlay['destination'])

@@ -58,11 +58,19 @@ Esses comandos recompilam, respectivamente, o conversor nativo/libc pública, o 
 
 A build de um jogo gera C/CMake específicos do título e recompila launcher e helper. `python -m port_station build <projeto> --output <pasta-nova>` usa o mesmo caminho da interface.
 
-O helper de perfil para a versão LÖVE suportada é recompilado com
+Os helpers de perfil e eventos para a versão LÖVE suportada são recompilados com
 `python -m port_station.love`. O comando usa o Zig do kit e gera
-`build/port-studio/compat/pe64/{paenv.dll,helper.json}`. Seu código está em
-`port_station/native_compat/paenv.c`; o manifesto relaciona o fonte à DLL. Os
+`build/port-studio/compat/pe64/{paenv.dll,paevents.dll,helper.json}`. Os fontes estão em
+`port_station/native_compat/paenv.c` e
+`sdk/prospero-achievements/bridge/pa_windows_events.c`; o manifesto relaciona
+cada fonte à sua DLL. Os
 arquivos comerciais são preparados localmente durante a build do port.
+
+Os testes `port_station.tests.test_love_achievements` usam somente fixtures
+próprias. Com o kit Windows, verificam também a DLL real e a gravação por usuário.
+Defina `PORT_STATION_LUAJIT_DLL` para uma biblioteca LuaJIT 2.x local para rodar
+os testes opcionais de argumentos/retornos, repetição, erros e encaminhamento FFI;
+eles executam apenas os scripts de teste do projeto.
 
 ## Preparador gerenciado do exemplo Breath
 

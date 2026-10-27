@@ -54,7 +54,7 @@ def controller_chunk(data):
     if hashlib.sha256(result).hexdigest()!=CHUNK_FIXED:raise ProjectError('Verificação do controle preparado falhou.')
     return result
 
-def prepare(plan,game,out,helper=HELPER):
+def prepare(plan,game,out,helper=HELPER,project=None):
     game=Path(game);out=Path(out);out.mkdir(parents=True,exist_ok=True);helper=Path(helper)
     if not helper.is_file():raise ProjectError('Helper LÖVE ausente: aplique o update completo do Port Station.')
     try:metadata=json.loads(helper.with_name('helper.json').read_text(encoding='utf-8'))
@@ -86,8 +86,17 @@ def prepare(plan,game,out,helper=HELPER):
         files[exe.as_posix()]=target
     elif original==GAME_FIXED:
         dest=out/exe;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,dest);files[exe.as_posix()]=dest
+    producer=None
+    if project and project['adapter']=='file-v1'and original in (GAME,GAME_FIXED):
+        event_helper=helper.with_name('paevents.dll')
+        if not event_helper.is_file()or metadata.get('events_dll_sha256')!=digest(event_helper)or metadata.get('events_source_sha256')!=digest(WORKSPACE/'sdk/prospero-achievements/bridge/pa_windows_events.c'):
+            raise ProjectError('Helper de eventos LÖVE ausente ou divergente: aplique o update completo.')
+        from .love_achievements import integrate
+        producer=integrate(project,files[exe.as_posix()])
+        relative=engine.parent/'paevents.dll';dest=out/relative;shutil.copy2(event_helper,dest);files[relative.as_posix()]=dest
+        if (game/relative).exists()and digest(game/relative)!=digest(event_helper):raise ProjectError('paevents.dll existente conflita com o publicador.')
     if digest(game/engine)!=plan['engine_sha256'] or digest(source)!=original:raise ProjectError('Os arquivos de origem mudaram durante a preparação.')
-    return files,{'engine':'LOVE11.4-pe64','source_engine_sha256':plan['engine_sha256'],'prepared_engine_sha256':ENGINE_FIXED,'helper_sha256':digest(helper),'controller_repair':original in (GAME,GAME_FIXED),'files':{n:digest(p)for n,p in files.items()},'source_modified':False}
+    return files,{'engine':'LOVE11.4-pe64','source_engine_sha256':plan['engine_sha256'],'prepared_engine_sha256':ENGINE_FIXED,'helper_sha256':digest(helper),'controller_repair':original in (GAME,GAME_FIXED),'achievement_producer':producer,'files':{n:digest(p)for n,p in files.items()},'source_modified':False}
 
 def sync_rows(project,files):
     prefix='prefixes/'+runtime_id(project)+'/drive_c/Games/'+runtime_id(project)+'/'
@@ -107,6 +116,11 @@ def build_helper():
         output=Path(td)/'paenv.dll'
         subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-target','x86_64-windows-gnu','-shared','-O2','-Wall','-Wextra','-Werror',str(source),'-ladvapi32','-o',str(output)],check=True)
         shutil.copy2(output,HELPER)
-    (HELPER.parent/'helper.json').write_text(json.dumps({'architecture':'pe64','source_sha256':digest(source),'dll_sha256':digest(HELPER)},indent=2)+'\n',encoding='utf-8')
+    events=WORKSPACE/'sdk/prospero-achievements/bridge/pa_windows_events.c'
+    with tempfile.TemporaryDirectory(prefix='station-event-helper-')as td:
+        output=Path(td)/'paevents.dll'
+        subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-target','x86_64-windows-gnu','-shared','-O2','-Wall','-Wextra','-Werror',str(events),'-o',str(output)],check=True)
+        shutil.copy2(output,HELPER.with_name('paevents.dll'))
+    (HELPER.parent/'helper.json').write_text(json.dumps({'architecture':'pe64','source_sha256':digest(source),'dll_sha256':digest(HELPER),'events_source_sha256':digest(events),'events_dll_sha256':digest(HELPER.with_name('paevents.dll'))},indent=2)+'\n',encoding='utf-8')
 
 if __name__=='__main__':build_helper()
