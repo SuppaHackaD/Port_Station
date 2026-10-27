@@ -98,6 +98,7 @@ licenças individuais explícitas; os componentes mantêm suas próprias licenç
 Port Station é independente e não tem vínculo com Sony, Valve ou os
 desenvolvedores dos jogos. **Não distribuímos jogos, binários comerciais, arte
 oficial ou trilhas sonoras.** Use sua própria cópia adquirida e apoie os autores
+
 Jogos testados:
 [Breath, de Herbherth](https://store.steampowered.com/app/1475350/).
 [The Coffin of Andy and Leyley, de Kit9 Studio](https://store.steampowered.com/app/2378900/).
