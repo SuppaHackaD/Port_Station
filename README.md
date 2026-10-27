@@ -1,67 +1,136 @@
 # Port Station
 
-Crie uma homebrew PS5 a partir de um jogo Windows usando Wine/prospero-win. Escolha o executável, configure a compatibilidade e os controles, personalize a apresentação e compile pelo aplicativo ou pela linha de comando.
+Build PS5 homebrew packages from your own Windows game files using Wine and
+[prospero-win](https://github.com/mpereiraesaa/prospero-win). Configure graphics,
+controls, presentation and achievements through a Python desktop app or CLI.
 
-[Baixar o kit Windows](https://github.com/SuppaHackaD/Port_Station/releases/latest) · [Começar a usar](docs/QUICKSTART.md) · [Configurar outro jogo](docs/NEW_GAME.md)
+**[Download the Windows kit](https://github.com/SuppaHackaD/Port_Station/releases/latest)**
+· [Português](README.pt-BR.md) · [New game guide](docs/NEW_GAME.md)
+· [Achievements](docs/ACHIEVEMENTS.md)
 
-## Começar
+Port Station is a compatibility and packaging tool, not an automatic native
+recompiler. Game support depends on the engine, renderer and APIs it uses.
+The initial public release is **0.4.0**; compatibility remains experimental.
 
-1. Instale **Python 3.13 x64 com Tcl/Tk** no Windows.
-2. Baixe e extraia o **Windows kit** da release. Ele inclui o runtime, os compiladores públicos, o SDK e as ferramentas de imagem e ATRAC9.
-3. Abra **Port_Station.cmd**, escolha **Novo** e selecione a pasta completa do jogo e seu `.exe` principal.
-4. Escolha um perfil de compatibilidade, um ícone e uma pasta de saída. Para o primeiro teste, deixe as conquistas desativadas.
-5. Clique em **Compilar e empacotar** e copie a pasta resultante para o console.
+## Quick start
 
-O [guia rápido](docs/QUICKSTART.md) acompanha a primeira build. O [guia para novos jogos](docs/NEW_GAME.md) explica cada configuração, como testar perfis e como resolver os problemas mais comuns. Há também um [modelo genérico](port_station/examples/windows-game.ps5port.json) para começar pela CLI.
+1. Install **Python 3.13 x64 with Tcl/Tk** on Windows.
+2. Download and extract `Port_Station-0.4.0-windows-kit.zip` from the release.
+   It includes the public SDK, compilers, runtime and resource tools. GitHub's
+   source download alone is intended for development.
+3. Run **Port_Station.cmd**. Create a project and select the complete game folder
+   and its main `.exe`.
+4. Choose a compatibility profile and an unused `PPSA` + five-digit Title ID.
+   Start with achievements disabled while testing basic compatibility.
+5. Build into a new output folder. Copy the complete generated
+   `<build>/native/dist/<TITLE_ID>/` folder to `/data/homebrew/` on your console
+   and refresh your loader.
 
-## O que a ferramenta oferece
+The first launch prepares writable game data and can take longer. Hold
+**Options + touchpad click** for one second to exit, or close the game through
+the PS menu in a supported setup.
 
-- Interface Python/Tk e CLI usando o mesmo processo de build.
-- Perfis iniciais para Direct3D/DXVK e OpenGL/Mesa-Zink com XInput, NW.js com Canvas e aplicações GDI com teclado.
-- Desktop virtual com resolução automática ou configurável até 4K e seleção de modos pelo jogo.
-- Mapeamento de botões e argumentos de lançamento editáveis.
-- Ícone, fundos e música de seleção personalizáveis; conversão local de imagens para PNG/BC7 e de áudio para ATRAC9.
-- Catálogos de conquistas, platina opcional e integração com **Prospero Achievements**, um backend independente com interface web.
-- Projetos `.ps5port.json` reutilizáveis e logs de compilação.
+The tested environment is PS5 **13.60**, Relapse, PLDMGR 0.6.1 and ShadowMount+.
+You need a console already capable of running homebrew. This project does not
+provide a jailbreak or Sony's proprietary SDK.
 
-Port Station empacota o jogo com uma camada de compatibilidade. Não recompila automaticamente a engine para PS5 e não garante que todo jogo Windows funcione. Alguns jogos precisam de ajustes ou componentes que o runtime atual não oferece.
+The detailed [quick start](docs/QUICKSTART.md) and most guides are currently in
+Portuguese. A [generic project](port_station/examples/windows-game.ps5port.json)
+is included; the tool does not depend on either example game.
 
-A base foi exercitada em PS5 **13.60**, com Relapse, PLDMGR 0.6.1 e ShadowMount+. O console precisa estar preparado para executar homebrews; o kit não fornece desbloqueio ou SDK proprietário.
+## Features
 
-## Conquistas
+- Python/Tk desktop UI and CLI sharing the same build pipeline.
+- Direct3D/DXVK and OpenGL/Mesa-Zink profiles with XInput, NW.js Canvas, and GDI
+  with keyboard mappings.
+- Automatic or configurable virtual desktop resolution up to 4K, with in-game
+  mode selection where supported.
+- Custom title, icon, backgrounds and optional selection music; local PNG/BC7
+  image conversion and ATRAC9 audio encoding.
+- Integrated achievement extraction, exact official Steam ID matching,
+  official localized text lookup and manual metadata editing.
+- Optional completion achievement, event adapters and **Prospero Achievements**,
+  an independent persistent backend with a web UI.
+- Reusable `.ps5port.json` projects, build logs and dependency hashes.
 
-O jogo informa os eventos e o backend mantém o progresso e apresenta a lista na web. A platina pode ser calculada quando todas as conquistas regulares forem obtidas.
+MP3 and other audio inputs need the optional FFmpeg decoder. Install it from the
+kit folder with `python release_support/install-ffmpeg.py`. No music is required
+to build a package.
 
-O editor cria o catálogo; as condições de desbloqueio precisam chegar por um adaptador compatível ou por integração com o jogo. Comece pelo [guia de conquistas](docs/ACHIEVEMENTS.md). Para desenvolver um adaptador, consulte [Integração](docs/INTEGRATION.md).
+## How it works
 
-São conquistas próprias, sem registro na lista de troféus Sony ou sincronização com PSN.
+```text
+Your Windows game + project configuration
+                  |
+        Port Station (Python UI / CLI)
+                  |
+  validation -> local preparation -> native compilation -> package
+                  |
+  PS5 launcher + Wine/prospero-win + your local game files
+                  |
+  game award adapter -> native SDK queue -> Prospero Achievements
+                                                   |
+                                                web UI
+```
 
-## Exemplos testados
+Game files are prepared in the build output. The original PC installation is
+preserved. The package contains a title-specific launcher, compatibility runtime
+and an initial data seed; writable data and saves live in the title's own
+directory on the console.
 
-As receitas de **Breath** e **The Coffin of Andy and Leyley (TCOAAL)** são pontos de partida prontos para essas versões dos jogos. A ferramenta também aceita projetos novos, sem depender delas.
+Achievement extraction supplies definitions, not gameplay conditions. Select an
+adapter compatible with the game's actual award API, or implement one using the
+[SDK and integration guide](docs/INTEGRATION.md). The backend stores progress by
+game and console user and can derive the completion achievement. These are
+**local achievements**, not Sony system trophies; they do not sync with PSN.
 
-| Exemplo | Configuração incluída |
-|---|---|
-| [Breath](port_station/examples/breath.ps5port.json) | DXVK/XInput, ponte de conquistas e platina opcional |
-| [TCOAAL](port_station/examples/tcoaal.ps5port.json) | NW.js/Canvas, fontes locais, ponte de conquistas e platina opcional |
+## Tested configurations
 
-As receitas usam placeholders próprios e não incluem música. Veja [Exemplos](docs/EXAMPLES.md) para preparar uma cópia local compatível.
+These are manual compatibility checks, not a promise of full campaign coverage
+or support for every revision of the games or engines.
 
-## Documentação
+| Game | Tested path | Configuration |
+|---|---|---|
+| Breath 1.0.3 | Unity 2019, DXVK/XInput, gameplay and achievement events | [Example project](port_station/examples/breath.ps5port.json) |
+| The Coffin of Andy and Leyley 3.0.13 | NW.js/Canvas, local fonts, gameplay and achievement events | [Example project](port_station/examples/tcoaal.ps5port.json) |
+| Kindergarten | Compatible Unity Mono award wrapper and official achievement events | Create a project; use `unity-mono-steam` after extracting the official catalog |
+| Intravenous 2: Mercenarism 1.7.1 | Verified LÖVE x64 revision, OpenGL/XInput, resolution switching and achievement events | Create a project; use `opengl-xinput` and `file-v1` with the official catalog |
 
-O [Achievement Extractor](achievement_extractor/README.md) é uma ferramenta experimental separada para montar listas importáveis a partir dos arquivos locais de um jogo. Seu pacote Windows tem uma release própria; a função ainda não está integrada à interface do Port Station.
+The LÖVE preparation is fingerprint-gated; it is not a universal LÖVE adapter.
+See [new game configuration](docs/NEW_GAME.md) and [example versions](docs/EXAMPLES.md).
+The included example art is original placeholder artwork; no game music is bundled.
 
-- [Guia rápido](docs/QUICKSTART.md)
-- [Configurar e testar um novo jogo](docs/NEW_GAME.md)
-- [Conquistas e backend](docs/ACHIEVEMENTS.md)
-- [Exemplos Breath e TCOAAL](docs/EXAMPLES.md)
-- [Compilar o projeto e suas ferramentas](docs/BUILDING.md)
-- [Arquitetura e integração de adaptadores](docs/INTEGRATION.md)
-- [Contribuir](CONTRIBUTING.md)
-- [Créditos e licenças](THIRD_PARTY.md)
+## Documentation and development
 
-## Licença e jogos
+- [First build](docs/QUICKSTART.md)
+- [Configure a new game](docs/NEW_GAME.md)
+- [Achievements and web backend](docs/ACHIEVEMENTS.md)
+- [Example projects](docs/EXAMPLES.md)
+- [Build from source](docs/BUILDING.md)
+- [Architecture and adapters](docs/INTEGRATION.md)
+- [Contributing](CONTRIBUTING.md)
+- [Release notes](docs/RELEASE_NOTES.md)
+- [Credits and component licenses](THIRD_PARTY.md)
 
-Port Station é um projeto independente, sem vínculo com Sony, Valve ou com os desenvolvedores dos jogos utilizados nos exemplos. Não inclui jogos, arte oficial ou trilhas sonoras. Use sua própria cópia e apoie os criadores: [Breath, de Herbherth](https://store.steampowered.com/app/1475350/) e [TCOAAL, de Kit9 Studio](https://store.steampowered.com/app/2378900/).
+The release includes the complete project source, compiled tools, the backend
+and SDK, and pinned upstream source archives. The achievement extractor is
+available inside the app and can also run independently from
+`achievement_extractor/Achievement_Extractor.cmd`.
 
-O código próprio é GPL-3.0-or-later. Wine, runtime, SDK e bibliotecas mantêm suas licenças e créditos em [LICENSE](LICENSE), [NOTICE](NOTICE.md) e [THIRD_PARTY](THIRD_PARTY.md).
+## Credits, license and game ownership
+
+Port Station builds on **prospero-win**, **Wine**, the **ps5-payload-dev public
+SDK**, **PS5_Mesa / Mesa-Zink**, **PS5_Vulkan**, **DXVK**, **PS5 Native App
+Boilerplate**, **Lapy JB Daemon**, **ps5-forwarder-manager**, **PS5_ArtSwap** and
+the other projects credited in [THIRD_PARTY.md](THIRD_PARTY.md). Their authors
+retain credit and their component licenses remain applicable.
+
+Our code is **GPL-3.0-or-later**, except files with an explicit individual
+license. See [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
+
+This is an independent community project, unaffiliated with Sony, Valve or the
+developers of the example games. **No games, commercial game binaries, official
+game artwork or soundtracks are distributed.** Supply your own legally obtained
+files and support the creators:
+[Breath by Herbherth](https://store.steampowered.com/app/1475350/) and
+[The Coffin of Andy and Leyley by Kit9 Studio](https://store.steampowered.com/app/2378900/).

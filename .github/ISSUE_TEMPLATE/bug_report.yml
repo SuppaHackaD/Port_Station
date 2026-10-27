@@ -1,0 +1,30 @@
+name: Bug report / Relatar problema
+description: Report a reproducible application or packaged-game issue.
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Port Station version
+      placeholder: 0.4.0 Windows kit
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Environment and project configuration
+      description: Windows/Python version, PS5 firmware/loader, game version/engine, profile, architecture, display resolution and achievement adapter.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected result and actual result
+      description: Explain where the failure happens and whether it repeats.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste the relevant build/runtime error. Remove personal information; do not attach game files or saves.
+      render: text

@@ -1,0 +1,23 @@
+name: Game compatibility / Compatibilidade
+description: Share a tested game configuration and the limits of the test.
+body:
+  - type: input
+    id: game
+    attributes:
+      label: Game and exact version
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: Port Station version, firmware/loader, architecture, profile, arguments, display resolution, controls and achievement adapter.
+    validations:
+      required: true
+  - type: textarea
+    id: coverage
+    attributes:
+      label: What was tested
+      description: Distinguish launch/menu, gameplay sections, audio, controls, save/load, resolution changes, closing/reopening and legitimate achievement events. Include failures or workarounds.
+    validations:
+      required: true

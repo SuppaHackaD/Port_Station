@@ -12,8 +12,8 @@ Os projetos abaixo tornam esta ferramenta possível. A autoria upstream permanec
 | Driver RADV/Mesa, WGL/Zink | [mpereiraesaa/PS5_Mesa](https://github.com/mpereiraesaa/PS5_Mesa), Mesa contributors, licenças permissivas por arquivo; ligação PS5 GPL |RADV01d70579b8d410d6a482e36c6f184798ae4c83ad; Zinke4607ef697fe3df8d1ebc329bf1917d041843306 |
 | Plataforma Vulkan | [PS5_Vulkan](https://github.com/mpereiraesaa/PS5_Vulkan) e [mihawk-99/PS5_PayloadSDK](https://github.com/mihawk-99/PS5_PayloadSDK), GPL-3.0-or-later |8aee3afb37bcfad06f0c7d263b901040f08ebbd0 /95c08f27386fc698f6bbe21dde3030140a41d10b |
 | DXVK | [doitsujin e contribuidores](https://github.com/doitsujin/dxvk), zlib |2.6.2; DLLs públicas do perfil D3D11 |
-| Apresentação BC7 | [heydemoura/ps5-forwarder-manager](https://github.com/heydemoura/ps5-forwarder-manager), GPL-3.0-or-later; stb sob suas licenças |4c463596e5eaf42648200117cb6c67c0769b01f8; port_studio/vendor/forwarder |
-| Encoder ATRAC9 | [griches/PS5_ArtSwap](https://github.com/griches/PS5_ArtSwap), GPL-3.0-or-later; tabelas LibAtrac9 MIT |03a5c40b9b34bba20deaae46aa0de272f21065cf; adapter/driver host locais; fontes em port_studio/vendor/artswap_at9 |
+| Apresentação BC7 | [heydemoura/ps5-forwarder-manager](https://github.com/heydemoura/ps5-forwarder-manager), GPL-3.0-or-later; stb sob suas licenças |4c463596e5eaf42648200117cb6c67c0769b01f8; port_station/vendor/forwarder |
+| Encoder ATRAC9 | [griches/PS5_ArtSwap](https://github.com/griches/PS5_ArtSwap), GPL-3.0-or-later; tabelas LibAtrac9 MIT |03a5c40b9b34bba20deaae46aa0de272f21065cf; adapter/driver host locais; fontes em port_station/vendor/artswap_at9 |
 | FFmpeg opcional | [FFmpeg contributors](https://ffmpeg.org/) / build de [Gyan Doshi](https://www.gyan.dev/ffmpeg/builds/), GPLv3 no build selecionado |bf0e831606938f530326c9679591109407fa8d0d; executável não acompanha a release, download direto verificado pelo usuário |
 | JSON/hash do backend | [Dave Gamble/cJSON](https://github.com/DaveGamble/cJSON), MIT; [Brad Conte](https://github.com/B-Con/crypto-algorithms), domínio público |cJSON1.7.19; SHA-256cfbde48414baacf51fc7c74f275190881f037d32; alterações de namespace documentadas em src/prospero_achievements/vendor |
 | Patcher gerenciado | [Jb Evain/Mono.Cecil](https://github.com/jbevain/cecil), MIT |0.11.6; não inclui assembly do jogo |
@@ -35,5 +35,11 @@ GPL-3.0-or-later, com fonte em `port_station/native_compat/paenv.c`. Ele usa as
 APIs Windows de consulta do token do próprio processo e a variável USERPROFILE;
 não inclui componentes dos jogos. Os preparadores e demais arquivos mantêm
 suas licenças individuais.
+
+O publicador Windows `paevents.dll` e o adaptador Lua são código próprio sob
+MIT. Seus fontes acompanham o projeto em
+`sdk/prospero-achievements/bridge/pa_windows_events.c` e
+`port_station/templates/love_achievements.lua`; o manifesto dos helpers liga
+os binários aos respectivos fontes. Não contêm scripts comerciais do jogo.
 
 Créditos dos jogos: Breath é de Herbherth; The Coffin of Andy and Leyley é de Kit9 Studio. Os arquivos comerciais devem ser adquiridos de seus titulares. Nenhum vínculo, aprovação ou autorização dos criadores é alegado.
