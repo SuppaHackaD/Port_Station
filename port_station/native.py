@@ -25,6 +25,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
         closed='studio_pa_close();'
     for a,b in {'@ACH_INCLUDE@':include,'@ACH_OPEN@':opened,'@ACH_TICK@':tick,'@ACH_CLOSE@':closed}.items():s=s.replace(a,b)
     (out/'wine64_main.c').write_text(s,encoding='utf8',newline='\n')
+    (out/'display_policy.h').write_bytes((R/'port_station/templates/display_policy.h').read_bytes())
     s=(R/'src/breath/wine_title/breath_bootstrap.c').read_text(encoding='utf8')
     for a,b in [('"breath_bootstrap.h"','"studio_bootstrap.h"'),('breath_bootstrap','studio_bootstrap'),('BREATH_DATA_ROOT','STUDIO_DATA_ROOT'),('BREATH_PACKAGE_ROOT','STUDIO_PACKAGE_ROOT'),('/data/breath-wine',root),('PPSA99397',p['title_id']),('prefixes/breath','prefixes/'+slug),('Breath-Wine-','Port-Studio-'),('.breath-', '.port-studio-'),('Breath:', 'Port Station:')]:s=s.replace(a,b)
     s=s.replace('Port-Studio-'+p['title_id']+'-v1','Port-Studio-'+p['title_id']+'-'+game+'-v1')

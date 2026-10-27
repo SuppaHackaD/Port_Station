@@ -25,4 +25,9 @@ A permutação de tiles do backend VideoOut deriva do código SDL/PS5 de John T�
 
 O inventário do runtime original acompanha o kit em `build/prospero-evaluation/staged/PPSA99995/{THIRD_PARTY.md,SOURCES.txt,LICENSES/}`. Leia também os avisos nos fontes vendorizados e os manifests de áudio. As licenças da raiz não substituem os avisos individuais.
 
+O WGL/Zink do kit inclui uma alteração do Port Station que libera a referência
+`needs_present` ao destruir o contexto. A receita de reconstrução, as verificações
+de fonte e a associação dos binários estão em `release_support/mesa-wgl/`.
+Os avisos Mesa originais permanecem aplicáveis; o código adicionado segue MIT.
+
 Créditos dos jogos: Breath é de Herbherth; The Coffin of Andy and Leyley é de Kit9 Studio. Os arquivos comerciais devem ser adquiridos de seus titulares. Nenhum vínculo, aprovação ou autorização dos criadores é alegado.

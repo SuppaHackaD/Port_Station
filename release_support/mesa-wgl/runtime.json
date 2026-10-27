@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "variant": "wgl-pending-present-clean-1",
+  "change": "Release the context-owned needs_present resource after existing queue waits and batch cleanup, before freeing the context.",
+  "recipe": "release_support/mesa-wgl/build.py",
+  "source_patch": "release_support/mesa-wgl/diagnostics.py:clean_pending_present",
+  "validation": {
+    "firmware": "13.60",
+    "x64": "Two-window probe rendered30 frames at1280x720 and1920x1080; user confirmed in-game4K/1080p/720p/4K and adapter reselection with normal picture/audio/control.",
+    "x86": "Cross-build, PE32/import/digest validation, same patched source bytes as x64; real installer host harness copied2 then0. Console gameplay not tested."
+  },
+  "builds": {
+    "x86_64-windows": {
+      "run_url": "https://github.com/SuppaHackaD/Port_Station/actions/runs/40391243760",
+      "source_recipe_commit": "bad3408491b2fdb1a11132cd8a4d3b391310be83",
+      "artifact_id": 12683611265,
+      "artifact_sha256": "a73aa731dca9a8522c197f139eeb544ebd196c28d23f562a8b453ee49b991ac0",
+      "console_validated": true,
+      "manifest": {
+        "variant": "wgl-pending-present-clean-1",
+        "mesa_source": {
+          "name": "mesa-zink",
+          "url": "https://codeload.github.com/mpereiraesaa/PS5_Mesa/tar.gz/e4607ef697fe3df8d1ebc329bf1917d041843306",
+          "file": "mesa-zink.tar.gz",
+          "sha256": "46666d3f0b86aa535b8576685e101134f550c2c9ba28295e6c14fd2ac047fbbe",
+          "bytes": 111202612
+        },
+        "compiler_url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20260922/llvm-mingw-20260922-ucrt-ubuntu-22.04-x86_64.tar.xz",
+        "compiler_sha256": "bb7bb7654b33d5aa8712acb837c963b2e0c56352560c76105270a3268c665c21",
+        "console_validated": false,
+        "behavior_patch": true,
+        "pending_present_release": true,
+        "lifetime_logging": false,
+        "source_changes": {
+          "src/gallium/drivers/zink/zink_context.c": {
+            "before": "75a14ded04d9d8e3aaf5b482fae9da20a841c7b51a1b4dd14d5bf6031a7abcbf",
+            "after": "865f329c81ff411bf04703444ca1cf43c214b63a97ef629c215c5b03b09e936d"
+          }
+        },
+        "build_script_sha256": "c7b5904e008033b944f07a68537f1036d22dc57c41900ced6740fbff474edb7f",
+        "files": {
+          "libgallium_wgl.dll": {
+            "sha256": "5e0f18f141bfd717881a3e131bfd427497b27079eaf834c10c66057cc8ee60e0",
+            "bytes": 22184960,
+            "imports": [
+              "api-ms-win-core-synch-l1-2-0.dll",
+              "KERNEL32.dll",
+              "USER32.dll",
+              "GDI32.dll",
+              "api-ms-win-crt-stdio-l1-1-0.dll",
+              "api-ms-win-crt-runtime-l1-1-0.dll",
+              "api-ms-win-crt-convert-l1-1-0.dll",
+              "api-ms-win-crt-heap-l1-1-0.dll",
+              "api-ms-win-crt-private-l1-1-0.dll",
+              "api-ms-win-crt-string-l1-1-0.dll",
+              "api-ms-win-crt-math-l1-1-0.dll",
+              "api-ms-win-crt-utility-l1-1-0.dll",
+              "api-ms-win-crt-filesystem-l1-1-0.dll",
+              "api-ms-win-crt-locale-l1-1-0.dll",
+              "api-ms-win-crt-environment-l1-1-0.dll"
+            ]
+          },
+          "opengl32.dll": {
+            "sha256": "4590681e4ddf24ac8c6436a5a5deff74b34392619ef726833cf77a3fd00ec783",
+            "bytes": 164352,
+            "imports": [
+              "libgallium_wgl.dll",
+              "api-ms-win-core-synch-l1-2-0.dll",
+              "GDI32.dll",
+              "api-ms-win-crt-runtime-l1-1-0.dll",
+              "api-ms-win-crt-heap-l1-1-0.dll",
+              "KERNEL32.dll",
+              "api-ms-win-crt-private-l1-1-0.dll",
+              "api-ms-win-crt-stdio-l1-1-0.dll"
+            ]
+          }
+        }
+      }
+    },
+    "i386-windows": {
+      "run_url": "https://github.com/SuppaHackaD/Port_Station/actions/runs/40534474525",
+      "source_recipe_commit": "044fbebbc07d04b6915df1a02b1a9aee66c044b5",
+      "artifact_id": 12746759322,
+      "artifact_sha256": "931291777a4c45a45de336085313819524ac04007033cc67836dfafe6c741020",
+      "console_validated": false,
+      "manifest": {
+        "variant": "wgl-pending-present-clean-1",
+        "mesa_source": {
+          "name": "mesa-zink",
+          "url": "https://codeload.github.com/mpereiraesaa/PS5_Mesa/tar.gz/e4607ef697fe3df8d1ebc329bf1917d041843306",
+          "file": "mesa-zink.tar.gz",
+          "sha256": "46666d3f0b86aa535b8576685e101134f550c2c9ba28295e6c14fd2ac047fbbe",
+          "bytes": 111202612
+        },
+        "compiler_url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20260922/llvm-mingw-20260922-ucrt-ubuntu-22.04-x86_64.tar.xz",
+        "architecture": "i686",
+        "compiler_sha256": "bb7bb7654b33d5aa8712acb837c963b2e0c56352560c76105270a3268c665c21",
+        "console_validated": false,
+        "behavior_patch": true,
+        "pending_present_release": true,
+        "lifetime_logging": false,
+        "source_changes": {
+          "src/gallium/drivers/zink/zink_context.c": {
+            "before": "75a14ded04d9d8e3aaf5b482fae9da20a841c7b51a1b4dd14d5bf6031a7abcbf",
+            "after": "865f329c81ff411bf04703444ca1cf43c214b63a97ef629c215c5b03b09e936d"
+          }
+        },
+        "build_script_sha256": "86aec8015317decbc541b506caa341b1ded629d1649bd380f27fc14785a7e380",
+        "files": {
+          "libgallium_wgl.dll": {
+            "sha256": "e64e52173f33149e88591ebd7b7455fdd79d3ce60afbe86a90fb4568917f1e1b",
+            "bytes": 21457408,
+            "imports": [
+              "api-ms-win-core-synch-l1-2-0.dll",
+              "KERNEL32.dll",
+              "USER32.dll",
+              "GDI32.dll",
+              "api-ms-win-crt-stdio-l1-1-0.dll",
+              "api-ms-win-crt-runtime-l1-1-0.dll",
+              "api-ms-win-crt-convert-l1-1-0.dll",
+              "api-ms-win-crt-heap-l1-1-0.dll",
+              "api-ms-win-crt-private-l1-1-0.dll",
+              "api-ms-win-crt-string-l1-1-0.dll",
+              "api-ms-win-crt-math-l1-1-0.dll",
+              "api-ms-win-crt-utility-l1-1-0.dll",
+              "api-ms-win-crt-filesystem-l1-1-0.dll",
+              "api-ms-win-crt-locale-l1-1-0.dll",
+              "api-ms-win-crt-environment-l1-1-0.dll"
+            ]
+          },
+          "opengl32.dll": {
+            "sha256": "8929387b092ccef98e579bce09920bec33b000ffb98a9a139cc72d4b8370f33c",
+            "bytes": 136704,
+            "imports": [
+              "libgallium_wgl.dll",
+              "api-ms-win-core-synch-l1-2-0.dll",
+              "GDI32.dll",
+              "api-ms-win-crt-runtime-l1-1-0.dll",
+              "api-ms-win-crt-heap-l1-1-0.dll",
+              "KERNEL32.dll",
+              "api-ms-win-crt-private-l1-1-0.dll",
+              "api-ms-win-crt-stdio-l1-1-0.dll"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

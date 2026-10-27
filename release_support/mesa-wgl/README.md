@@ -1,6 +1,6 @@
 # Pinned Mesa WGL provider builds
 
-This helper cross-compiles the pinned Windows x64 WGL/Zink provider in three
+This helper cross-compiles the pinned Windows x86/x64 WGL/Zink provider in three
 variants. They do not change Vulkan display ownership rules or grant achievements.
 
 | Options | Result |
@@ -18,9 +18,11 @@ and `lifetime_logging: false`.
 
 The instrumented cleanup passed the separate console probe: both 1280x720 and
 1920x1080 windows rendered 30 frames without OpenGL errors, and display targets
-were destroyed between windows. In-game mode changes remain to be validated.
-These are test artifacts, not an updated release runtime. The current workflow
-builds the clean variant for that next validation.
+were destroyed between windows. The clean x64 variant also passed in-game
+4K → 1080p → 720p → 4K switching and adapter reselection in an already configured
+Intravenous 2: Mercenarism port on firmware 13.60. The x86 variant is cross-built
+from the same cleanup; its console gameplay validation is separate. The current
+workflow builds both architectures without lifetime logging.
 
 Lifetime logging records context/framebuffer destruction and display-target
 reference operations, including caller, destination slot and counts. Use logging
@@ -31,6 +33,9 @@ Build on Linux with Python 3.12, Ninja and the pinned Python tools from the work
 ```sh
 python release_support/mesa-wgl/build.py --work /tmp/station-mesa-new --jobs 2
 ```
+
+For the clean runtime use `--release-pending-present --clean --arch x86_64`;
+use a second new work directory and `--arch i686` for the 32-bit provider.
 
 The work directory must be new. Mesa and llvm-mingw archives are downloaded from
 their public projects and checked against pinned SHA-256 digests. The artifact

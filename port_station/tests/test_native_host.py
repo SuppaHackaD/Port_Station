@@ -10,6 +10,25 @@ from port_station.project import WORKSPACE, read_project
 from port_station.builder import Builder
 
 class NativeHostTests(unittest.TestCase):
+    def test_display_detection_fallback_and_aspect_preserving_ceiling(self):
+        with tempfile.TemporaryDirectory(prefix='station-display-')as td:
+            root=Path(td);source=root/'display.c';exe=root/'display.exe'
+            source.write_text('''#include "display_policy.h"
+int main(void){
+ struct {int rc;uint32_t w,h,expected_w,expected_h;int detected;}cases[]={
+  {0,1280,720,1280,720,1},{0,1920,1080,1920,1080,1},
+  {0,2560,1440,2560,1440,1},{0,3840,2160,3840,2160,1},
+  {0,7680,4320,3840,2160,1},{0,5120,1440,3840,1080,1},
+  {0,1080,3840,607,2160,1},{-1,3840,2160,1920,1080,0},
+  {0,0,0,1920,1080,0},{0,20000,2160,1920,1080,0}};
+ for(unsigned i=0;i<sizeof(cases)/sizeof(cases[0]);i++){
+  StationDesktop r=station_desktop_resolve(cases[i].rc,cases[i].w,cases[i].h);
+  if(r.width!=cases[i].expected_w||r.height!=cases[i].expected_h||r.detected!=cases[i].detected)return (int)i+1;
+ }return 0;
+}''',encoding='utf-8')
+            subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-O2','-Wall','-Wextra','-Werror','-I'+str(WORKSPACE/'port_station/templates'),str(source),'-o',str(exe)],check=True,capture_output=True)
+            subprocess.run([str(exe)],check=True)
+
     def test_cached_breath_prefix_receives_bridge_update_without_reinstalling_game(self):
         with tempfile.TemporaryDirectory(prefix='station-breath-update-')as temp:
             root=Path(temp);package=root/'package';data=root/'data';generated=root/'generated'

@@ -61,8 +61,11 @@ class App:
         ttk.Label(f,text='Perfil de compatibilidade').grid(row=6,column=0,sticky='w',pady=7)
         ttk.Combobox(f,textvariable=self.var('profile'),values=PROFILES,state='readonly').grid(row=6,column=1,sticky='ew')
         self.field(f,7,'Argumentos adicionais','arguments')
-        ttk.Label(f,text='Os perfis são pontos de partida. DXVK/XInput para jogos 3D; Canvas para NW.js;\nGDI/teclado para aplicações 2D. O executável PE determina x86 ou x64.',wraplength=820,style='Sub.TLabel').grid(row=8,column=0,columnspan=3,sticky='w',pady=20)
-        ttk.Label(f,text='Saída: pasta de homebrew completa. Fechamento: Options + clique do touchpad (1 s).\nVerifique também PS → Fechar jogo durante o teste do seu título.',wraplength=820,style='Sub.TLabel').grid(row=9,column=0,columnspan=3,sticky='w')
+        ttk.Label(f,text='Resolução do desktop virtual').grid(row=8,column=0,sticky='w',pady=7)
+        ttk.Combobox(f,textvariable=self.var('display_resolution'),values=('auto','800x600','1280x720','1920x1080','2560x1440','3840x2160')).grid(row=8,column=1,sticky='ew')
+        ttk.Label(f,text='auto usa a resolução informada pelo console (fallback: 1920×1080). O jogo pode\nselecionar modos dentro desse limite. Argumentos do jogo e display.desktop em Avançado têm prioridade.',wraplength=820,style='Sub.TLabel').grid(row=9,column=0,columnspan=3,sticky='w',pady=7)
+        ttk.Label(f,text='Os perfis são pontos de partida. DXVK para Direct3D; OpenGL/Zink para OpenGL;\nCanvas para NW.js; GDI/teclado para aplicações GDI. O executável PE determina x86 ou x64.',wraplength=820,style='Sub.TLabel').grid(row=10,column=0,columnspan=3,sticky='w',pady=12)
+        ttk.Label(f,text='Saída: pasta de homebrew completa. Fechamento: Options + clique do touchpad (1 s).\nVerifique também PS → Fechar jogo durante o teste do seu título.',wraplength=820,style='Sub.TLabel').grid(row=11,column=0,columnspan=3,sticky='w')
 
     def choose_exe(self):
         path=filedialog.askopenfilename(parent=self.root,filetypes=[('Windows executável','*.exe')])

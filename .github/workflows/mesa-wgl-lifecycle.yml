@@ -4,7 +4,8 @@ on:
     branches: ['codex/**']
     paths:
       - '.github/workflows/mesa-wgl-lifecycle.yml'
-      - 'release_support/mesa-wgl/**'
+      - 'release_support/mesa-wgl/build.py'
+      - 'release_support/mesa-wgl/diagnostics.py'
   workflow_dispatch:
 permissions:
   contents: read

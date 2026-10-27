@@ -87,15 +87,18 @@ def check_lock(log=print, cancel=None, full=True):
 
 def make_profile(p, architecture):
     slug=runtime_id(p);folder='C:\\Games\\'+slug
-    options={'application':dict(id=slug,name=p['title'],executable=folder+'\\'+p['executable'].replace('/','\\'),working_directory=folder+('\\'+str(Path(p['executable']).parent).replace('/','\\')if '/'in p['executable']else''),arguments=p['arguments'],prefix=slug,runtime='wine-wow64',architecture=architecture,graphics='dxvk'if p['profile']=='dxvk-xinput'else'gdi'),
-        'display':dict(desktop='1280x720',scaling='fit',view='window',show_fps='false'),
-        'input':dict(mode='xinput'if p['profile']=='dxvk-xinput'else'keyboard',mouse='none'),
+    graphics={'dxvk-xinput':'dxvk','opengl-xinput':'opengl'}.get(p['profile'],'gdi')
+    controller=p['profile']in('dxvk-xinput','opengl-xinput')
+    options={'application':dict(id=slug,name=p['title'],executable=folder+'\\'+p['executable'].replace('/','\\'),working_directory=folder+('\\'+str(Path(p['executable']).parent).replace('/','\\')if '/'in p['executable']else''),arguments=p['arguments'],prefix=slug,runtime='wine-wow64',architecture=architecture,graphics=graphics),
+        'display':dict(scaling='fit',view='window',show_fps='false'),
+        'input':dict(mode='xinput'if controller else'keyboard',mouse='none'),
         'runtime':dict(thread_scheduling='true',cpu='native'),'debug':dict(winedebug='err+all')}
     if p['profile']=='dxvk-xinput':options['application']['dll_overrides']='dxgi,d3d11,d3d10core,d3d9,d3d8=n,b'
-    if p['profile']!='dxvk-xinput':options['input'].update(dict(cross='enter',circle='escape',square='shift',triangle='x',l1='pageup',r1='pagedown',up='up',down='down',left='left',right='right',options='escape',create='none',touchpad='space'))
+    if not controller:options['input'].update(dict(cross='enter',circle='escape',square='shift',triangle='x',l1='pageup',r1='pagedown',up='up',down='down',left='left',right='right',options='escape',create='none',touchpad='space'))
     if p['profile']=='nwjs-canvas':
         extra='--single-process --no-sandbox --disable-breakpad --disable-crash-handler=true --in-process-gpu --disable-gpu --disable-software-rasterizer --disable-gpu-compositing --no-proxy-server --user-data-dir=C:/PortStudioNW --disable-background-networking'
         options['application']['arguments']='canvas '+extra+(' '+p['arguments']if p['arguments']else'')
+    if p.get('display_resolution','auto')!='auto':options['display']['desktop']=p['display_resolution']
     for section,fields in p['profile_options'].items():options[section].update(fields)
     return ''.join('['+section+']\n'+''.join(f'{k} = {v}\n'for k,v in fields.items())+'\n'for section,fields in options.items())
 

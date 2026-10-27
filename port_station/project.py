@@ -6,7 +6,7 @@ import re
 from pathlib import Path, PurePosixPath
 
 WORKSPACE = Path(__file__).resolve().parents[1]
-PROFILES = ("dxvk-xinput", "nwjs-canvas", "gdi-keyboard")
+PROFILES = ("dxvk-xinput", "opengl-xinput", "nwjs-canvas", "gdi-keyboard")
 ADAPTERS = ("none", "file-v1", "unity-mono-steam", "nwjs-steam", "breath")
 BREATH_IDS = {"COROA", "OCULOS", "SONIC", "OLHOSARANHA", "ARANHA", "ENGUIA", "MORCEGO", "TARTARUGA", "THEEND", "BUG", "SPEEDRUN"}
 
@@ -16,7 +16,7 @@ class ProjectError(ValueError):
 def default_project():
     return dict(schema=1, title="Meu jogo", title_id="PPSA99410", game_id="meu.jogo",
                 version="01.000.001", game_dir="", executable="Game.exe",
-                profile="dxvk-xinput", arguments="", adapter="none", catalog_version=1,
+                profile="dxvk-xinput", arguments="", display_resolution="auto", adapter="none", catalog_version=1,
                 icon="", background="", launch_background="", sound="", audio_start=0.0, audio_duration=15.0,
                 platinum=False, platinum_id="PLATINUM", platinum_title="Conjunto completo",
                 platinum_description="Obtenha todas as outras conquistas.", platinum_icon="",
@@ -64,6 +64,15 @@ def runtime_id(project):
     """Wine IDs exclude dots; the achievement namespace keeps its original ID."""
     return project['game_id'].replace('.', '-')
 
+def validate_resolution(value):
+    if value == 'auto':return value
+    if not isinstance(value,str) or not re.fullmatch(r'[1-9][0-9]{2,3}x[1-9][0-9]{2,3}',value):
+        raise ProjectError('Resolução: use auto ou largura x altura sem espaços, como 1920x1080.')
+    width,height=map(int,value.split('x'))
+    if not 320<=width<=3840 or not 200<=height<=2160:
+        raise ProjectError('Resolução fora do limite do runtime: 320x200 a 3840x2160.')
+    return value
+
 def text(value, label, maximum):
     if not isinstance(value, str) or not value.strip() or len(value.encode("utf8")) > maximum or "\0" in value:
         raise ProjectError(f"{label}: texto vazio ou maior que {maximum} bytes UTF-8.")
@@ -79,6 +88,7 @@ def validate(project, base, files=True):
     if any(c in p["title"] for c in "\r\n;"): raise ProjectError("Título deve ter uma linha e não conter ponto e vírgula.")
     if not re.fullmatch(r"\d{2}\.\d{3}\.\d{3}", p["version"]): raise ProjectError("Versão deve seguir 01.000.001.")
     if p["profile"] not in PROFILES or p["adapter"] not in ADAPTERS: raise ProjectError("Perfil/adaptador desconhecido.")
+    validate_resolution(p.get('display_resolution','auto'))
     if not isinstance(p["age"], int) or not 0 <= p["age"] <= 18: raise ProjectError("Idade deve estar entre 0 e 18.")
     if type(p["catalog_version"]) is not int or p["catalog_version"] < 1: raise ProjectError("Versão do catálogo deve ser um inteiro positivo.")
     if any(c in p["arguments"] for c in "\r\n\0"): raise ProjectError("Argumentos devem ocupar uma linha.")
@@ -115,6 +125,9 @@ def validate(project, base, files=True):
         if section not in allowed or not isinstance(fields, dict): raise ProjectError(f"Seção de perfil inválida: {section}")
         for key, value in fields.items():
             if key not in allowed[section] or not isinstance(value, str) or any(c in value for c in "\r\n\0"): raise ProjectError(f"Opção de perfil inválida: {section}.{key}")
+            if section=='display' and key=='desktop':
+                if value=='auto':raise ProjectError('Para resolução automática, remova display.desktop de Avançado e escolha auto na aba Jogo.')
+                validate_resolution(value)
     if not isinstance(p['overlays'],list):raise ProjectError('overlays deve ser uma lista.')
     destinations=set()
     for entry in p["overlays"]:
