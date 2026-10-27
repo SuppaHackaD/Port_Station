@@ -132,6 +132,7 @@ This is an independent community project, unaffiliated with Sony, Valve or the
 developers of the example games. **No games, commercial game binaries, official
 game artwork or soundtracks are distributed.** Supply your own legally obtained
 files and support the creators.
+
 Games tested:
 [Breath by Herbherth](https://store.steampowered.com/app/1475350/).
 [The Coffin of Andy and Leyley by Kit9 Studio](https://store.steampowered.com/app/2378900/).
