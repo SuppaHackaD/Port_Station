@@ -87,15 +87,18 @@ def check_lock(log=print, cancel=None, full=True):
 
 def make_profile(p, architecture):
     slug=runtime_id(p);folder='C:\\Games\\'+slug
-    options={'application':dict(id=slug,name=p['title'],executable=folder+'\\'+p['executable'].replace('/','\\'),working_directory=folder+('\\'+str(Path(p['executable']).parent).replace('/','\\')if '/'in p['executable']else''),arguments=p['arguments'],prefix=slug,runtime='wine-wow64',architecture=architecture,graphics='dxvk'if p['profile']=='dxvk-xinput'else'gdi'),
-        'display':dict(desktop='1280x720',scaling='fit',view='window',show_fps='false'),
-        'input':dict(mode='xinput'if p['profile']=='dxvk-xinput'else'keyboard',mouse='none'),
+    graphics={'dxvk-xinput':'dxvk','opengl-xinput':'opengl'}.get(p['profile'],'gdi')
+    controller=p['profile']in('dxvk-xinput','opengl-xinput')
+    options={'application':dict(id=slug,name=p['title'],executable=folder+'\\'+p['executable'].replace('/','\\'),working_directory=folder+('\\'+str(Path(p['executable']).parent).replace('/','\\')if '/'in p['executable']else''),arguments=p['arguments'],prefix=slug,runtime='wine-wow64',architecture=architecture,graphics=graphics),
+        'display':dict(scaling='fit',view='window',show_fps='false'),
+        'input':dict(mode='xinput'if controller else'keyboard',mouse='none'),
         'runtime':dict(thread_scheduling='true',cpu='native'),'debug':dict(winedebug='err+all')}
     if p['profile']=='dxvk-xinput':options['application']['dll_overrides']='dxgi,d3d11,d3d10core,d3d9,d3d8=n,b'
-    if p['profile']!='dxvk-xinput':options['input'].update(dict(cross='enter',circle='escape',square='shift',triangle='x',l1='pageup',r1='pagedown',up='up',down='down',left='left',right='right',options='escape',create='none',touchpad='space'))
+    if not controller:options['input'].update(dict(cross='enter',circle='escape',square='shift',triangle='x',l1='pageup',r1='pagedown',up='up',down='down',left='left',right='right',options='escape',create='none',touchpad='space'))
     if p['profile']=='nwjs-canvas':
         extra='--single-process --no-sandbox --disable-breakpad --disable-crash-handler=true --in-process-gpu --disable-gpu --disable-software-rasterizer --disable-gpu-compositing --no-proxy-server --user-data-dir=C:/PortStudioNW --disable-background-networking'
         options['application']['arguments']='canvas '+extra+(' '+p['arguments']if p['arguments']else'')
+    if p.get('display_resolution','auto')!='auto':options['display']['desktop']=p['display_resolution']
     for section,fields in p['profile_options'].items():options[section].update(fields)
     return ''.join('['+section+']\n'+''.join(f'{k} = {v}\n'for k,v in fields.items())+'\n'for section,fields in options.items())
 
@@ -148,13 +151,33 @@ class Builder:
             self.emit('Port Station '+__version__+' — verificando entradas')
             lock=check_lock(self.emit,self.cancel,full=False)
             inputs={x.relative_to(game).as_posix():digest(x)for x in sorted(tree(game))}
+            from . import love
+            compat_files=None;compatibility_plan=love.inspect(p,game)
+            if compatibility_plan:
+                self.emit('LÖVE: preparando a consulta de perfil e as correções verificadas na cópia da build…')
+                compat_files,report=love.prepare(compatibility_plan,game,output/'compatibility',project=p)
+                if report['achievement_producer']:
+                    self.emit('LÖVE: ponte de eventos integrada para '+str(report['achievement_producer']['mapped_ids'])+' conquistas do catálogo.')
+                elif p['adapter']=='file-v1':self.emit('LÖVE: catálogo habilitado; este executável ainda precisa de um produtor de eventos próprio.')
+                for overlay in p['overlays']:
+                    if overlay['destination'].casefold() in {n.casefold()for n in compat_files}:
+                        raise ProjectError('Overlay conflita com arquivo preparado pelo suporte LÖVE: '+overlay['destination'])
+                write_json(output/'love-compatibility.json',report)
             if p['adapter']=='breath':
                 from . import breath
                 breath.inspect(game,self.run)
             write_json(output/'project.json',p)
             generated=output/'generated';catalog=resources=blob=None
             if p['adapter']!='none':catalog,resources,blob=assets.make_catalog(p,base,output/'achievements')
-            native.generate(p,generated,catalog,resources,blob)
+            if p['adapter']!='none':
+                missing=sum(not a.get('description','').strip()for a in p['achievements'])+int(p['platinum'] and not p['platinum_description'].strip())
+                if missing:self.emit(f'Catálogo: {missing} itens sem descrição; exibindo "Descrição não fornecida". Revise os textos quando disponíveis.')
+            managed_files=None
+            if p['adapter']=='unity-mono-steam':
+                from .managed import prepare
+                self.emit('Unity Mono: verificando o ponto de concessão e preparando a DLL genérica…')
+                managed_files=prepare(p,game,output/'managed',self.run)
+            native.generate(p,generated,catalog,resources,blob,managed_files=managed_files,compat_files=compat_files)
             (output/'CMakeLists.txt').write_text(native.cmake(p,generated),encoding='utf8',newline='\n')
             profile=make_profile(p,architecture);(output/'game.profile').write_text(profile,encoding='utf8',newline='\n')
             self.run([R/'build/port-studio/tools/check-profile.exe',output/'game.profile'])
@@ -173,12 +196,18 @@ class Builder:
             self.emit('Copiando prefixo limpo e arquivos do jogo…')
             self.copy(KIT/'prefix',prefix)
             target=prefix/'drive_c/Games'/slug;self.copy(game,target)
+            if compat_files:
+                for rel,path in compat_files.items():
+                    dest=target/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
             for overlay in p['overlays']:
                 self.checkpoint();dest=target/relative_file(overlay['destination']);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(resolve_path(overlay['source'],base),dest)
             if p['adapter']=='breath':
                 self.emit('Breath: preparando e verificando a ponte de conquistas na cópia da build…')
                 compatibility=breath.prepare(target,self.run)
                 write_json(output/'breath-compatibility.json',compatibility)
+            if managed_files:
+                for rel,path in managed_files.items():
+                    dest=target/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,dest)
             if p['profile']=='nwjs-canvas':
                 from .nwjs import prepare_fonts
                 compatibility=prepare_fonts(target,prefix);write_json(output/'nwjs-compatibility.json',compatibility)

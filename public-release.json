@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "name": "Port Station",
-  "version": "0.3.2",
+  "version": "0.4.0-preview.4",
   "bundle_ffmpeg": false,
   "commercial_game_data": false
 }

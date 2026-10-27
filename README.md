@@ -17,7 +17,8 @@ O [guia rápido](docs/QUICKSTART.md) acompanha a primeira build. O [guia para no
 ## O que a ferramenta oferece
 
 - Interface Python/Tk e CLI usando o mesmo processo de build.
-- Perfis iniciais para Direct3D/DXVK com XInput, NW.js com Canvas e aplicações GDI com teclado.
+- Perfis iniciais para Direct3D/DXVK e OpenGL/Mesa-Zink com XInput, NW.js com Canvas e aplicações GDI com teclado.
+- Desktop virtual com resolução automática ou configurável até 4K e seleção de modos pelo jogo.
 - Mapeamento de botões e argumentos de lançamento editáveis.
 - Ícone, fundos e música de seleção personalizáveis; conversão local de imagens para PNG/BC7 e de áudio para ATRAC9.
 - Catálogos de conquistas, platina opcional e integração com **Prospero Achievements**, um backend independente com interface web.

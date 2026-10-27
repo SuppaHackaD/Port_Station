@@ -31,6 +31,7 @@ O Title ID identifica a aplicação no console. A ID das conquistas identifica o
 | Perfil | Quando começar por ele | Controles iniciais |
 |---|---|---|
 | `dxvk-xinput` | Jogos que usam Direct3D e oferecem controle XInput. | XInput. |
+| `opengl-xinput` | Jogos OpenGL, pela camada Mesa/Zink sobre Vulkan. | XInput. |
 | `nwjs-canvas` | Jogos NW.js/RPG Maker que tenham modo Canvas. | Botões convertidos em teclas. |
 | `gdi-keyboard` | Aplicações 2D/GDI ou jogos que dependem de teclado. | Botões convertidos em teclas. |
 
@@ -38,9 +39,61 @@ O perfil `nwjs-canvas` acrescenta `canvas` como primeiro argumento e configura u
 
 A correção de fontes NW.js instala as TTF/OTF locais referidas pelo CSS no prefixo e dá preferência ao carregamento local. Ela é aplicada automaticamente durante a build desse perfil.
 
+### LÖVE
+
+Use `opengl-xinput`. O Port Station reconhece por SHA-256 a DLL x64 LÖVE 11.4
+validada e prepara, na cópia da build, um helper para consultar o diretório do
+usuário no Wine. Na versão verificada de Intravenous 2: Mercenarism, também
+corrige o descritor de controle usado pelas opções do jogo. Os arquivos de
+origem são preservados; outras versões de DLL ou executável continuam exigindo
+validação própria.
+
+Para conquistas nessa revisão, importe o catálogo oficial e escolha `file-v1`.
+A build integra um publicador local das chamadas originais de desbloqueio;
+o relatório deve incluir `achievement_producer` com o tipo
+`love-platform-setachievement-v1`. Outros executáveis LÖVE não recebem essa
+ponte automaticamente. Veja [Conquistas](ACHIEVEMENTS.md).
+
+O relatório `love-compatibility.json` informa os arquivos preparados e seus
+hashes. A build inclui a atualização desses arquivos no prefixo em cache antes
+de iniciar o jogo, mantendo saves e outros recursos. Isso permite reinstalar
+uma build corrigida com o mesmo Title ID, usando a pasta completa gerada.
+
 Se um jogo falhar, altere uma configuração por vez. Trocar renderer, argumentos e controles ao mesmo tempo dificulta saber qual mudança resolveu o problema. Um perfil não supre automaticamente APIs ou componentes ausentes do runtime.
 
 ## 4. Argumentos de lançamento
+
+### Resolução e tela
+
+Em **Jogo → Resolução do desktop virtual**, `auto` consulta a resolução informada
+pelo VideoOut ao iniciar o título. Se a consulta falhar ou retornar dados inválidos,
+usa 1920×1080. O limite desta versão é 3840×2160. Você também pode escolher ou
+digitar um tamanho, por exemplo `1920x1080` ou `2560x1440`.
+
+Esse valor define o desktop e o teto de modos anunciado ao jogo. O jogo continua
+responsável por sua resolução de renderização e pode selecionar modos menores
+no próprio menu, quando sua engine oferece essa opção. Uma tela 4K não obriga o
+jogo a renderizar em 4K: reduza a resolução no jogo se precisar de desempenho.
+O backend gráfico apresenta a imagem na saída suportada pelo console, preservando
+a proporção com `scaling=fit`. O apresentador de GDI continua usando saída 1080p.
+
+`display.desktop` nas opções avançadas tem prioridade sobre o campo da interface;
+remova esse override para usar `auto`. Argumentos como `-screen-width` e
+`-screen-height`, ou configurações salvas pelo próprio jogo, também podem manter
+uma resolução específica. A receita de Breath conserva os argumentos 720p já
+testados; retire-os ao testar a seleção pelo menu. A detecção ocorre na abertura:
+reabra o título depois de trocar a TV ou a configuração de saída do PS5.
+
+Em projetos JSON, o campo é `"display_resolution": "auto"`. Projetos anteriores
+sem esse campo também usam `auto`; overrides avançados existentes são preservados.
+As trocas de resolução dependem da engine e do renderer e precisam ser validadas
+em cada jogo. Isso não adiciona HDR nem altera a frequência de atualização.
+
+A detecção automática e a troca 4K → 1080p → 720p → 4K foram validadas no port
+de Intravenous 2: Mercenarism, em OpenGL/Zink x64 no firmware 13.60, incluindo
+a seleção do mesmo adaptador. O runtime corrigido libera a referência de
+apresentação retida pelo contexto antes de recriar a janela. A compatibilidade
+e os ajustes específicos de cada jogo continuam exigindo validação própria.
 
 Use argumentos que o próprio jogo reconheça. Para um jogo Unity que aceite esses parâmetros, por exemplo:
 

@@ -12,7 +12,18 @@ def package(base,output,kit=None):
     old=json.loads(subprocess.check_output(['git','show',base+':port_station/runtime.lock.json'],cwd=R,text=True,encoding='utf8'))['files']
     for name,wanted in current.items():
         if old.get(name)==wanted or name in entries:continue
-        if name!='build/release-managed/PatchBreathAchievements.exe' or kit is None:raise ValueError('Changed runtime input requires an explicit update source: '+name)
+        compiled={'build/release-managed/PatchBreathAchievements.exe',
+                  'build/port-studio/managed/ProsperoManagedIntegrator.exe',
+                  'build/port-studio/managed/ProsperoAchievements.dll',
+                  'build/port-studio/managed/managed.lock.json',
+                  'achievement_extractor/bin/AchievementScanner.exe',
+                  'achievement_extractor/bin/helper.lock.json'}
+        compiled.update({'build/port-studio/compat/pe64/paenv.dll','build/port-studio/compat/pe64/paevents.dll','build/port-studio/compat/pe64/helper.json'})
+        compiled.add('build/prospero-evaluation/staged/PPSA99995/mesa-zink-manifest.json')
+        compiled.update('build/prospero-evaluation/staged/PPSA99995/win/mesa-zink/'+arch+'/'+dll
+                        for arch in ('i386-windows','x86_64-windows')
+                        for dll in ('opengl32.dll','libgallium_wgl.dll'))
+        if name not in compiled or kit is None:raise ValueError('Changed runtime input requires an explicit update source: '+name)
         path=kit/name
         if path.stat().st_size>160*1024**2 or hashlib.sha256(path.read_bytes()).hexdigest()!=wanted:raise ValueError('Compiled preparation tool differs from lock')
         entries[name]=path

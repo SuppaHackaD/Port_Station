@@ -95,6 +95,55 @@ class CoreTests(unittest.TestCase):
         self.assertIn('create = none',profile)
         self.assertIn('architecture = pe32',profile)
 
+    def test_opengl_profile_selects_zink_without_dxvk_or_keyboard_remapping(self):
+        import subprocess,configparser
+        p=copy.deepcopy(self.p);p['profile']='opengl-xinput';p['adapter']='file-v1'
+        validate(p,self.base,False)
+        profile=make_profile(p,'pe64');parsed=configparser.ConfigParser();parsed.read_string(profile)
+        self.assertEqual(parsed['application']['graphics'],'opengl')
+        self.assertEqual(parsed['input']['mode'],'xinput')
+        self.assertNotIn('dll_overrides',parsed['application'])
+        self.assertNotIn('cross',parsed['input'])
+        checker=WORKSPACE/'build/port-studio/tools/check-profile.exe'
+        if checker.is_file():
+            with tempfile.TemporaryDirectory()as td:
+                path=Path(td)/'opengl.profile';path.write_text(profile,encoding='utf-8')
+                subprocess.run([str(checker),str(path)],check=True,capture_output=True)
+
+    def test_display_auto_and_explicit_ceiling_pass_the_runtime_parser(self):
+        import subprocess,configparser
+        for resolution in ('auto','800x600','1280x720','1920x1080','2560x1440','3840x2160'):
+            with self.subTest(resolution=resolution),tempfile.TemporaryDirectory()as td:
+                p=copy.deepcopy(self.p);p['display_resolution']=resolution
+                validate(p,self.base,False)
+                profile=make_profile(p,'pe64');parsed=configparser.ConfigParser();parsed.read_string(profile)
+                self.assertEqual(parsed['display'].get('desktop'),None if resolution=='auto'else resolution)
+                checker=WORKSPACE/'build/port-studio/tools/check-profile.exe'
+                if checker.is_file():
+                    path=Path(td)/'display.profile';path.write_text(profile,encoding='utf-8')
+                    subprocess.run([str(checker),str(path)],check=True,capture_output=True)
+
+    def test_display_legacy_override_wins_and_invalid_sizes_are_rejected(self):
+        import configparser
+        p=copy.deepcopy(self.p);p['display_resolution']='3840x2160'
+        p['profile_options']={'display':{'desktop':'1280x720'}}
+        validate(p,self.base,False)
+        parsed=configparser.ConfigParser();parsed.read_string(make_profile(p,'pe64'))
+        self.assertEqual(parsed['display']['desktop'],'1280x720')
+        p['profile_options']={}
+        for value in ('0x0','319x200','3841x2160','3840x2161','1920x1080\n','1920 x 1080',None,1080):
+            p['display_resolution']=value
+            with self.subTest(value=value),self.assertRaises(ProjectError):validate(p,self.base,False)
+
+    def test_generated_launcher_detects_display_before_wine_environment_is_set(self):
+        with tempfile.TemporaryDirectory()as td:
+            p=read_project(self.base/'windows-game.ps5port.json');out=Path(td)
+            native.generate(p,out)
+            source=(out/'wine64_main.c').read_text(encoding='utf-8')
+            self.assertLess(source.index('sceVideoOutGetResolutionStatus(video.handle'),source.index('pw_wine_start_environment(&start'))
+            self.assertIn('STATION_FRAME_MAX_WIDTH * STATION_FRAME_MAX_HEIGHT * 4',source)
+            self.assertTrue((out/'display_policy.h').is_file())
+
     def test_dotted_backend_id_maps_to_valid_wine_identifier(self):
         import subprocess
         self.p['game_id']='studio.test-game'

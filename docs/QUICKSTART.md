@@ -19,10 +19,15 @@ Sem música, essa etapa não é necessária.
 1. Clique em **Novo**.
 2. Em **Jogo**, selecione a pasta completa da instalação e seu executável principal. O `.exe` deve ficar dentro dessa pasta.
 3. Preencha o título e escolha um **Title ID** livre no console, no formato `PPSA` seguido de cinco números. Defina também uma ID estável para as conquistas, por exemplo `meu.jogo`.
-4. Escolha o perfil inicial: `dxvk-xinput` para jogos Direct3D com controle, `nwjs-canvas` para jogos NW.js que ofereçam Canvas, ou `gdi-keyboard` para aplicações GDI/teclado.
+4. Escolha o perfil inicial: `dxvk-xinput` para jogos Direct3D com controle, `opengl-xinput` para OpenGL/Mesa-Zink, `nwjs-canvas` para jogos NW.js que ofereçam Canvas, ou `gdi-keyboard` para aplicações GDI/teclado.
 5. Em **Apresentação**, selecione um ícone. Fundos e música são opcionais.
 6. Em **Conquistas**, mantenha o adaptador `none` neste primeiro teste.
 7. Salve o projeto como `.ps5port.json`.
+
+Na aba **Jogo**, deixe a resolução em `auto` para usar o tamanho informado pelo
+console, ou escolha o teto do desktop virtual. O jogo pode selecionar modos
+menores pelo seu próprio menu. Veja [resolução e tela](NEW_GAME.md#resolução-e-tela)
+para os limites e a prioridade de argumentos e opções avançadas.
 
 Você também pode abrir `port_station/examples/windows-game.ps5port.json`, que já traz imagens genéricas. Troque a pasta e o executável pelos do seu jogo.
 

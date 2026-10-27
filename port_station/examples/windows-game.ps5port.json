@@ -8,6 +8,7 @@
   "executable": "Game.exe",
   "profile": "dxvk-xinput",
   "arguments": "",
+  "display_resolution": "auto",
   "adapter": "none",
   "catalog_version": 1,
   "icon": "${workspace}/port_station/examples/assets/port-station-icon.png",

@@ -34,6 +34,7 @@
 #include "pw_data_mount.h"
 #include "studio_bootstrap.h"
 #include "tcoal_close.h"
+#include "display_policy.h"
 @ACH_INCLUDE@
 #include "pw_audio_ps5.h"
 #include "pw_pad_ps5.h"
@@ -223,10 +224,9 @@ static char catalog_detail[PW_WINE_LIBRARY_MAX][64];
 static size_t catalog_count;
 static const char *library_root = PW_WINE64_ROOT_SANDBOX;
 
-/* The largest desktop shown: Wine's PS5 driver defaults to 800x600
- * (WINE_PS5_DESKTOP overrides, 1920x1080 for Warcraft III); bigger frames
- * are counted and dropped. */
-enum { PW_WINE64_MAX_FRAME = 1920 * 1200 * 4, PW_WINE64_TICK_US = 16000,
+/* Accept GDI frames through the same 4K ceiling as the virtual desktop.
+ * VideoOut's software presenter still scales to its supported scanout size. */
+enum { PW_WINE64_MAX_FRAME = STATION_FRAME_MAX_WIDTH * STATION_FRAME_MAX_HEIGHT * 4, PW_WINE64_TICK_US = 16000,
        PW_WINE64_TICKS_PER_S = 60, PW_WINE64_CLOSE_WAIT_S = 5 };
 
 enum { PAD_CREATE = 0x1u, PAD_OPTIONS = 0x8u, PAD_UP = 0x10u, PAD_RIGHT = 0x20u,
@@ -999,8 +999,8 @@ int main(int argc, char **argv)
         if (game->display.width) {
             snprintf(desktop, sizeof(desktop), "%ux%u", (unsigned)game->display.width,
                      (unsigned)game->display.height);
-            extra[config.extra_env_count++] = (PwWineStartEnv){ "WINE_PS5_DESKTOP", desktop };
-        }
+        } else snprintf(desktop,sizeof(desktop),"1920x1080");
+        extra[config.extra_env_count++] = (PwWineStartEnv){ "WINE_PS5_DESKTOP", desktop };
         /* OpenGL selects the native Zink provider; preserve other per-game
          * overrides such as DXVK when composing it. */
         int overrides_status = pw_app_profile_effective_dll_overrides(
@@ -1179,6 +1179,19 @@ int main(int argc, char **argv)
                 (uintptr_t)pw_prx_lookup(start.descriptor, "pw_wine_rumble");
         }
         video_status = pw_videoout_ps5_open(&video);
+        if(game && !game->display.width) {
+            /* Public homebrew VideoOut declarations agree on width/height at
+             * offsets 0/4 in a 48-byte resolution-status structure. Reserve a
+             * larger aligned block and consume only those fields. Read-only;
+             * never asks VideoOut to switch the console's output mode. */
+            extern int sceVideoOutGetResolutionStatus(int32_t,void *);
+            _Alignas(16) uint32_t resolution_status[64]={0};
+            int query=video_status==PW_OK ? sceVideoOutGetResolutionStatus(video.handle,resolution_status) : -1;
+            StationDesktop chosen=station_desktop_resolve(query,resolution_status[0],resolution_status[1]);
+            snprintf(desktop,sizeof(desktop),"%ux%u",(unsigned)chosen.width,(unsigned)chosen.height);
+            PS5LOG_LOG("PORT_STATION display auto query=%#x reported=%ux%u desktop=%s detected=%d",
+                       (unsigned)query,(unsigned)resolution_status[0],(unsigned)resolution_status[1],desktop,chosen.detected);
+        } else if(game) PS5LOG_LOG("PORT_STATION display configured desktop=%s",desktop);
         pad_status = pw_pad_ps5_platform_ops(&pad_ops);
         if (pad_status == PW_OK)
             pad_status = pw_pad_ps5_open(&pad, &pad_ops, pad_open_map,

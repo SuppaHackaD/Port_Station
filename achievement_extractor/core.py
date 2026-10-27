@@ -8,6 +8,9 @@ import shutil
 import struct
 import subprocess
 from . import __version__
+from .official import FALLBACK,confirmed_ids
+from .love import archive_members,luajit_strings
+import zipfile
 from .formats import read_metadata, definitions, localized, javascript_calls, native_candidates
 
 HERE = Path(__file__).resolve().parent
@@ -53,14 +56,14 @@ def managed_pe(path):
 def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:None, cancel=None):
     root,exe=validate_input(folder,executable)
     result={'_source_root':str(root),'extractor_version':__version__,'executable':exe.relative_to(root).as_posix(),'executable_sha256':digest(exe),
-            'language':language,'entries':[],'warnings':[],'inputs':{},'coverage':{'files_seen':0,'bytes_read':0,'parse_failures':0,'unresolved_managed_calls':0,'bounded_scan':True,'truncated':False}}
+            'language':language,'entries':[],'warnings':[],'inputs':{},'constant_candidates':{},'coverage':{'files_seen':0,'bytes_read':0,'parse_failures':0,'unresolved_managed_calls':0,'bounded_scan':True,'truncated':False,'luajit_members':0}}
     entries={};assemblies=[exe] if managed_pe(exe) else [];paths=[]
     def warn(s):result['warnings'].append(s);log(s)
     def label(path):
         return path.relative_to(root).as_posix() if path.is_relative_to(root) else 'external/'+path.name
     def add(source, kind, path, title='', description='', hidden=None, icon='', **location):
         if not isinstance(source,str) or not source or len(source.encode('utf-8'))>256 or any(ord(c)<32 for c in source): return
-        rank=3 if kind=='catalog' else 1 if kind=='native-candidate' else 2
+        rank=3 if kind=='catalog' else 1 if kind in ('native-candidate','luajit-constant') else 2
         evidence={'kind':kind,'file':label(path),**location}
         record=entries.setdefault(source,{'source_id':source,'title':'','description':'','hidden':None,'icon':'','evidence':[],'rank':0,'conflicts':[]})
         record['evidence'].append(evidence)
@@ -70,6 +73,18 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
                 record['conflicts'].append(key)
             if record[key] in (None,'') or rank>record['rank']:record[key]=value
         record['rank']=max(rank,record['rank'])
+    def lua(data,path,member=None):
+        if not data.startswith(b'\x1bLJ'):return
+        constants=luajit_strings(data);result['coverage']['luajit_members']+=1
+        for source,offset in constants:
+            pool=result['constant_candidates']
+            if source not in pool and len(pool)>=65536:result['coverage']['truncated']=True;continue
+            evidence={'kind':'luajit-constant','file':label(path),'offset':offset}
+            if member:evidence['member']=member
+            origins=pool.setdefault(source,[])
+            if len(origins)<2:origins.append(evidence)
+            if 'achiev'in (member or path.name).lower() and re.fullmatch('[A-Z][A-Z0-9_]{2,63}',source):
+                add(source,'luajit-constant',path,offset=offset,**({'member':member}if member else{}))
     for base,dirs,files in os.walk(root,followlinks=False):
         dirs[:]=sorted(d for d in dirs if d.lower() not in ('.git','node_modules','cache','logs','saves','save','userdata','__pycache__') and not (Path(base)/d).is_symlink() and not (Path(base)/d).is_junction())
         for name in sorted(files):
@@ -90,13 +105,15 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
             if path.stat().st_size<=32*1024*1024:assemblies.append(path)
         is_meta=suffix in ('.json','.vdf') or suffix=='.bin' and ('schema' in name or 'achiev' in name) or metadata and path==Path(metadata).resolve()
         is_js=suffix in ('.js','.cjs','.mjs')
-        if not is_meta and not is_js:continue
+        is_lua=suffix=='.lua'
+        if not is_meta and not is_js and not is_lua:continue
         size=path.stat().st_size
         if size>MAX_FILE or result['coverage']['bytes_read']+size>MAX_TOTAL:
             result['coverage']['truncated']=True;warn('Limite de leitura: '+label(path));continue
         data=path.read_bytes();result['coverage']['bytes_read']+=len(data)
         result['inputs'][label(path)]=hashlib.sha256(data).hexdigest()
         try:
+            if is_lua:lua(data,path)
             if is_meta:
                 value=read_metadata(data,suffix=='.bin')
                 context='achiev' in name or bool(metadata and path==Path(metadata).resolve())
@@ -118,7 +135,31 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
                 for source,offset in javascript_calls(data.decode('utf-8-sig')):add(source,'javascript-api-literal',path,offset=offset)
         except (ValueError,UnicodeError,RecursionError,OverflowError) as error:
             result['coverage']['parse_failures']+=1
-            if is_js or is_meta and ('achiev' in name or suffix in ('.vdf','.bin') or metadata and path==Path(metadata).resolve()):warn(label(path)+': '+str(error))
+            if is_lua:result['coverage']['truncated']=True
+            if is_lua or is_js or is_meta and ('achiev' in name or suffix in ('.vdf','.bin') or metadata and path==Path(metadata).resolve()):warn(label(path)+': '+str(error))
+    carriers=[exe]+[p for p in paths if p.suffix.lower()=='.love' and p!=exe]
+    for carrier in carriers[:8]:
+        if cancel and cancel.is_set():raise ExtractionError('Extração cancelada.')
+        try:
+            for member,data in archive_members(carrier,max_entries=MAX_FILES,max_total=max(0,MAX_TOTAL-result['coverage']['bytes_read'])):
+                if cancel and cancel.is_set():raise ExtractionError('Extração cancelada.')
+                result['coverage']['bytes_read']+=len(data)
+                result['inputs'][label(carrier)+'!/'+member]=hashlib.sha256(data).hexdigest()
+                suffix=Path(member).suffix.lower()
+                if suffix=='.lua':lua(data,carrier,member)
+                elif suffix in ('.js','.cjs','.mjs'):
+                    for source,offset in javascript_calls(data.decode('utf-8-sig')):
+                        add(source,'javascript-api-literal',carrier,member=member,offset=offset)
+                elif suffix in ('.json','.vdf'):
+                    for row in definitions(read_metadata(data),'achiev'in member.lower()):
+                        source=next((row[k]for k in ('source_id','api_name','apiName','id','name')if row.get(k)is not None),'')
+                        title,lang=localized(row.get('title',row.get('displayName','')),language)
+                        desc,dlang=localized(row.get('description',row.get('desc','')),language)
+                        add(source,'catalog',carrier,title,desc,member=member,title_language=lang,description_language=dlang)
+            if carrier!=exe:result['inputs'][label(carrier)]=digest(carrier)
+        except ExtractionError:raise
+        except (ValueError,UnicodeError,zipfile.BadZipFile,NotImplementedError) as error:
+            result['coverage']['parse_failures']+=1;result['coverage']['truncated']=True;warn(label(carrier)+': '+str(error))
     helper=HERE/'bin/AchievementScanner.exe';lock=HERE/'bin/helper.lock.json'
     if assemblies:
         log('Analisando metadados gerenciados…')
@@ -142,16 +183,18 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
             except subprocess.TimeoutExpired:warn('Tempo limite do scanner gerenciado; extração parcial.');result['coverage']['truncated']=True
         else:warn('Scanner gerenciado ausente. Use o pacote Windows ou compile managed/Scanner.csproj.');result['coverage']['truncated']=True
     # Native strings have no proven call relationship: review-only, never selected by default.
-    if exe.stat().st_size<=64*1024*1024:
-        for source,offset in native_candidates(exe.read_bytes()):add(source,'native-candidate',exe,offset=offset)
-    else:warn('Executável grande demais para a busca opcional de strings.');result['coverage']['truncated']=True
+    from .formats import native_candidate_stream
+    with exe.open('rb')as stream:
+        for source,offset in native_candidate_stream(stream):add(source,'native-candidate',exe,offset=offset)
+    if exe.stat().st_size>512*1024*1024:warn('Busca nativa limitada aos primeiros 512 MiB.');result['coverage']['truncated']=True
     for source,row in sorted(entries.items()):
         missing=[key for key in ('title','description','hidden','icon') if row[key] in ('',None)]
         row['review']=sorted(set(missing+['conflict:'+k for k in row['conflicts']]))
         row['selected']=row['rank']>=2
         row['title']=row['title'] or source;row['hidden']=bool(row['hidden'])
         result['entries'].append(row)
-    if not entries:warn('Nenhuma definição recuperada nas fontes suportadas. Forneça um schema local adicional ou revise a integração manualmente.')
+    if not entries and result['constant_candidates']:warn('Constantes LuaJIT recuperadas. Consulte o AppID Steam para cruzar as IDs oficiais; constantes não comprovam chamadas de desbloqueio.')
+    elif not entries:warn('Nenhuma definição recuperada nas fontes suportadas. Forneça um schema local adicional ou revise a integração manualmente.')
     elif not any(row['rank']==3 for row in entries.values()):warn('IDs extraídas do código; nomes, descrições e ícones podem não estar presentes. Revise os campos marcados.')
     log(f'{len(result["entries"])} IDs encontradas; {sum(r["selected"] for r in result["entries"])} selecionadas por padrão.')
     return result
@@ -186,8 +229,11 @@ def save_report(result, path):
     return write_report(result,dest)
 
 
-def export(result, destination):
+def export(result, destination, official_only=False, steam_app_id=None):
     selected=[r for r in result['entries'] if r['selected']]
+    if official_only:
+        allowed=confirmed_ids(result,steam_app_id)
+        selected=[r for r in selected if r['source_id'] in allowed]
     if not selected:raise ExtractionError('Nenhuma conquista selecionada para exportação.')
     if len(selected)>256:raise ExtractionError('Port Station aceita no máximo 256 conquistas; reserve uma vaga se acrescentar platina.')
     dest=_new_destination(result,destination)
@@ -208,8 +254,11 @@ def export(result, destination):
             if ext and len(data)<=4*1024*1024:
                 icon='assets/'+hashlib.sha256(data).hexdigest()+ext
                 (dest/'assets').mkdir(exist_ok=True);(dest/icon).write_bytes(data)
-        items.append({'id':ident,'source_id':source,'title':row['title'],'description':row['description'],'hidden':row['hidden'],'target':1,'icon':icon})
+        items.append({'id':ident,'source_id':source,'title':row['title'],'description':row['description'].strip() or FALLBACK,'hidden':row['hidden'],'target':1,'icon':icon})
     catalog={'schema':1,'achievements':items}
+    if official_only:
+        catalog['official_match']={'provider':'steam','appid':result['official_lookup']['appid'],
+            'rule':'exact-source-id-intersection','count':len(items)}
     (dest/'achievements.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     write_report(result,dest)
     (dest/'IMPORTAR.txt').write_text('Port Station → Conquistas → Importar catálogo JSON → achievements.json.\nRevise os campos ausentes indicados em extraction-report.json. Configure o adaptador de eventos; a lista não implementa condições de desbloqueio. A platina pode ser acrescentada no Port Station.\n',encoding='utf-8')

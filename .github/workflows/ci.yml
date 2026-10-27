@@ -15,11 +15,21 @@ jobs:
           node-version: '22'
       - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s port_station/tests -p test_core.py -v
+      - run: python -m unittest port_station.tests.test_love -v
+      - run: python -m unittest port_station.tests.test_love_achievements -v
       - run: python -m unittest port_station.tests.test_breath_preparation -v
+      - run: python -m unittest port_station.tests.test_catalog_protocol -v
       - run: node port_station/tests/test_nw_bridge.js
       - run: python release_support/test-prepare-game.py
       - run: python release_support/test-stream-archive.py
+      - run: python release_support/test-package-update.py
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
       - run: dotnet run --project release_support/managed/VerifierTests -c Release
+
+      - run: python sdk/prospero-achievements/managed/build.py
+      - run: dotnet run --project sdk/prospero-achievements/managed/Tests -c Release -- build/port-studio/managed/ProsperoManagedIntegrator.exe build/port-studio/managed/ProsperoAchievements.dll
+      - run: python -m unittest port_station.tests.test_managed -v
+
+      - run: python -m unittest port_station.tests.test_extractor_gui -v

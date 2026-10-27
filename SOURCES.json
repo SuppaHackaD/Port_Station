@@ -113,5 +113,12 @@
       "sha256": "978ac4ee432dbc912a46efa8cd2c43263d9a410e5f528e8339e6cd4572a00e6a",
       "bytes": 324147
     }
-  ]
+  ],
+  "local_modifications": {
+    "mesa-zink": {
+      "recipe": "release_support/mesa-wgl/build.py",
+      "source_patch": "release_support/mesa-wgl/diagnostics.py",
+      "binary_association": "release_support/mesa-wgl/runtime.json"
+    }
+  }
 }

@@ -169,3 +169,21 @@ def native_candidates(data):
     for match in re.finditer(rb'(?<![A-Za-z0-9_])(?:ACH_|ACHIEVEMENT_|ACHV_|TROPHY_)[A-Z0-9_]{2,56}(?![A-Za-z0-9_])',data):
         name = match[0].decode('ascii')
         if name not in seen: seen.add(name);yield name,match.start()
+
+
+def native_candidate_stream(stream,max_bytes=512*1024*1024,chunk_size=1024*1024):
+    """Preserve token boundaries across chunks with bounded memory and IO."""
+    tail=b'';offset=0;read=0;seen=set()
+    while read<max_bytes:
+        block=stream.read(min(chunk_size,max_bytes-read));read+=len(block)
+        data=tail+block;safe=len(data) if not block else max(0,len(data)-128)
+        for source,start in native_candidates(data):
+            if start<safe and not(offset and start==0) and source not in seen:
+                seen.add(source);yield source,start+offset
+        if not block:break
+        # Keep a left-boundary byte as well as the longest possible token.
+        keep=max(0,safe-1);offset+=keep;tail=data[keep:]
+    if read==max_bytes:
+        for source,start in native_candidates(tail):
+            if not(offset and start==0)and source not in seen:
+                seen.add(source);yield source,start+offset
