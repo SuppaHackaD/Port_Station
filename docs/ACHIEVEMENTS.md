@@ -1,5 +1,7 @@
 # Conquistas e interface web
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 Prospero Achievements é um payload independente que recebe catálogos e eventos dos jogos. Ele mantém o progresso por usuário e oferece uma interface web para consultar as listas. O jogo integrado apresenta um popup após a confirmação de um desbloqueio.
 
 ## Ativar o backend
@@ -17,7 +19,7 @@ Na aba **Conquistas**, clique em **Extrair do jogo…**. A janela usa a pasta e 
 
 **Somente oficiais** exige igualdade exata entre uma ID local e uma ID retornada pela Steam. A consulta malsucedida bloqueia a exportação nesse modo. Você pode editar/traduzir nomes e descrições sem alterar as IDs. A platina continua sendo uma opção separada no projeto.
 
-O leitor suporta catálogos JSON/VDF, chamadas JavaScript conhecidas, metadados Unity Mono e constantes LuaJIT em pacotes LÖVE/ZIP, incluindo ZIP anexado ao executável. Constantes LuaJIT são evidências de presença da ID, não prova de que uma chamada de desbloqueio execute. O leitor não inicia o jogo nem executa o bytecode.
+O leitor suporta catálogos JSON/VDF, chamadas JavaScript conhecidas, metadados Unity Mono e constantes LuaJIT em pacotes LÖVE/ZIP, incluindo ZIP anexado ao executável. Constantes LuaJIT são evidências de presença da ID, não prova de que uma chamada de desbloqueio execute. O leitor não inicia o jogo nem executa o bytecode. Consulte também a [referência do extrator](../achievement_extractor/README.md).
 
 A extração é integrada à interface, mas o adaptador de eventos continua sendo escolhido separadamente. A revisão verificada de Intravenous 2: Mercenarism recebe uma ponte LÖVE com `file-v1`; outras revisões exigem validação própria. `unity-mono-steam` atende somente à família Unity Mono compatível.
 

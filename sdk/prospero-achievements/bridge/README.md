@@ -1,5 +1,7 @@
 # File bridge — Node/NW.js and Windows/LuaJIT
 
+[Documentation](../../../docs/en/INDEX.md) · [Home](../../../README.md)
+
 Add-on to the C SDK 0.1.1. Compile pa_file_bridge.c in the game's native adapter and link the existing SDK archive. Load prospero_file_bridge.js in Node/NW.js. The C worker creates an owned context containing the game ID and active console user, then consumes the corresponding per-user append-only source stream. It must prepare SDK/catalog first and call poll only from its worker.
 
 The game provides an explicit whitelist of achievement IDs. One accepted original game award calls publisher.unlock(id); no save-state heuristic or Steam login is needed. This unlock-only transport reserves the achievement ID itself as a stable event ID in the backend's game/user namespace. Do not reuse those event IDs for unrelated SDK events. Full 64-character IDs are supported. The retained source stream supports recovery across process restarts; the SDK outbox remains the network delivery queue.

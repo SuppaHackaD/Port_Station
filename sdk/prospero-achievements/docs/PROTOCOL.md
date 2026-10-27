@@ -1,5 +1,7 @@
 # API v1 — contrato 0.1.0
 
+[Documentação](../../../docs/INDEX.md) · [Início](../../../README.pt-BR.md)
+
 Porta TCP 38765. SDK usa 127.0.0.1; navegador usa IP LAN do console. HTTP/1.1 com Content-Length, uma requisição por conexão e JSON UTF-8. Escritas aceitas somente por loopback sem Origin. Não depende de Trophy2, NPWR ou bancos do sistema PS5.
 
 ## Registro

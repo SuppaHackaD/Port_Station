@@ -1,5 +1,7 @@
 # Configurar um novo jogo
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 Este guia parte de um projeto novo e não depende das receitas de Breath ou TCOAAL. Os perfis são configurações iniciais: encontrar uma combinação funcional pode exigir testar o executável, o renderer, os argumentos e os controles separadamente.
 
 ## 1. Escolher os arquivos de entrada

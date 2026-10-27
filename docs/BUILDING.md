@@ -1,5 +1,7 @@
 # Compilar o Port Station
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 Este guia é para desenvolvimento do projeto. Para gerar uma homebrew com o kit pronto, use [Guia rápido](QUICKSTART.md) ou [Novo jogo](NEW_GAME.md).
 
 ## Ambiente de desenvolvimento
@@ -100,7 +102,7 @@ As revisões estão em `SOURCES.json` e `port_station/runtime.lock.json`; os sna
 Reconstruir toda a pilha Wine/Mesa/SDK exige o ambiente POSIX e os toolchains indicados pelos projetos upstream. O frontend recompila títulos e componentes próprios no Windows usando a pilha fixada. Não há promessa de reprodução byte a byte de toda a pilha em qualquer máquina.
 
 A reconstrução do WGL/Zink com a correção de liberação de `needs_present` está em
-[release_support/mesa-wgl](../release_support/mesa-wgl/README.md). O script verifica
+[guia de compilação Mesa WGL](MESA_WGL.md). O script verifica
 o snapshot Mesa e o compilador por SHA-256, aceita `--arch x86_64` ou `--arch i686`
 e gera os binários junto dos manifests e fontes modificados. O runtime do kit
 usa a variante `--release-pending-present --clean`, sem rastreamento por quadro.

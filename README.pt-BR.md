@@ -6,7 +6,7 @@ gráficos, controles, apresentação e conquistas pela interface Python ou CLI.
 
 **[Baixar o kit Windows](https://github.com/SuppaHackaD/Port_Station/releases/latest)**
 · [English](README.md) · [Guia rápido](docs/QUICKSTART.md)
-· [Configurar outro jogo](docs/NEW_GAME.md)
+· [Configurar outro jogo](docs/NEW_GAME.md) · [Todos os guias](docs/INDEX.md)
 
 A primeira versão pública é a **0.4.0**. Port Station é uma ferramenta de
 compatibilidade e empacotamento; não recompila automaticamente a engine para

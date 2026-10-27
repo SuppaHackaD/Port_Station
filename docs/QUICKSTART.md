@@ -1,5 +1,7 @@
 # Sua primeira build
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 ## Instalar
 
 No Windows x64, instale Python 3.13 com a opção **Tcl/Tk** e extraia o **Windows kit** disponível nas [releases](https://github.com/SuppaHackaD/Port_Station/releases/latest). Abra `Port_Station.cmd`.

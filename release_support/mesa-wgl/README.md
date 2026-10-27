@@ -1,5 +1,7 @@
 # Pinned Mesa WGL provider builds
 
+[Documentation](../../docs/en/INDEX.md) · [Home](../../README.md)
+
 This helper cross-compiles the pinned Windows x86/x64 WGL/Zink provider in three
 variants. They do not change Vulkan display ownership rules or grant achievements.
 

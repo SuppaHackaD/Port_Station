@@ -1,5 +1,7 @@
 # Arquitetura e novos adaptadores
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 Este documento é para quem quer integrar eventos de outro jogo. Para configurar renderer, argumentos, controles e apresentação, use [Novo jogo](NEW_GAME.md).
 
 ## Componentes
@@ -59,7 +61,7 @@ O callback de `pa_sdk_pump_with_callback` identifica desbloqueios novos aceitos,
 
 `file-v1` permite que um código executado dentro do Wine publique eventos para o trabalhador nativo. O contexto identifica jogo e usuário; a ponte cria um stream por usuário. Há implementações em `sdk/prospero-achievements/bridge/`.
 
-Para JavaScript/Node, `prospero_file_bridge.js` oferece `create`, `markReady`, `unlock` e `flush`. O contexto precisa estar disponível antes de criar o cliente. O jogo fornece `gameId`, `achievementIds` e `contextFile`; chama `unlock` na condição real e repete `flush` após uma falha de escrita. Para outro ambiente, siga o [contrato da ponte](../sdk/prospero-achievements/bridge/README.md).
+Para JavaScript/Node, `prospero_file_bridge.js` oferece `create`, `markReady`, `unlock` e `flush`. O contexto precisa estar disponível antes de criar o cliente. O jogo fornece `gameId`, `achievementIds` e `contextFile`; chama `unlock` na condição real e repete `flush` após uma falha de escrita. Para outro ambiente, siga o [contrato da ponte](FILE_BRIDGE.md).
 
 Leia também o [SDK](../sdk/prospero-achievements/README.md) e o [protocolo HTTP](../sdk/prospero-achievements/docs/PROTOCOL.md) para limites de payload, catálogo, IDs, eventos e persistência.
 

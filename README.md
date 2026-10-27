@@ -5,8 +5,8 @@ Build PS5 homebrew packages from your own Windows game files using Wine and
 controls, presentation and achievements through a Python desktop app or CLI.
 
 **[Download the Windows kit](https://github.com/SuppaHackaD/Port_Station/releases/latest)**
-· [Português](README.pt-BR.md) · [New game guide](docs/NEW_GAME.md)
-· [Achievements](docs/ACHIEVEMENTS.md)
+· [Português](README.pt-BR.md) · [New game guide](docs/en/NEW_GAME.md)
+· [Achievements](docs/en/ACHIEVEMENTS.md) · [All guides](docs/en/INDEX.md)
 
 Port Station is a compatibility and packaging tool, not an automatic native
 recompiler. Game support depends on the engine, renderer and APIs it uses.
@@ -34,8 +34,8 @@ The tested environment is PS5 **13.60**, Relapse, PLDMGR 0.6.1 and ShadowMount+.
 You need a console already capable of running homebrew. This project does not
 provide a jailbreak or Sony's proprietary SDK.
 
-The detailed [quick start](docs/QUICKSTART.md) and most guides are currently in
-Portuguese. A [generic project](port_station/examples/windows-game.ps5port.json)
+The detailed [quick start](docs/en/QUICKSTART.md) walks through the first build.
+A [generic project](port_station/examples/windows-game.ps5port.json)
 is included; the tool does not depend on either example game.
 
 ## Features
@@ -80,7 +80,7 @@ directory on the console.
 
 Achievement extraction supplies definitions, not gameplay conditions. Select an
 adapter compatible with the game's actual award API, or implement one using the
-[SDK and integration guide](docs/INTEGRATION.md). The backend stores progress by
+[SDK and integration guide](docs/en/INTEGRATION.md). The backend stores progress by
 game and console user and can derive the completion achievement. These are
 **local achievements**, not Sony system trophies; they do not sync with PSN.
 
@@ -97,20 +97,20 @@ or support for every revision of the games or engines.
 | Intravenous 2: Mercenarism 1.7.1 | Verified LÖVE x64 revision, OpenGL/XInput, resolution switching and achievement events | Create a project; use `opengl-xinput` and `file-v1` with the official catalog |
 
 The LÖVE preparation is fingerprint-gated; it is not a universal LÖVE adapter.
-See [new game configuration](docs/NEW_GAME.md) and [example versions](docs/EXAMPLES.md).
+See [new game configuration](docs/en/NEW_GAME.md) and [example versions](docs/en/EXAMPLES.md).
 The included example art is original placeholder artwork; no game music is bundled.
 
 ## Documentation and development
 
-- [First build](docs/QUICKSTART.md)
-- [Configure a new game](docs/NEW_GAME.md)
-- [Achievements and web backend](docs/ACHIEVEMENTS.md)
-- [Example projects](docs/EXAMPLES.md)
-- [Build from source](docs/BUILDING.md)
-- [Architecture and adapters](docs/INTEGRATION.md)
-- [Contributing](CONTRIBUTING.md)
-- [Release notes](docs/RELEASE_NOTES.md)
-- [Credits and component licenses](THIRD_PARTY.md)
+- [First build](docs/en/QUICKSTART.md)
+- [Configure a new game](docs/en/NEW_GAME.md)
+- [Achievements and web backend](docs/en/ACHIEVEMENTS.md)
+- [Example projects](docs/en/EXAMPLES.md)
+- [Build from source](docs/en/BUILDING.md)
+- [Architecture and adapters](docs/en/INTEGRATION.md)
+- [Contributing](docs/en/CONTRIBUTING.md)
+- [Release notes](docs/en/RELEASE_NOTES.md)
+- [Credits and component licenses](docs/en/THIRD_PARTY.md)
 
 The release includes the complete project source, compiled tools, the backend
 and SDK, and pinned upstream source archives. The achievement extractor is
@@ -122,11 +122,11 @@ available inside the app and can also run independently from
 Port Station builds on **prospero-win**, **Wine**, the **ps5-payload-dev public
 SDK**, **PS5_Mesa / Mesa-Zink**, **PS5_Vulkan**, **DXVK**, **PS5 Native App
 Boilerplate**, **Lapy JB Daemon**, **ps5-forwarder-manager**, **PS5_ArtSwap** and
-the other projects credited in [THIRD_PARTY.md](THIRD_PARTY.md). Their authors
+the other projects credited in [THIRD_PARTY.md](docs/en/THIRD_PARTY.md). Their authors
 retain credit and their component licenses remain applicable.
 
 Our code is **GPL-3.0-or-later**, except files with an explicit individual
-license. See [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
+license. See [LICENSE](LICENSE) and [NOTICE](docs/en/NOTICE.md).
 
 This is an independent community project, unaffiliated with Sony, Valve or the
 developers of the example games. **No games, commercial game binaries, official

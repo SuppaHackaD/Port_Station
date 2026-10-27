@@ -1,5 +1,7 @@
 # Novidades
 
+[Documentação](INDEX.md) · [Início](../README.pt-BR.md)
+
 ## 0.4.0 — primeira versão pública
 
 O kit completo inclui frontend Python/Tk e CLI, runtime Wine/prospero-win,

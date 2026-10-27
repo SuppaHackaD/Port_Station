@@ -1,5 +1,7 @@
 # Ponte gerenciada genérica · experimental 0.1.0
 
+[Documentação](../../../docs/INDEX.md) · [Início](../../../README.pt-BR.md)
+
 `ProsperoAchievements.dll` é uma biblioteca .NET Framework 4.0 sem dependências da Unity ou da Steam. O mesmo binário pode acompanhar diferentes ports; um arquivo de configuração associa as IDs emitidas pelo jogo às IDs do catálogo.
 
 ```text
@@ -66,6 +68,6 @@ PA_MANAGED_CONFIG_V1	meu.jogo
 MAP	RklSU1Q=	FIRST
 ```
 
-Os separadores são TABs reais; `RklSU1Q=` é a ID de origem `FIRST` codificada em base64 UTF-8. A configuração inclui apenas conquistas regulares. O launcher fornece `C:\ProsperoAchievements\meu.jogo-context-v1.txt`, contendo o jogo/usuário ativos. Sem contexto correspondente, a DLL mantém o caminho original. Registros usam o protocolo [file bridge](../bridge/README.md), sem acesso direto à API HTTP do backend e sem dependência do sistema de troféus da Sony.
+Os separadores são TABs reais; `RklSU1Q=` é a ID de origem `FIRST` codificada em base64 UTF-8. A configuração inclui apenas conquistas regulares. O launcher fornece `C:\ProsperoAchievements\meu.jogo-context-v1.txt`, contendo o jogo/usuário ativos. Sem contexto correspondente, a DLL mantém o caminho original. Registros usam o protocolo [file bridge](../../../docs/FILE_BRIDGE.md), sem acesso direto à API HTTP do backend e sem dependência do sistema de troféus da Sony.
 
 Não distribua assemblies modificadas de jogos comerciais junto das fontes ou ferramentas. A ferramenta prepara a cópia local fornecida por cada usuário.
