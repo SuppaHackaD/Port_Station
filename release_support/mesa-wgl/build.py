@@ -31,8 +31,9 @@ def extract(archive,destination):
 def run(*args):
     print('>',*map(str,args),flush=True);subprocess.run(list(map(str,args)),check=True)
 
-def build(work,jobs,release_pending_present=False,clean=False):
+def build(work,jobs,release_pending_present=False,clean=False,arch='x86_64'):
     if clean and not release_pending_present:raise ValueError('Clean variant requires the pending presentation cleanup')
+    if arch not in ('x86_64','i686'):raise ValueError('Unsupported Windows architecture')
     if os.name!='posix':raise ValueError('Run the cross-build on Linux or the repository CI')
     work=work.resolve();work.mkdir(parents=True,exist_ok=False)
     pins=json.loads((REPO/'SOURCES.json').read_text(encoding='utf-8'))['archives']
@@ -47,16 +48,16 @@ def build(work,jobs,release_pending_present=False,clean=False):
     (work/'patches.json').write_text(json.dumps(patches,indent=2)+'\n')
     cross=work/'cross.ini'
     cross.write_text(f'''[binaries]
-c = '{compiler}/bin/x86_64-w64-mingw32-clang'
-cpp = '{compiler}/bin/x86_64-w64-mingw32-clang++'
+c = '{compiler}/bin/{arch}-w64-mingw32-clang'
+cpp = '{compiler}/bin/{arch}-w64-mingw32-clang++'
 ar = '{compiler}/bin/llvm-ar'
 strip = '{compiler}/bin/llvm-strip'
 windres = '{compiler}/bin/llvm-windres'
 pkg-config = 'false'
 [host_machine]
 system = 'windows'
-cpu_family = 'x86_64'
-cpu = 'x86_64'
+cpu_family = '{'x86_64' if arch=='x86_64' else 'x86'}'
+cpu = '{arch}'
 endian = 'little'
 [properties]
 needs_exe_wrapper = true
@@ -69,7 +70,7 @@ needs_exe_wrapper = true
     run('meson','setup',work/'build',source,'--cross-file',cross,'--wrap-mode=nofallback',
         '--buildtype=release','--default-library=static',*['-D'+s for s in options])
     run('ninja','-C',work/'build','-j',jobs,'src/gallium/targets/libgl-gdi/opengl32.dll','src/gallium/targets/wgl/libgallium_wgl.dll')
-    artifacts=work/'artifacts';output=artifacts/'x86_64-windows';output.mkdir(parents=True)
+    artifacts=work/'artifacts';output=artifacts/('x86_64-windows' if arch=='x86_64' else 'i386-windows');output.mkdir(parents=True)
     for target in ('libgl-gdi/opengl32.dll','wgl/libgallium_wgl.dll'):
         p=work/'build/src/gallium/targets'/target
         run(compiler/'bin/llvm-strip','--strip-debug','-o',output/p.name,p)
@@ -82,12 +83,12 @@ needs_exe_wrapper = true
         names=re.findall(r'(?m)^\s*Name: (.+)$',text);imports[p.name]=names
         for n in names:
             if n.lower() in ('libc++.dll','libunwind.dll','libwinpthread-1.dll') and not(output/n).exists():
-                shutil.copy2(compiler/'x86_64-w64-mingw32/bin'/n,output/n);pending.append(output/n)
+                shutil.copy2(compiler/(arch+'-w64-mingw32/bin')/n,output/n);pending.append(output/n)
     licenses=artifacts/'LICENSES';licenses.mkdir()
     shutil.copy2(source/'docs/license.rst',licenses/'Mesa-license.rst')
     shutil.copytree(source/'licenses',licenses/'Mesa')
     shutil.copy2(compiler/'LICENSE.TXT',licenses/'llvm-mingw-LICENSE.TXT')
-    shutil.copytree(compiler/'x86_64-w64-mingw32/share/mingw32',licenses/'mingw32')
+    shutil.copytree(compiler/(arch+'-w64-mingw32/share/mingw32'),licenses/'mingw32')
     modified=artifacts/'diagnostic-source'
     for name in patches:
         p=modified/name;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/name,p)
@@ -95,6 +96,7 @@ needs_exe_wrapper = true
     shutil.copy2(Path(__file__).with_name('README.md'),artifacts/'README.md')
     variant='wgl-pending-present-clean-1' if clean else 'wgl-pending-present-fix-1' if release_pending_present else 'wgl-lifecycle-diagnostic-2'
     manifest={'variant':variant,'mesa_source':mesa,'compiler_url':COMPILER_URL,
+              'architecture':arch,
               'compiler_sha256':COMPILER_SHA,'console_validated':False,'behavior_patch':release_pending_present,
               'pending_present_release':release_pending_present,
               'lifetime_logging':not clean,
@@ -107,7 +109,8 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--work',type=Path,required=True);parser.add_argument('--jobs',type=int,default=2)
     parser.add_argument('--release-pending-present',action='store_true',help='Experimental context-owned resource cleanup; console validation required')
     parser.add_argument('--clean',action='store_true',help='Apply only the pending presentation cleanup, without lifetime logging')
+    parser.add_argument('--arch',choices=('x86_64','i686'),default='x86_64')
     args=parser.parse_args()
     if not 1<=args.jobs<=8:parser.error('--jobs must be between 1 and 8')
     if args.clean and not args.release_pending_present:parser.error('--clean requires --release-pending-present')
-    build(args.work,args.jobs,args.release_pending_present,args.clean)
+    build(args.work,args.jobs,args.release_pending_present,args.clean,args.arch)
