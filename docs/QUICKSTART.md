@@ -4,7 +4,7 @@
 
 ## Instalar
 
-No Windows x64, instale Python 3.13 com a opção **Tcl/Tk** e extraia o **Windows kit** disponível nas [releases](https://github.com/SuppaHackaD/Port_Station/releases/latest). Abra `Port_Station.cmd`.
+No Windows x64, instale Python 3.13 com a opção **Tcl/Tk** e extraia o **Windows kit** disponível nas [releases](https://github.com/SuppaHackaD/Port_Station/releases/latest). Depois de extrair o kit 0.4.0, aplique a [atualização cumulativa de 28/10](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.4.0/Port-Station-v0.4.0-update-20261028.zip) sobre a pasta do kit. Ela já contém as correções anteriores. Abra `Port_Station.cmd`.
 
 Use o Windows kit para compilar jogos. O arquivo de código-fonte do GitHub é destinado a quem vai desenvolver a ferramenta e não leva os binários do runtime.
 

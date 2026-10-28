@@ -100,6 +100,9 @@ def make_profile(p, architecture):
         options['application']['arguments']='canvas '+extra+(' '+p['arguments']if p['arguments']else'')
     if p.get('display_resolution','auto')!='auto':options['display']['desktop']=p['display_resolution']
     for section,fields in p['profile_options'].items():options[section].update(fields)
+    # This launcher extension is compiled into the title, not understood by
+    # the frozen upstream Wine profile parser.
+    options['input'].pop('left_stick', None)
     return ''.join('['+section+']\n'+''.join(f'{k} = {v}\n'for k,v in fields.items())+'\n'for section,fields in options.items())
 
 class Builder:

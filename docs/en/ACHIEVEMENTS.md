@@ -61,12 +61,46 @@ inventing an unlock condition.
 Increase the catalog version when editing an existing catalog. Preserve IDs
 whose progress should remain. Importing through the UI starts a higher revision.
 
+## Completion markers written by the game
+
+The experimental `file-markers` adapter observes exact-content files the game itself
+creates when an achievement condition is met. Verify that relationship first;
+a similar filename is not evidence of the original condition. The adapter
+does not modify game code, saves or Steam integration.
+
+Map every regular catalog ID to a path relative to the Wine prefix's `drive_c`
+in the project JSON:
+
+```json
+{
+  "adapter": "file-markers",
+  "file_markers": {
+    "FIRST_WIN": "users/prospero/AppData/LocalLow/OwnedStudio/OwnedGame/Save/FirstWin"
+  },
+  "file_marker_content": "empty"
+}
+```
+
+This example requires a `FIRST_WIN` catalog entry. All regular entries need
+distinct paths; completion/platinum remains calculated by the backend. Rules
+are configured in the project file and preserved by the UI.
+`file_marker_content` accepts `empty` (zero bytes, default) or `crlf` (exactly
+the two bytes `0D 0A`). Verify the actual marker content before choosing.
+
+Before starting Wine, the launcher saves its own baseline and ignores files
+already present. A new regular file with the configured content, observed twice, queues a durable SDK
+event. The baseline recovers an event after queue storage errors or closing
+before delivery. Retries reuse the event ID and should not repeat a confirmed
+unlock popup. Mismatched contents, directories and unmatched paths do not award
+achievements. This adapter neither decodes binary saves nor adds conditions.
+
 ## Choose an adapter
 
 | Adapter | Use |
 |---|---|
 | `none` | Play without an achievement catalog or events. |
 | `nwjs-steam` | NW.js games using `Steam.awardAchievement` or `Steam.API.activateAchievement`. The bridge maps IDs and preserves the original call. |
+| `file-markers` | Observes original empty/CRLF completion markers; paths configured in JSON and validated per game. |
 | `unity-mono-steam` | Experimental generic Unity Mono DLL with a conservative Steamworks.NET wrapper integrator. See the [managed bridge](MANAGED_BRIDGE.md). |
 | `file-v1` | File bridge protocol. Includes an automatic producer for the verified Intravenous LÖVE revision; other integrations provide their own producer. |
 | `breath` | The specific integration supplied by the Breath example. |

@@ -1,5 +1,6 @@
 """Generate the one-game shell from frozen, previously exercised runtime sources."""
 import json
+import hashlib
 from pathlib import Path
 from .project import WORKSPACE as R, ProjectError, runtime_id
 
@@ -14,6 +15,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
     game=p['game_id'];slug=runtime_id(p); root='/data/port-studio/'+p['title_id'].lower(); adapter=p['adapter']
     s=(R/'port_station/templates/wine64_main.c.in').read_text(encoding='utf8')
     s=s.replace('@TITLE_ID@',p['title_id']).replace('@DATA_ROOT@',root).replace('@SLUG@',slug)
+    s=s.replace('@LEFT_STICK_DPAD@', str(int(p.get('profile_options',{}).get('input',{}).get('left_stick')=='dpad')))
     include=''; opened=''; tick=''; closed=''
     if adapter=='breath':
         include='#include "breath_achievements.h"\n#include "breath_pa.h"'
@@ -26,6 +28,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
     for a,b in {'@ACH_INCLUDE@':include,'@ACH_OPEN@':opened,'@ACH_TICK@':tick,'@ACH_CLOSE@':closed}.items():s=s.replace(a,b)
     (out/'wine64_main.c').write_text(s,encoding='utf8',newline='\n')
     (out/'display_policy.h').write_bytes((R/'port_station/templates/display_policy.h').read_bytes())
+    (out/'keyboard_stick.h').write_bytes((R/'port_station/templates/keyboard_stick.h').read_bytes())
     s=(R/'src/breath/wine_title/breath_bootstrap.c').read_text(encoding='utf8')
     for a,b in [('"breath_bootstrap.h"','"studio_bootstrap.h"'),('breath_bootstrap','studio_bootstrap'),('BREATH_DATA_ROOT','STUDIO_DATA_ROOT'),('BREATH_PACKAGE_ROOT','STUDIO_PACKAGE_ROOT'),('/data/breath-wine',root),('PPSA99397',p['title_id']),('prefixes/breath','prefixes/'+slug),('Breath-Wine-','Port-Studio-'),('.breath-', '.port-studio-'),('Breath:', 'Port Station:')]:s=s.replace(a,b)
     s=s.replace('Port-Studio-'+p['title_id']+'-v1','Port-Studio-'+p['title_id']+'-'+game+'-v1')
@@ -77,6 +80,28 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
         h+='static const char *const studio_names[]={'+','.join(c_string(i)for i in titles)+'};\n'
         worker=(R/'src/tcoal/prospero_adapter/tcoal_pa.c').read_text().replace('tcoal','studio').replace('TCOAL','Port Station')
         worker=worker.replace('outbox,"studio",owner','outbox,"'+game+'",owner').replace('prefix,"studio",owner','prefix,"'+game+'",owner')
+        if adapter=='file-markers':
+            (out/'file_markers.h').write_bytes((R/'port_station/templates/file_markers.h').read_bytes())
+            rows=','.join('{'+c_string(i)+','+c_string(p['file_markers'][i])+','+c_string('marker-'+hashlib.sha256(i.encode()).hexdigest()[:32])+'}'for i in sorted(p['file_markers']))
+            identity=hashlib.sha256(json.dumps([game,sorted(p['file_markers'].items())],ensure_ascii=True,separators=(',',':')).encode()).hexdigest()
+            content=c_string('\r\n'if p.get('file_marker_content','empty')=='crlf'else'')
+            declaration='''
+#include "file_markers.h"
+static StationMarkers marker_state;
+static const StationMarkerRule marker_rules[]={'''+rows+'''};
+static int marker_enqueue(void *context,const char *id,const char *event){
+    int rc=pa_sdk_unlock((PA_SDK *)context,id,event);
+    PS5LOG_LOG("Port Station PA marker id=%s queue_rc=%d",id,rc);return rc;
+}
+'''
+            anchor='static PA_FileBridge bridge;'
+            if worker.count(anchor)!=1:raise ProjectError('Template de marcadores incompatível: declarações.')
+            worker=worker.replace(anchor,anchor+declaration)
+            anchor='pthread_t thread;pthread_attr_t attr;'
+            if worker.count(anchor)!=1:raise ProjectError('Template de marcadores incompatível: inicialização.')
+            worker=worker.replace(anchor,'int marker_rc=station_markers_open(&marker_state,prefix,marker_rules,sizeof(marker_rules)/sizeof(marker_rules[0]),'+c_string(identity)+','+content+'); if(marker_rc){PS5LOG_LOG("Port Station PA markers open rc=%d",marker_rc);return marker_rc;}\n    unsigned marker_ignored=0;for(unsigned i=0;i<marker_state.count;i++)marker_ignored+=marker_state.state[i]==2;\n    PS5LOG_LOG("Port Station PA markers count=%u ignored=%u armed=%u content_bytes=%zu",marker_state.count,marker_ignored,marker_state.count-marker_ignored,strlen(marker_state.content));\n    '+anchor)
+            worker=worker.replace('int rc=pa_file_bridge_poll(&bridge);','int rc=station_markers_poll(&marker_state,marker_rules,marker_enqueue,&sdk);')
+            worker=worker.replace('if(ready)(void)pa_file_bridge_poll(&bridge);','if(ready)(void)station_markers_poll(&marker_state,marker_rules,marker_enqueue,&sdk);')
         (out/'studio_pa.c').write_text(worker,encoding='utf8',newline='\n')
         (out/'studio_pa.h').write_text('#include <stdint.h>\nint studio_pa_open(const char*,const char*,int32_t);\nvoid studio_pa_close(void);\n')
     (out/('breath_pa_assets.h'if adapter=='breath'else'studio_pa_assets.h')).write_text(h,encoding='ascii')

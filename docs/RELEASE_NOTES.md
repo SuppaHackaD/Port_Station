@@ -2,6 +2,26 @@
 
 [Documentação](INDEX.md) · [Início](../README.pt-BR.md)
 
+## Atualização cumulativa de 28/10/2026
+
+Aplique `Port-Station-v0.4.0-update-20261028.zip` sobre o kit 0.4.0, com o
+programa fechado. Ela reúne também as correções anteriores; basta este update.
+
+- Entrada de teclado/mouse por DualSense, mantendo DXVK/OpenGL: analógico
+  esquerdo convertido nas teclas dos direcionais e direito como mouse.
+- Extração estática de candidatos Unity IL2CPP e strings de conquistas em
+  arquivos serializados; cruzamento exato com as IDs oficiais Steam.
+- Prioridade para os dados do executável ao analisar pastas auxiliares grandes.
+- Adaptador `file-markers` com conteúdo exato vazio ou CRLF, linha de base
+  persistente e reenvio pelo SDK, configurado no JSON do projeto.
+- MiSide: controle básico, catálogo de 26 IDs e o desbloqueio original
+  "A Vitória da Mosca" validados no console, incluindo popup, persistência e
+  reabertura sem duplicação. Não equivale a teste completo da campanha.
+
+O leitor IL2CPP recupera candidatos; ele não cria uma ponte universal para
+Unity IL2CPP. Em MiSide, o adaptador observa os marcadores de conclusão que
+essa revisão do jogo já grava. Nenhum arquivo do jogo acompanha a atualização.
+
 ## 0.4.0 — primeira versão pública
 
 O kit completo inclui frontend Python/Tk e CLI, runtime Wine/prospero-win,

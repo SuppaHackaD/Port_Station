@@ -127,6 +127,14 @@ Em **Avançado → Opções do perfil**, é possível substituir teclas por bot�
 
 Essas opções não mudam o atalho de encerramento **Options + clique do touchpad**. Teste ações no menu e durante o jogo: o mesmo botão pode ter funções diferentes entre essas telas.
 
+Para testar um jogo Direct3D sem controle nativo, mantenha `dxvk-xinput` e substitua somente a entrada no JSON avançado. Exemplo experimental de teclado e mouse:
+
+```json
+{"input":{"mode":"keyboard","left_stick":"dpad","mouse":"right_stick","mouse_speed":"800","up":"w","down":"s","left":"a","right":"d","cross":"space","square":"e","r2":"mouse_left","l2":"mouse_right","circle":"escape","options":"escape","create":"none"}}
+```
+
+`left_stick: dpad` faz o analógico esquerdo enviar as teclas atribuídas aos direcionais, com zona morta e liberação ao desconectar. O direito move o mouse. O jogo continua mostrando instruções de teclado e mouse; revise os atalhos específicos, a sensibilidade e os minijogos durante o teste. A opção não adiciona suporte nativo a controle na engine.
+
 As opções avançadas aceitam as seções `display`, `input`, `runtime`, `debug` e `application.dll_overrides`. Os nomes e valores dependem do parser do runtime; prefira os valores já usados pelos perfis até identificar uma necessidade específica.
 
 ## 6. Personalizar a apresentação

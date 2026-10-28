@@ -2,6 +2,26 @@
 
 [Documentation](INDEX.md) · [Home](../../README.md)
 
+## October 28, 2026 cumulative update
+
+Apply `Port-Station-v0.4.0-update-20261028.zip` over the 0.4.0 kit while the
+app is closed. It includes the earlier fixes; only this update is needed.
+
+- DualSense keyboard/mouse input while retaining DXVK/OpenGL: left stick
+  mapped to directional key bindings and right stick used as the mouse.
+- Static Unity IL2CPP and serialized asset achievement candidates, matched
+  exactly against official Steam IDs.
+- Executable data prioritized over large ancillary directories during scans.
+- JSON-configured `file-markers` adapter with exact empty/CRLF content,
+  durable baseline and SDK retries.
+- MiSide: sampled controls, a 26-ID catalog and the original "The fly's victory"
+  award validated on console, including popup, persistence and reopening
+  without duplicate notification. This is not full campaign coverage.
+
+The IL2CPP reader recovers candidates, not a universal Unity IL2CPP award
+bridge. MiSide uses completion markers already written by its tested game
+revision. No game files accompany the update.
+
 ## 0.4.0 — first public release
 
 The complete kit includes the Python/Tk frontend and CLI, Wine/prospero-win

@@ -82,6 +82,22 @@ Open the example and select the prepared folder. The profile already adds
 The internal `tcoal` key remains unchanged so existing progress and data are
 recognized; the example's name is TCOAAL.
 
+## MiSide — sampled integration validation
+
+The test used Unity 2021.3.35f1/IL2CPP, `dxvk-xinput` and the keyboard/mouse
+input override described in the [controls guide](NEW_GAME.md#5-adjust-controls).
+Local extraction matched 26 IDs against Steam AppID 2527500.
+
+The tested revision writes `Save/Achi <ID>` in its persistent data directory
+when an achievement completes; those files contain exactly CRLF (`0D 0A`).
+The [file-markers adapter](ACHIEVEMENTS.md#completion-markers-written-by-the-game)
+confirmed "The fly's victory", its popup, persistence and reopening without
+repeated notification. Rules must target the actual local files; no commercial
+catalog or MiSide game files are distributed with this example.
+
+Coverage includes basic controls and that achievement condition. Other awards,
+minigames, revisions and the full campaign need their own tests.
+
 ## Game updates
 
 These projects describe the versions listed above. Updates to the engine,

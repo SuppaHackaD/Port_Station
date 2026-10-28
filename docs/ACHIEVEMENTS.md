@@ -33,12 +33,47 @@ Uma lista extraída pode não ter descrições. Na conversão para o backend, es
 
 Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
 
+## Marcadores de conclusão gravados pelo jogo
+
+O adaptador experimental `file-markers` observa arquivos de conteúdo exato que o próprio
+jogo cria ao concluir uma conquista. Use somente depois de verificar a relação
+entre a condição original e esse arquivo; a presença de um nome parecido não
+comprova a condição. Ele não modifica o jogo, os saves ou a integração Steam.
+
+No JSON do projeto, associe cada ID regular do catálogo a um caminho relativo
+a `drive_c` do prefixo Wine:
+
+```json
+{
+  "adapter": "file-markers",
+  "file_markers": {
+    "FIRST_WIN": "users/prospero/AppData/LocalLow/OwnedStudio/OwnedGame/Save/FirstWin"
+  },
+  "file_marker_content": "empty"
+}
+```
+
+Esse exemplo exige um item `FIRST_WIN` no catálogo. Todos os itens regulares
+precisam de caminhos distintos; a platina continua sendo calculada pelo backend.
+As regras são configuradas no arquivo do projeto e preservadas pela interface.
+`file_marker_content` aceita `empty` (zero bytes, padrão) ou `crlf` (somente os
+dois bytes `0D 0A`). O tipo de conteúdo deve ser verificado no arquivo real.
+
+Antes de iniciar o jogo, o launcher salva uma linha de base própria: arquivos
+já presentes são ignorados. Um novo arquivo regular com o conteúdo configurado, observado duas vezes,
+gera um evento na fila persistente do SDK. A linha de base permite recuperar um
+evento se o jogo fechar antes do envio ou se a gravação da fila falhar. Reenvios
+usam a mesma ID de evento e não devem repetir o popup após confirmação. Arquivos
+com conteúdo diferente, diretórios e caminhos que não correspondem às regras não concedem
+conquistas. Este adaptador não interpreta saves binários nem adiciona condições.
+
 ## Escolher o adaptador
 
 | Adaptador | Uso |
 |---|---|
 | `none` | Jogar sem catálogo ou eventos de conquistas. |
 | `nwjs-steam` | Jogos NW.js que usem `Steam.awardAchievement` ou `Steam.API.activateAchievement`. A ponte associa as IDs e conserva a chamada original. |
+| `file-markers` | Observa marcadores originais com conteúdo exato vazio/CRLF; caminhos configurados no JSON e validados por jogo. |
 | `unity-mono-steam` | DLL genérica experimental para Unity Mono, com integrador conservador de wrappers Steamworks.NET. Veja [SDK gerenciado](../sdk/prospero-achievements/managed/README.md). |
 | `file-v1` | Protocolo da ponte de arquivos. Inclui produtor automático para a revisão LÖVE verificada de Intravenous; outras integrações fornecem seu produtor. |
 | `breath` | Integração específica da receita de Breath. |

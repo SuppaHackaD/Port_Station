@@ -10,6 +10,7 @@ import subprocess
 from . import __version__
 from .official import FALLBACK,confirmed_ids
 from .love import archive_members,luajit_strings
+from .unity import il2cpp_literals,serialized_candidates
 import zipfile
 from .formats import read_metadata, definitions, localized, javascript_calls, native_candidates
 
@@ -63,7 +64,7 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
         return path.relative_to(root).as_posix() if path.is_relative_to(root) else 'external/'+path.name
     def add(source, kind, path, title='', description='', hidden=None, icon='', **location):
         if not isinstance(source,str) or not source or len(source.encode('utf-8'))>256 or any(ord(c)<32 for c in source): return
-        rank=3 if kind=='catalog' else 1 if kind in ('native-candidate','luajit-constant') else 2
+        rank=3 if kind=='catalog' else 1 if kind in ('native-candidate','luajit-constant','il2cpp-literal','unity-serialized-candidate') else 2
         evidence={'kind':kind,'file':label(path),**location}
         record=entries.setdefault(source,{'source_id':source,'title':'','description':'','hidden':None,'icon':'','evidence':[],'rank':0,'conflicts':[]})
         record['evidence'].append(evidence)
@@ -86,11 +87,12 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
             if 'achiev'in (member or path.name).lower() and re.fullmatch('[A-Z][A-Z0-9_]{2,63}',source):
                 add(source,'luajit-constant',path,offset=offset,**({'member':member}if member else{}))
     for base,dirs,files in os.walk(root,followlinks=False):
-        dirs[:]=sorted(d for d in dirs if d.lower() not in ('.git','node_modules','cache','logs','saves','save','userdata','__pycache__') and not (Path(base)/d).is_symlink() and not (Path(base)/d).is_junction())
+        dirs[:]=sorted((d for d in dirs if d.lower() not in ('.git','node_modules','cache','logs','saves','save','userdata','__pycache__') and not (Path(base)/d).is_symlink() and not (Path(base)/d).is_junction()),
+                       key=lambda d:(d.casefold()!=(exe.stem+'_Data').casefold(),d.casefold()))
         for name in sorted(files):
             path=Path(base)/name;result['coverage']['files_seen']+=1
             if result['coverage']['files_seen']>MAX_FILES:
-                result['coverage']['truncated']=True;break
+                result['coverage']['truncated']=True;warn('Limite de arquivos atingido; busca parcial.');break
             if path.is_symlink() or not path.resolve().is_relative_to(root): continue
             paths.append(path)
         if result['coverage']['truncated']:break
@@ -98,9 +100,43 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
         extra=Path(metadata).resolve()
         if not extra.is_file():raise ExtractionError('Arquivo extra de metadados não encontrado.')
         if extra not in paths:paths.insert(0,extra)
+    # A large ancillary content folder must not starve the executable's
+    # metadata; prioritize IL2CPP tables before large serialized assets.
+    paths.sort(key=lambda p:(0 if p.name.lower()=='global-metadata.dat' else 1 if p.name.lower()=='resources.assets' else 2,str(p)))
     for path in paths:
         if cancel and cancel.is_set(): raise ExtractionError('Extração cancelada.')
         suffix=path.suffix.lower();name=path.name.lower()
+        if name=='global-metadata.dat' and path.parent.name.lower()=='metadata':
+            size=path.stat().st_size
+            if size>MAX_FILE or result['coverage']['bytes_read']+size>MAX_TOTAL:
+                result['coverage']['truncated']=True;warn('Limite de leitura IL2CPP: '+label(path));continue
+            data=path.read_bytes();result['coverage']['bytes_read']+=len(data)
+            result['inputs'][label(path)]=hashlib.sha256(data).hexdigest()
+            try:
+                # Complete parsing first: do not retain candidates from malformed metadata.
+                for source,offset,index in list(il2cpp_literals(data)):
+                    pool=result['constant_candidates']
+                    if source not in pool and len(pool)>=65536:result['coverage']['truncated']=True;continue
+                    evidence={'kind':'il2cpp-literal','file':label(path),'offset':offset,'index':index}
+                    origins=pool.setdefault(source,[])
+                    if len(origins)<2:origins.append(evidence)
+                    if re.match(r'^(?:ACHI_|ACH_|ACHIEVEMENT_|ACHV_|TROPHY_)',source):
+                        add(source,'il2cpp-literal',path,offset=offset,index=index)
+                warn('IL2CPP: constantes recuperadas; não comprovam chamadas de desbloqueio. Cruze as IDs oficiais e revise a ponte separadamente.')
+            except (ValueError,UnicodeError,struct.error) as error:
+                result['coverage']['parse_failures']+=1;warn(label(path)+': '+str(error))
+            continue
+        if suffix=='.assets' and path.parent.name.lower().endswith('_data'):
+            remaining=MAX_TOTAL-result['coverage']['bytes_read'];size=path.stat().st_size
+            if remaining<48:result['coverage']['truncated']=True;continue
+            with path.open('rb')as stream:
+                for source,offset in serialized_candidates(stream,size,max_bytes=remaining):
+                    add(source,'unity-serialized-candidate',path,offset=offset)
+                read=stream.tell()
+            result['coverage']['bytes_read']+=read
+            if read<size:result['coverage']['truncated']=True
+            if read>48:result['inputs'][label(path)]=digest(path)
+            continue
         if suffix=='.dll' and path.parent.name.lower()=='managed' and not name.startswith(('system','unity','mono','mscorlib','netstandard','microsoft.')):
             if path.stat().st_size<=32*1024*1024:assemblies.append(path)
         is_meta=suffix in ('.json','.vdf') or suffix=='.bin' and ('schema' in name or 'achiev' in name) or metadata and path==Path(metadata).resolve()
@@ -193,7 +229,7 @@ def scan(folder, executable, language='brazilian', metadata=None, log=lambda _:N
         row['selected']=row['rank']>=2
         row['title']=row['title'] or source;row['hidden']=bool(row['hidden'])
         result['entries'].append(row)
-    if not entries and result['constant_candidates']:warn('Constantes LuaJIT recuperadas. Consulte o AppID Steam para cruzar as IDs oficiais; constantes não comprovam chamadas de desbloqueio.')
+    if not entries and result['constant_candidates']:warn('Constantes recuperadas. Consulte o AppID Steam para cruzar as IDs oficiais; constantes não comprovam chamadas de desbloqueio.')
     elif not entries:warn('Nenhuma definição recuperada nas fontes suportadas. Forneça um schema local adicional ou revise a integração manualmente.')
     elif not any(row['rank']==3 for row in entries.values()):warn('IDs extraídas do código; nomes, descrições e ícones podem não estar presentes. Revise os campos marcados.')
     log(f'{len(result["entries"])} IDs encontradas; {sum(r["selected"] for r in result["entries"])} selecionadas por padrão.')
