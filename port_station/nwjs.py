@@ -11,6 +11,55 @@ from .project import ProjectError
 
 TC_IDS={'EP1_CLEAR','HITMAN_WINS','VISION_WATCHER','PRESENT','SUMMON_LU','EP2_CLEAR','WARDEN_WINS','TIME_CAPSULE','UNDETECTED','NO_WITNESSES','HAPPY_END','PROPHECY_FULFILLER','LEYLEYWINS_END','FULL_MARKS','SISTER_SLAUGHTERER','SPLAT','SHOTSEND','MATH','EP3D_CLEAR','TRUEEND'}
 FONT_SECTIONS=[r'Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts',r'Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Fonts',r'Software\\Microsoft\\Windows\\CurrentVersion\\Fonts']
+TC_LANGUAGE='www/data/9c7050ae76645487'
+TC_LANGUAGE_SHA256='8322e3d5da5525f16bc0ff3ce050664562260dc2557bcef9291686e4ce0787dc'
+
+
+def is_tcoaal(game):
+    try:package=json.loads((Path(game)/'package.json').read_text(encoding='utf-8-sig'))
+    except (OSError,ValueError):return False
+    return package.get('name')=='The Coffin of Andy and Leyley'and package.get('main')=='www/index.html'
+
+
+def language_asset(game):
+    """Recognize the tested revision; never guess names for other games/versions."""
+    game=Path(game)
+    if not is_tcoaal(game):return None
+    try:main=(game/'www/js/main.js').read_text(encoding='utf-8-sig')
+    except OSError:return None
+    if not re.search(r'\bGAME_VERSION\s*=\s*[\'"]3\.0\.13[\'"]',main):return None
+    canonical=game/TC_LANGUAGE
+    source=canonical if canonical.is_file()else canonical.with_suffix('.txt')
+    if not source.is_file():
+        raise ProjectError('TCOAAL: base de idioma ausente: '+TC_LANGUAGE+'. Restaure os arquivos da sua cópia do jogo.')
+    if not 8<source.stat().st_size<=4*1024*1024:raise ProjectError('TCOAAL: tamanho inválido da base de idioma.')
+    data=source.read_bytes();digest=hashlib.sha256(data).hexdigest()
+    if source!=canonical and digest!=TC_LANGUAGE_SHA256:
+        raise ProjectError('TCOAAL: a base de idioma está com extensão .txt e difere da revisão verificada. Restaure o arquivo original sem extensão: '+TC_LANGUAGE)
+    try:
+        if not data.startswith(b'LANGDATA'):raise ValueError('header')
+        catalog=json.loads(data[8:])
+        if not isinstance(catalog,dict)or not isinstance(catalog.get('linesLUT'),dict)or not isinstance(catalog.get('labelLUT'),dict):raise ValueError('schema')
+    except (ValueError,UnicodeError)as error:raise ProjectError('TCOAAL: base de idioma inválida: '+str(source))from error
+    return source,data,digest
+
+
+def validate_inputs(project,game):
+    if project['profile']!='nwjs-canvas':return
+    language_asset(game)
+    if is_tcoaal(game)and project['adapter']=='nwjs-steam':
+        from .project import BREATH_IDS
+        if {a['id']for a in project['achievements']}==BREATH_IDS and all(a.get('source_id',a['id'])==a['id']for a in project['achievements']):
+            raise ProjectError('TCOAAL: o catálogo selecionado contém as 11 conquistas de Breath. Importe a lista do TCOAAL na aba Conquistas antes de compilar.')
+
+
+def prepare_language_assets(game,out):
+    asset=language_asset(game)
+    if asset is None:return {},{}
+    source,data,digest=asset;target=Path(out)/TC_LANGUAGE
+    target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+    return {TC_LANGUAGE:target},{'source':source.relative_to(game).as_posix(),'destination':TC_LANGUAGE,
+                                'sha256':digest,'bytes':len(data),'restored_name':source.name!=target.name,'source_modified':False}
 
 def register_font(reg,display,filename):
     def quoted(s):return ('"'+s.replace('\\','\\\\').replace('"','\\"')+'"').encode('utf8')

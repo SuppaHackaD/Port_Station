@@ -46,6 +46,10 @@ O preparador complementa escolhas ausentes de traduções locais quando encontra
 
 Abra a receita e selecione a pasta preparada. O perfil já acrescenta `canvas` como primeiro argumento.
 
+Na revisão 3.0.13, a base nativa de idioma é `www/data/9c7050ae76645487`, sem extensão. O diagnóstico `Critical error: language data missing` pode indicar que esse arquivo foi renomeado ou está ausente. O preparador de build reconhece a cópia conhecida renomeada para `.txt` e restaura o nome somente na saída, com verificação SHA-256. A nova build também sincroniza esse arquivo com o prefixo já instalado, preservando saves. O relatório `nwjs-assets.json` identifica a correção; arquivos de outra versão não são renomeados por suposição.
+
+Confira a aba Conquistas ao reutilizar outro projeto: o catálogo deste exemplo contém 20 conquistas do TCOAAL, não as 11 de Breath. Uma platina opcional é adicionada separadamente.
+
 A chave interna `tcoal` é mantida para que o progresso e os dados de instalações anteriores continuem sendo reconhecidos; o nome do exemplo é TCOAAL.
 
 ## Atualizações dos jogos

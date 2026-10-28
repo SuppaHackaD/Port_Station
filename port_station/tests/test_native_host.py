@@ -10,6 +10,32 @@ from port_station.project import WORKSPACE, read_project
 from port_station.builder import Builder
 
 class NativeHostTests(unittest.TestCase):
+    def test_language_asset_repairs_a_cached_prefix_without_touching_saves(self):
+        with tempfile.TemporaryDirectory(prefix='station-language-cache-')as temp:
+            root=Path(temp);package=root/'package';data=root/'data';generated=root/'generated'
+            p=read_project(WORKSPACE/'port_station/examples/windows-game.ps5port.json')
+            p.update(game_id='own.language',title_id='PPSA99501',adapter='none')
+            name='www/data/owned-language';folder='prefixes/own-language/drive_c/Games/own-language/'
+            original=b'LANGDATA owned fixture '*50000
+            asset=package/'seed'/folder/name;asset.parent.mkdir(parents=True);asset.write_bytes(original)
+            for n,b in {'profiles/own-language.profile':b'owned profile','profiles/profiles.lst':b'own-language.profile\n'}.items():
+                dest=package/'seed'/n;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(b)
+            cached=data/folder
+            native.generate(p,generated,compat_files={name:asset})
+            (root/'driver.c').write_text('#include "studio_bootstrap.h"\nint main(int n,char**v){return n==2?studio_bootstrap(v[1]):99;}\n')
+            # Let the normal first install create its own valid marker, then
+            # simulate the missing language file in an otherwise installed game.
+            rows={folder+name:original,'profiles/own-language.profile':b'owned profile','profiles/profiles.lst':b'own-language.profile\n'}
+            (package/'seed-files.tsv').write_text(''.join(f'{len(b)}\t{zlib.crc32(b):08x}\t{n}\n'for n,b in rows.items()),encoding='utf-8',newline='\n')
+            exe=root/'test.exe'
+            subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-O2','-I'+str(generated),'-DSTUDIO_DATA_ROOT="'+data.as_posix()+'"','-DSTUDIO_PACKAGE_ROOT="'+package.as_posix()+'"',str(generated/'studio_bootstrap.c'),str(root/'driver.c'),'-o',str(exe)],check=True,capture_output=True)
+            subprocess.run([exe,data.as_posix()],check=True)
+            (cached/'save.dat').write_bytes(b'progress')
+            asset_in_cache=cached/name;asset_in_cache.unlink();(data/'.port-station-love-ready').unlink()
+            subprocess.run([exe,data.as_posix()],check=True)
+            self.assertEqual(asset_in_cache.read_bytes(),original)
+            self.assertEqual((cached/'save.dat').read_bytes(),b'progress')
+
     def test_compatibility_sync_updates_cached_files_and_preserves_saves(self):
         with tempfile.TemporaryDirectory(prefix='station-compat-')as td:
             root=Path(td);package=root/'package';data=root/'data';p=read_project(WORKSPACE/'port_station/examples/windows-game.ps5port.json');p.update(game_id='own.compat',title_id='PPSA99501',adapter='none')

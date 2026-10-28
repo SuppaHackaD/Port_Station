@@ -171,6 +171,10 @@ Uma build atualizada não substitui automaticamente todos os dados já preparado
 | Apresentação tem som, jogo não | A música de seleção é independente do áudio da engine; confira o log do runtime. |
 | Lista de conquistas aparece, mas não desbloqueia | O catálogo chegou ao backend; falta conferir o evento real e o adaptador. |
 
+Caminhos de saída com espaços são suportados. O helper usa o linker diretamente e o launcher usa um arquivo de argumentos para preservar caminhos e listas longas de objetos. Um erro como `cannot open 2` ao compilar em `Intravenous 2 Mercenarism` indica uma instalação anterior a essa correção; atualize os arquivos do programa e gere outra build.
+
+Use um Title ID diferente para cada jogo instalado. Reutilizar o ID de outro jogo pode substituir sua entrada e conflitar com o cache de preparação. Alterar apenas o título visível não cria uma instalação separada.
+
 O `build.log` registra a compilação. Logs de inicialização, do runtime e da própria engine ajudam a localizar falhas depois do lançamento. Ao comparar testes, anote o perfil, os argumentos e a versão do jogo usados.
 
 ## Pela linha de comando
