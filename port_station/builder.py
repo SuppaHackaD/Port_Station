@@ -47,7 +47,7 @@ def tree(root):
         for name in sorted(files):yield Path(folder)/name
 
 def doctor():
-    required=[CMAKE,NINJA,R/'tools/llvm-18.1.8/bin/clang.exe',SDK/'win/prospero-clang.cmd',R/'build/host/ps5-native-tool.exe',R/'build/host/libc.prx',UPSTREAM/'native/wine64_main.c',RELEASE/'win',KIT/'prefix',LOCK,R/'build/port-studio/tools/check-profile.exe']
+    required=[CMAKE,NINJA,R/'tools/llvm-18.1.8/bin/clang.exe',R/'tools/llvm-18.1.8/bin/ld.lld.exe',SDK/'win/prospero-clang.cmd',R/'build/host/ps5-native-tool.exe',R/'build/host/libc.prx',UPSTREAM/'native/wine64_main.c',RELEASE/'win',KIT/'prefix',LOCK,R/'build/port-studio/tools/check-profile.exe']
     return {'version':__version__,'workspace':str(R),'dependencies':[{'path':str(p),'present':p.exists()}for p in required],
             'bc7_encoder':(R/'build/port-studio/tools/make-app-assets.exe').exists(),'atrac9':{'encoder':(R/'tools/port-studio-audio/port-at9-encode.exe').exists(),'ffmpeg':(R/'tools/port-studio-audio/ffmpeg/ffmpeg.exe').exists(),'mode':'local 48 kHz stereo 192 kb/s; trim, loudness, loop'},'console_modified':False}
 
@@ -114,7 +114,7 @@ class Builder:
         if self.cancel.is_set():raise Cancelled('Build cancelada; saída parcial preservada para diagnóstico.')
 
     def run(self,args,env=None):
-        self.checkpoint();self.emit('> '+' '.join(map(str,args)))
+        self.checkpoint();self.emit('> '+subprocess.list2cmdline(list(map(str,args))))
         self.process=subprocess.Popen(list(map(str,args)),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf8',errors='replace',env=env,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         # Drain in a reader so cancellation works even when a tool emits no output.
         import queue
@@ -163,6 +163,16 @@ class Builder:
                     if overlay['destination'].casefold() in {n.casefold()for n in compat_files}:
                         raise ProjectError('Overlay conflita com arquivo preparado pelo suporte LÖVE: '+overlay['destination'])
                 write_json(output/'love-compatibility.json',report)
+            if p['profile']=='nwjs-canvas':
+                from .nwjs import prepare_language_assets
+                nw_files,report=prepare_language_assets(game,output/'nwjs-assets')
+                if nw_files:
+                    compat_files={**(compat_files or {}),**nw_files}
+                    self.emit('NW.js: base de idioma verificada; nome de arquivo restaurado na cópia da build.' if report['restored_name'] else 'NW.js: base de idioma verificada e incluída na atualização do cache.')
+                    write_json(output/'nwjs-assets.json',report)
+                    for overlay in p['overlays']:
+                        if overlay['destination'].casefold() in {n.casefold()for n in nw_files}:
+                            raise ProjectError('Overlay conflita com a base de idioma preparada: '+overlay['destination'])
             if p['adapter']=='breath':
                 from . import breath
                 breath.inspect(game,self.run)
@@ -254,9 +264,11 @@ class Builder:
     def compile(self,p,output):
         helper=output/'helper';helper.mkdir()
         (helper/'owned_identity.h').write_text(f'#define LAPY_OWNED_ID "port-studio-{p["title_id"]}-0.1.0"\n#define TARGET_TITLE "{p["title_id"]}"\n')
-        src=R/'tools/Lapy-breath-reference/source';env=os.environ.copy();env['PATH']=str(R/'tools/llvm-18.1.8/bin')+os.pathsep+env['PATH']
-        env['PATH']+=os.pathsep+str(SDK/'win')
-        self.run([str(R/'tools/llvm-18.1.8/bin/clang.exe'),'--start-no-unused-arguments','-target','x86_64-sie-ps5','-isysroot',SDK,'-isystem',SDK/'target/include','-L',SDK/'target/lib','-L',SDK/'target/user/homebrew/lib','-fno-stack-protector','-fno-plt','-femulated-tls','-lc','-lkernel_web','--end-no-unused-arguments','-std=c11','-O2','-Wall','-Wextra','-Werror','-DLAPY_SERVICE=0','-DLAPY_ELF_HELPER=1','-DLAPY_REQUIRE_CLIENT_RESULT=0','-DLAPY_MAX_REQUESTS=0','-I'+str(UPSTREAM/'native/ps5log'),'-I'+str(helper),'-I'+str(src),src/'owned_root_daemon.c',src/'donor_transaction.c',src/'vnode_ref_probe.c','-o',helper/'lapy.elf','--start-no-unused-arguments',SDK/'target/lib/crt1.o','-lSceLibcInternal','-lSceNet','--end-no-unused-arguments'],env)
+        from .toolchain import compile_payload
+        src=R/'tools/Lapy-breath-reference/source'
+        compile_payload([src/'owned_root_daemon.c',src/'donor_transaction.c',src/'vnode_ref_probe.c'],helper/'lapy.elf',self.run,
+                        includes=[UPSTREAM/'native/ps5log',helper,src],
+                        defines=['LAPY_SERVICE=0','LAPY_ELF_HELPER=1','LAPY_REQUIRE_CLIENT_RESULT=0','LAPY_MAX_REQUESTS=0'])
         self.run([CMAKE,'-S',output,'-B',output/'native','-G','Ninja','-DCMAKE_TOOLCHAIN_FILE='+str(R/'sdk/ps5-game-port/cmake/toolchain.cmake'),'-DCMAKE_MAKE_PROGRAM='+str(NINJA),'-DGP_PYTHON='+sys.executable,'-DCMAKE_BUILD_TYPE=Release'])
         self.run([CMAKE,'--build',output/'native','--parallel','4'])
         # The SDK creates a temporary native-only zip; keep only the complete studio archive.

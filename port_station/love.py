@@ -105,7 +105,7 @@ def sync_rows(project,files):
         relative_file(name);crc=0;size=0;sha=hashlib.sha256()
         with Path(path).open('rb')as f:
             for b in iter(lambda:f.read(1024*1024),b''):crc=zlib.crc32(b,crc);size+=len(b);sha.update(b)
-        if not 0<size<=512*1024*1024:raise ProjectError('Arquivo de compatibilidade LÖVE fora do limite.')
+        if not 0<size<=512*1024*1024:raise ProjectError('Arquivo de compatibilidade fora do limite.')
         rows.append((prefix+name,size,crc));hashes[name]=sha.hexdigest()
     stamp=hashlib.sha256(json.dumps(hashes,sort_keys=True).encode()).hexdigest()
     return rows,stamp

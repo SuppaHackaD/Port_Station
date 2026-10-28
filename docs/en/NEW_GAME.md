@@ -203,6 +203,16 @@ changing game versions; changing only arguments does not require that procedure.
 | Presentation has sound but the game does not | Selection music is independent of engine audio; inspect the runtime log. |
 | Achievement catalog appears but nothing unlocks | Catalog delivery worked; check the actual award event and adapter. |
 
+Output paths containing spaces are supported. The helper invokes the linker
+directly, and the launcher uses a response file to preserve paths and long object
+lists. An error such as `cannot open 2` when building under
+`Intravenous 2 Mercenarism` indicates an installation predating this fix; update
+the program files and generate a new build.
+
+Use a different Title ID for each installed game. Reusing another game's ID can
+replace its entry and conflict with the preparation cache. Changing only the
+visible title does not create a separate installation.
+
 `build.log` records compilation. Startup, runtime and engine logs help locate
 post-launch failures. Record the profile, arguments and game version for each test.
 

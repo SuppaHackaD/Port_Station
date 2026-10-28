@@ -64,6 +64,18 @@ compatible native catalog. During the build, the profile registers local
 fonts and applies the CSS fallback. The bridge maps the observed achievement
 APIs to the catalog IDs.
 
+For revision 3.0.13, the native language database is
+`www/data/9c7050ae76645487`, with no extension. `Critical error: language data missing`
+can mean this file was renamed or is absent. The build preparer recognizes the
+known file renamed to `.txt` and restores its name only in the output copy,
+after SHA-256 verification. The new build also synchronizes that file into an
+existing prefix while preserving saves. `nwjs-assets.json` records the repair;
+files from other revisions are not renamed by guessing.
+
+Check the Achievements tab when reusing another project: this example has
+20 TCOAAL achievements, rather than Breath's 11. Optional completion is added
+separately.
+
 Open the example and select the prepared folder. The profile already adds
 `canvas` as its first argument.
 

@@ -103,16 +103,31 @@ function(ps5_game_port_title target)
         endif()
         list(APPEND extra_stub_arguments --stub "${stub}")
     endforeach()
-    add_custom_command(OUTPUT "${dist}/eboot.bin" "${dist}/sce_module/libc.prx" "${dist}/sce_sys/param.json"
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "${dist}/sce_module"
-        COMMAND "${GP_LLVM}/ld.lld.exe" -m elf_x86_64 -pie "-T${GP_NATIVE_SOURCE}/ps5-pie.ld"
+    # Keep paths, linker-script expressions and long object lists out of cmd.exe.
+    # lld parses its response file directly; each argument is quoted individually.
+    set(link_arguments -m elf_x86_64 -pie "-T${GP_NATIVE_SOURCE}/ps5-pie.ld"
             --eh-frame-hdr -z max-page-size=0x4000 -mllvm -emulated-tls --hash-style=gnu --exclude-libs=ALL
             "--defsym=__eh_frame_start=ADDR(.eh_frame)" "--defsym=__eh_frame_end=ADDR(.eh_frame)+SIZEOF(.eh_frame)"
             "--defsym=__eh_frame_hdr_start=ADDR(.eh_frame_hdr)" "--defsym=__eh_frame_hdr_end=ADDR(.eh_frame_hdr)+SIZEOF(.eh_frame_hdr)"
             "--version-script=${work}/local.map" "-Map=${work}/link.map" "-L${GP_SDK_ROOT}/target/lib"
-            -e _start $<TARGET_OBJECTS:${target}_objects> ${heap_link_options} ${TITLE_LIBRARIES}
+            -e _start "__GP_OBJECTS__" ${heap_link_options} ${TITLE_LIBRARIES}
             --start-group -lc++ -lc++abi -lunwind -lc --end-group
-            --as-needed -lSceSystemService -lkernel -lSceLibcInternal -lSceNet -lc -o "${work}/llvm-pie.elf"
+            --as-needed -lSceSystemService -lkernel -lSceLibcInternal -lSceNet -lc -o "${work}/llvm-pie.elf")
+    set(link_response "")
+    foreach(argument IN LISTS link_arguments)
+        if(argument STREQUAL "__GP_OBJECTS__")
+            string(APPEND link_response "\"$<JOIN:$<TARGET_OBJECTS:${target}_objects>,\"\n\">\"\n")
+        else()
+            string(REPLACE "\\" "\\\\" argument "${argument}")
+            string(REPLACE "\"" "\\\"" argument "${argument}")
+            string(APPEND link_response "\"${argument}\"\n")
+        endif()
+    endforeach()
+    set(link_response_file "${work}/link-$<CONFIG>.rsp")
+    file(GENERATE OUTPUT "${link_response_file}" CONTENT "${link_response}")
+    add_custom_command(OUTPUT "${dist}/eboot.bin" "${dist}/sce_module/libc.prx" "${dist}/sce_sys/param.json"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${dist}/sce_module"
+        COMMAND "${GP_LLVM}/ld.lld.exe" "@${link_response_file}"
         COMMAND "${GP_NATIVE_TOOL}" link --in "${work}/llvm-pie.elf" --out "${work}/eboot.elf"
             --stub-dir "${GP_SDK_ROOT}/target/lib" ${extra_stub_arguments} --module-sdk 0x02000009 --companion-sdk 0x08050001 --file-name eboot.elf
         COMMAND "${GP_NATIVE_TOOL}" self --sign --in "${work}/eboot.elf" --out "${dist}/eboot.bin" --magic 0x1D3D154F
@@ -122,7 +137,7 @@ function(ps5_game_port_title target)
             --title-id "${TITLE_TITLE_ID}" --title-name "${TITLE_TITLE_NAME}" --workspace "${GP_WORKSPACE}" ${content_arguments}
         COMMAND "${GP_NATIVE_TOOL}" self --inspect --file "${dist}/eboot.bin"
         DEPENDS ${target}_objects $<TARGET_OBJECTS:${target}_objects>
-            "${GP_NATIVE_TOOL}" "${GP_LIBC}" "${GP_NATIVE_SOURCE}/ps5-pie.ld"
+            "${GP_NATIVE_TOOL}" "${GP_LIBC}" "${GP_NATIVE_SOURCE}/ps5-pie.ld" "${link_response_file}"
             "${GP_NATIVE_SDK}/host/package_title.py" ${shader_outputs} ${asset_inputs} ${TITLE_LINK_DEPENDS} ${TITLE_STUBS}
         COMMAND_EXPAND_LISTS VERBATIM)
     add_custom_target(${target} ALL DEPENDS "${dist}/eboot.bin" "${dist}/sce_module/libc.prx" "${dist}/sce_sys/param.json")

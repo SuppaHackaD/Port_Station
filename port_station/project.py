@@ -143,6 +143,8 @@ def validate(project, base, files=True):
         for value in [p[k] for k in ("icon", "background", "launch_background", "sound", "platinum_icon")] + [a.get("icon", "") for a in p["achievements"]]:
             if value and not resolve_path(value, base).is_file(): raise ProjectError(f"Arquivo ausente: {value}")
         if p["adapter"] == "nwjs-steam" and not (game / "www/index.html").is_file(): raise ProjectError("NW.js: www/index.html não encontrado.")
+        from .nwjs import validate_inputs as validate_nwjs
+        validate_nwjs(p,game)
         from .love import inspect as inspect_love
         inspect_love(p,game)
     return p
