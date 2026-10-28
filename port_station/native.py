@@ -14,6 +14,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
     game=p['game_id'];slug=runtime_id(p); root='/data/port-studio/'+p['title_id'].lower(); adapter=p['adapter']
     s=(R/'port_station/templates/wine64_main.c.in').read_text(encoding='utf8')
     s=s.replace('@TITLE_ID@',p['title_id']).replace('@DATA_ROOT@',root).replace('@SLUG@',slug)
+    s=s.replace('@LEFT_STICK_DPAD@', str(int(p.get('profile_options',{}).get('input',{}).get('left_stick')=='dpad')))
     include=''; opened=''; tick=''; closed=''
     if adapter=='breath':
         include='#include "breath_achievements.h"\n#include "breath_pa.h"'
@@ -26,6 +27,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
     for a,b in {'@ACH_INCLUDE@':include,'@ACH_OPEN@':opened,'@ACH_TICK@':tick,'@ACH_CLOSE@':closed}.items():s=s.replace(a,b)
     (out/'wine64_main.c').write_text(s,encoding='utf8',newline='\n')
     (out/'display_policy.h').write_bytes((R/'port_station/templates/display_policy.h').read_bytes())
+    (out/'keyboard_stick.h').write_bytes((R/'port_station/templates/keyboard_stick.h').read_bytes())
     s=(R/'src/breath/wine_title/breath_bootstrap.c').read_text(encoding='utf8')
     for a,b in [('"breath_bootstrap.h"','"studio_bootstrap.h"'),('breath_bootstrap','studio_bootstrap'),('BREATH_DATA_ROOT','STUDIO_DATA_ROOT'),('BREATH_PACKAGE_ROOT','STUDIO_PACKAGE_ROOT'),('/data/breath-wine',root),('PPSA99397',p['title_id']),('prefixes/breath','prefixes/'+slug),('Breath-Wine-','Port-Studio-'),('.breath-', '.port-studio-'),('Breath:', 'Port Station:')]:s=s.replace(a,b)
     s=s.replace('Port-Studio-'+p['title_id']+'-v1','Port-Studio-'+p['title_id']+'-'+game+'-v1')

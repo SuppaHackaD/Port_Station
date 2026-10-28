@@ -60,8 +60,15 @@ and returns code 2 when no items are selected.
 | LÖVE/ZIP packages, including ZIPs appended to PE files, and LuaJIT v1/v2 dumps | Constants with member source/hash, matched exactly against official IDs. No instruction interpretation or proof of executed award calls. |
 | Native executable strings prefixed `ACH_`, `ACHIEVEMENT_`, `ACHV_` or `TROPHY_` | Review candidates, unselected by default; no confirmed call relationship. |
 
+The Unity reader also recovers candidates from standard IL2CPP
+`global-metadata.dat` literal tables (versions 24, 27, 29 and 31) and
+achievement-prefixed, length-checked strings in little-endian serialized
+`.assets` files. Candidates remain unselected until reviewed or matched to
+official Steam IDs. This does not prove award calls or implement unlocks;
+the Unity Mono bridge does not support IL2CPP executables.
+
 This is not a universal engine/container/decryption extractor. Dynamic
-expressions, obfuscation, unsupported archives, IL2CPP and other schema
+expressions, obfuscation, unsupported archives, protected IL2CPP metadata and other schema
 revisions may need future readers. Reports record limits, unresolved managed
 calls and read failures. Missing extraction does not prove a game lacks achievements.
 

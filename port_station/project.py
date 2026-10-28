@@ -120,7 +120,7 @@ def validate(project, base, files=True):
     if p["adapter"] == "nwjs-steam" and p["profile"] != "nwjs-canvas": raise ProjectError("Adaptador NW.js requer o perfil nwjs-canvas.")
     options = p["profile_options"]
     if not isinstance(options, dict): raise ProjectError("profile_options deve ser objeto JSON.")
-    allowed = {"application": {"dll_overrides"}, "display": {"desktop", "scaling", "view", "show_fps"}, "input": {"mode", "mouse", "mouse_speed", "cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "l3", "r3", "up", "down", "left", "right", "options", "create", "touchpad"}, "runtime": {"thread_scheduling", "cpu"}, "debug": {"winedebug"}}
+    allowed = {"application": {"dll_overrides"}, "display": {"desktop", "scaling", "view", "show_fps"}, "input": {"mode", "mouse", "mouse_speed", "left_stick", "cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "l3", "r3", "up", "down", "left", "right", "options", "create", "touchpad"}, "runtime": {"thread_scheduling", "cpu"}, "debug": {"winedebug"}}
     for section, fields in options.items():
         if section not in allowed or not isinstance(fields, dict): raise ProjectError(f"Seção de perfil inválida: {section}")
         for key, value in fields.items():
@@ -128,6 +128,11 @@ def validate(project, base, files=True):
             if section=='display' and key=='desktop':
                 if value=='auto':raise ProjectError('Para resolução automática, remova display.desktop de Avançado e escolha auto na aba Jogo.')
                 validate_resolution(value)
+    input_options = options.get('input', {})
+    if input_options.get('left_stick', 'none') not in ('none', 'dpad'):
+        raise ProjectError('input.left_stick deve ser none ou dpad.')
+    if input_options.get('left_stick') == 'dpad' and input_options.get('mode') != 'keyboard':
+        raise ProjectError('input.left_stick=dpad exige input.mode=keyboard explícito.')
     if not isinstance(p['overlays'],list):raise ProjectError('overlays deve ser uma lista.')
     destinations=set()
     for entry in p["overlays"]:

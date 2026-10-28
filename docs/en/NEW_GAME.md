@@ -150,6 +150,19 @@ Advanced options accept `display`, `input`, `runtime`, `debug` and
 `application.dll_overrides`. Names and values depend on the runtime parser;
 prefer the profile defaults until you identify a specific need.
 
+For a Direct3D game without native controller support, keep `dxvk-xinput`
+and override only its input settings. Experimental keyboard/mouse example:
+
+```json
+{"input":{"mode":"keyboard","left_stick":"dpad","mouse":"right_stick","mouse_speed":"800","up":"w","down":"s","left":"a","right":"d","cross":"space","square":"e","r2":"mouse_left","l2":"mouse_right","circle":"escape","options":"escape","create":"none"}}
+```
+
+`left_stick: dpad` sends the keys assigned to directional buttons from the
+left stick, with a dead zone and release on disconnect. The right stick moves
+the mouse. Games still show keyboard/mouse prompts; test their particular
+shortcuts, sensitivity and minigames. This does not add native controller
+support to the engine.
+
 ## 6. Customize presentation
 
 - **Icon:** select an image; the app prepares a center-cropped 512×512 PNG.

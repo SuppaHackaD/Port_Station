@@ -35,6 +35,8 @@
 #include "studio_bootstrap.h"
 #include "tcoal_close.h"
 #include "display_policy.h"
+#include "keyboard_stick.h"
+#define STATION_LEFT_STICK_DPAD @LEFT_STICK_DPAD@
 @ACH_INCLUDE@
 #include "pw_audio_ps5.h"
 #include "pw_pad_ps5.h"
@@ -950,6 +952,7 @@ int main(int argc, char **argv)
     const PwGameProfile *game = NULL;
     int scaling = PW_PRESENT_SCALE_FIT;
     PwWinePointer pointer = { 0, 0 };
+    StationKeyboardStick keyboard_stick = { 0, 0 };
     int (*post_input)(const PwWineInput *) = NULL;
     void (*set_pad)(const PwWinePad *) = NULL;
     int (*rumble)(uint32_t *, uint32_t *) = NULL;
@@ -1346,12 +1349,17 @@ int main(int argc, char **argv)
 #endif
             if (pad_read || scripted) set_pad(connected ? &state : NULL);
         }
-        if (pad_read) {
-            size_t count = pw_wine_game_inputs(&game_input, pad.core.pressed_edges &
+        if (pad_read || (STATION_LEFT_STICK_DPAD && keyboard_stick.held)) {
+            uint32_t key_pressed = pad.core.pressed_edges, key_released = pad.core.released_edges;
+            if (STATION_LEFT_STICK_DPAD && game_input.mode == PW_GAME_INPUT_KEYBOARD)
+                station_keyboard_stick(&keyboard_stick,
+                    pad_read && pad.core.connected, pad.left_stick.x, pad.left_stick.y,
+                    pad.core.previous_buttons, &key_pressed, &key_released);
+            size_t count = pw_wine_game_inputs(&game_input, key_pressed &
                 (((pad.core.previous_buttons & PAD_CLOSE) == PAD_CLOSE) ? ~PAD_CLOSE : ~0u),
-                                               pad.core.released_edges, events,
+                                               key_released, events,
                                                sizeof(events) / sizeof(events[0]) - 1);
-            if (game_input.mouse != PW_GAME_STICK_NONE) {
+            if (pad_read && game_input.mouse != PW_GAME_STICK_NONE) {
                 const PwPadPs5Stick *stick = game_input.mouse == PW_GAME_STICK_LEFT ?
                                              &pad.left_stick : &pad.right_stick;
                 count += (size_t)pw_wine_pointer_step(&pointer, stick->x, stick->y,
@@ -1365,7 +1373,7 @@ int main(int argc, char **argv)
             /* The rumble the game asked for: XInput's left motor is the
              * DualSense's large one, speeds 0..65535 become 0..255. */
             uint32_t left, right;
-            if (rumble && rumble(&left, &right) == 1) {
+            if (pad_read && rumble && rumble(&left, &right) == 1) {
                 int vibrate = pw_pad_ps5_vibrate(&pad, (uint8_t)(left >> 8), (uint8_t)(right >> 8));
                 if (!vibrations++ || vibrate != PW_OK)
                     PS5LOG_LOG("PW_WINE64 rumble left=%u right=%u status=%s rc=%d", (unsigned)left,
