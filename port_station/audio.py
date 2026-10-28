@@ -21,11 +21,22 @@ def validate_options(start,duration):
 
 def check_tools():
     receipt=TOOLS/'build.json'
-    if not receipt.is_file():raise ProjectError('Transcoder ausente. Instale o update de áudio do Port Station.')
-    data=json.loads(receipt.read_text(encoding='utf8'))
+    try:
+        data=json.loads(receipt.read_text(encoding='utf8'))
+        if not isinstance(data,dict)or not isinstance(data.get('files'),dict):raise ValueError('files')
+    except (OSError,ValueError)as e:
+        raise ProjectError('Manifesto das ferramentas de áudio ausente ou inválido. Restaure tools/port-studio-audio do kit Windows.')from e
     for path in [FFMPEG,ENCODER]:
         expected=data['files'].get(path.relative_to(WORKSPACE).as_posix())
-        if not path.is_file() or sha(path)!=expected:raise ProjectError('Transcoder ausente ou diferente do build verificado: '+str(path))
+        if not isinstance(expected,str)or len(expected)!=64:raise ProjectError('Manifesto de áudio incompleto. Restaure tools/port-studio-audio do kit Windows.')
+        if not path.is_file():
+            if path==FFMPEG:
+                raise ProjectError('FFmpeg opcional não instalado. Na aba Áudio, clique em “Instalar FFmpeg…” ou execute python release_support/install-ffmpeg.py na pasta do kit.')
+            raise ProjectError('Encoder ATRAC9 ausente. Restaure tools/port-studio-audio do kit Windows: '+str(path))
+        if sha(path)!=expected:
+            if path==FFMPEG:
+                raise ProjectError('O FFmpeg instalado difere da versão verificada. Preserve/renomeie esse arquivo e instale a versão indicada por release_support/install-ffmpeg.py: '+str(path))
+            raise ProjectError('Encoder ATRAC9 diferente do build verificado. Restaure o arquivo do kit Windows: '+str(path))
     return data
 
 def transcode(source,destination,run,log=print,start=0,duration=15):
