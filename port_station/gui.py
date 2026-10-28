@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import sys
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -89,6 +90,24 @@ class App:
         ttk.Label(f,text='Selecione MP3, WAV, OGG, FLAC, M4A, AAC ou outro áudio compatível.\nO trecho será convertido automaticamente durante a build.\n\nVolume normalizado, pequenos fades e repetição contínua. Padrão: 15 segundos.\nAT9 pronto é validado e copiado integralmente; início e duração não são aplicados a ele.\n\nVocê também pode gerar um .at9 separado antes de compilar o jogo.\nA música original continua selecionada no projeto para permitir novos ajustes.',wraplength=850,style='Sub.TLabel').grid(row=3,column=0,columnspan=3,sticky='w',pady=20)
         self.audio_convert_button=ttk.Button(f,text='Converter para .at9…',command=self.convert_audio)
         self.audio_convert_button.grid(row=4,column=1,sticky='w')
+        self.audio_install_button=ttk.Button(f,text='Instalar FFmpeg…',command=self.install_ffmpeg)
+        self.audio_install_button.grid(row=4,column=2,padx=(8,0),sticky='w')
+        ttk.Label(f,text='MP3/WAV/OGG e outros formatos precisam do FFmpeg opcional. O botão baixa a versão\nverificada do distribuidor original; arquivos .at9 prontos não precisam dele.',wraplength=850,style='Sub.TLabel').grid(row=5,column=0,columnspan=3,sticky='w',pady=12)
+
+    def install_ffmpeg(self):
+        if self.busy:return
+        self.busy=True;self.cancel.clear();self.tabs.select(self.build_tab);self.progress.start(15);self.cancel_button.configure(state='normal')
+        for b in self.action_buttons+self.file_buttons:b.configure(state='disabled')
+        self.status.set('Instalando FFmpeg verificado…')
+        def worker():
+            try:
+                from .audio import check_tools
+                builder=Builder(lambda s:self.messages.put(('log',s)),self.cancel)
+                builder.run([sys.executable,WORKSPACE/'release_support/install-ffmpeg.py'])
+                check_tools()
+                self.messages.put(('done','FFmpeg instalado e ferramentas de áudio verificadas.'))
+            except Exception as e:self.messages.put(('error',str(e)))
+        threading.Thread(target=worker,daemon=True).start()
 
     def choose_audio(self):
         value=filedialog.askopenfilename(parent=self.root,filetypes=[('Áudio','*.mp3 *.wav *.ogg *.flac *.m4a *.aac *.aiff *.aif *.opus *.wma *.at9'),('Todos os arquivos','*.*')])
@@ -237,7 +256,7 @@ class App:
     def make_build(self):
         f=self.build_tab
         bar=ttk.Frame(f);bar.pack(fill='x')
-        self.action_buttons=[self.audio_convert_button]
+        self.action_buttons=[self.audio_convert_button,self.audio_install_button]
         for label,command in [('Diagnóstico',self.diagnose),('Validar projeto',self.validate_project),('Preparar fontes',lambda:self.start_build(True)),('Compilar e empacotar',self.start_build),('Abrir saída',self.open_output)]:
             b=ttk.Button(bar,text=label,command=command);b.pack(side='left',padx=(0,5));self.action_buttons.append(b)
         self.cancel_button=ttk.Button(bar,text='Cancelar',command=lambda:self.cancel.set(),state='disabled');self.cancel_button.pack(side='right')
