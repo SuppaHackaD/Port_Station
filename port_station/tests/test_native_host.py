@@ -76,7 +76,17 @@ int main(void){
  for(unsigned i=0;i<sizeof(cases)/sizeof(cases[0]);i++){
   StationDesktop r=station_desktop_resolve(cases[i].rc,cases[i].w,cases[i].h);
   if(r.width!=cases[i].expected_w||r.height!=cases[i].expected_h||r.detected!=cases[i].detected)return (int)i+1;
- }return 0;
+ }
+ struct {int rc;uint32_t w,h,expected_w,expected_h;int detected;}software[]={
+  {0,1280,720,1280,720,1},{0,1920,1080,1920,1080,1},
+  {0,3840,2160,1920,1080,1},{0,2560,1440,1920,1080,1},
+  {0,5120,1440,1920,540,1},{-1,3840,2160,1920,1080,0},
+  {0,0,0,1920,1080,0}};
+ for(unsigned i=0;i<sizeof(software)/sizeof(software[0]);i++){
+  StationDesktop r=station_desktop_resolve_software(software[i].rc,software[i].w,software[i].h);
+  if(r.width!=software[i].expected_w||r.height!=software[i].expected_h||r.detected!=software[i].detected)return (int)i+30;
+ }
+ return 0;
 }''',encoding='utf-8')
             subprocess.run([str(WORKSPACE/'tools/zig-python/ziglang/zig.exe'),'cc','-O2','-Wall','-Wextra','-Werror','-I'+str(WORKSPACE/'port_station/templates'),str(source),'-o',str(exe)],check=True,capture_output=True)
             subprocess.run([str(exe)],check=True)

@@ -1187,10 +1187,12 @@ int main(int argc, char **argv)
             extern int sceVideoOutGetResolutionStatus(int32_t,void *);
             _Alignas(16) uint32_t resolution_status[64]={0};
             int query=video_status==PW_OK ? sceVideoOutGetResolutionStatus(video.handle,resolution_status) : -1;
-            StationDesktop chosen=station_desktop_resolve(query,resolution_status[0],resolution_status[1]);
+            int software=game->app.graphics==PW_APP_GRAPHICS_GDI;
+            StationDesktop chosen=software ? station_desktop_resolve_software(query,resolution_status[0],resolution_status[1])
+                                          : station_desktop_resolve(query,resolution_status[0],resolution_status[1]);
             snprintf(desktop,sizeof(desktop),"%ux%u",(unsigned)chosen.width,(unsigned)chosen.height);
-            PS5LOG_LOG("PORT_STATION display auto query=%#x reported=%ux%u desktop=%s detected=%d",
-                       (unsigned)query,(unsigned)resolution_status[0],(unsigned)resolution_status[1],desktop,chosen.detected);
+            PS5LOG_LOG("PORT_STATION display auto query=%#x reported=%ux%u desktop=%s detected=%d software=%d",
+                       (unsigned)query,(unsigned)resolution_status[0],(unsigned)resolution_status[1],desktop,chosen.detected,software);
         } else if(game) PS5LOG_LOG("PORT_STATION display configured desktop=%s",desktop);
         pad_status = pw_pad_ps5_platform_ops(&pad_ops);
         if (pad_status == PW_OK)

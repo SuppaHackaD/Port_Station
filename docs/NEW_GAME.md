@@ -161,6 +161,8 @@ Uma build atualizada não substitui automaticamente todos os dados já preparado
 
 ## Problemas comuns
 
+No modo `auto`, OpenGL/DXVK acompanham a saída do console até 4K. Canvas/GDI usam um teto de 1920×1080 para reduzir o consumo de memória das superfícies em software. No TCOAAL 3.0.13, 720p e 1080p foram validados no console; o desktop virtual em 4K causou falha de mapeamento de memória e encerramento. Essa política automática não altera a resolução física configurada no PS5. Uma resolução explícita continua tendo prioridade e precisa ser validada com o jogo.
+
 | Sintoma | O que conferir primeiro |
 |---|---|
 | Build não começa | Caminho da pasta, `.exe` selecionado, ícone e resultado de Diagnóstico. |
