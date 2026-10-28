@@ -18,6 +18,7 @@ The initial public release is **0.4.0**; compatibility remains experimental.
 2. Download and extract `Port_Station-0.4.0-windows-kit.zip` from the release.
    It includes the public SDK, compilers, runtime and resource tools. GitHub's
    source download alone is intended for development.
+   Then apply the [October 28 cumulative update](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.4.0/Port-Station-v0.4.0-update-20261028.zip) over the kit folder, replacing program files. It includes the earlier fixes; no update chain is needed.
 3. Run **Port_Station.cmd**. Create a project and select the complete game folder
    and its main `.exe`.
 4. Choose a compatibility profile and an unused `PPSA` + five-digit Title ID.
@@ -47,7 +48,8 @@ is included; the tool does not depend on either example game.
   mode selection where supported.
 - Custom title, icon, backgrounds and optional selection music; local PNG/BC7
   image conversion and ATRAC9 audio encoding.
-- Integrated achievement extraction, exact official Steam ID matching,
+- Stick-to-keyboard and mouse mappings for games without native controller support.
+- Integrated achievement extraction, including Unity IL2CPP and serialized asset candidates, exact official Steam ID matching,
   official localized text lookup and manual metadata editing.
 - Optional completion achievement, event adapters and **Prospero Achievements**,
   an independent persistent backend with a web UI.
@@ -137,4 +139,5 @@ Games tested:
 [Breath by Herbherth](https://store.steampowered.com/app/1475350/).
 [The Coffin of Andy and Leyley by Kit9 Studio](https://store.steampowered.com/app/2378900/).
 [Kindergarten by Con Man Games](https://store.steampowered.com/app/589590/).
-[Intravenous 2: Mercenarism by Explosive Squat Games](https://store.steampowered.com/app/2651330/)
+[Intravenous 2: Mercenarism by Explosive Squat Games](https://store.steampowered.com/app/2651330/).
+[MiSide by AIHASTO](https://store.steampowered.com/app/2527500/).

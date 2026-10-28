@@ -18,6 +18,7 @@ PS5. O suporte é experimental e depende das APIs e do renderer de cada jogo.
 2. Extraia `Port_Station-0.4.0-windows-kit.zip` da release. Ele inclui runtime,
    compiladores públicos, SDK e ferramentas de recursos. O download de fontes
    sozinho é destinado ao desenvolvimento.
+   Depois aplique a [atualização cumulativa de 28/10](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.4.0/Port-Station-v0.4.0-update-20261028.zip) sobre a pasta do kit, substituindo os arquivos de programa. Ela inclui as correções anteriores; não é necessário encadear updates.
 3. Abra **Port_Station.cmd**, crie um projeto e selecione a pasta completa do
    jogo e seu executável principal.
 4. Escolha o perfil e um Title ID livre no formato `PPSA` + cinco números.
@@ -41,7 +42,8 @@ desbloqueio ou SDK proprietário Sony.
 - Desktop virtual automático ou configurável até 4K, com seleção de modos pelo
   jogo quando suportada.
 - Título, ícone, fundos e música opcionais, com conversão local PNG/BC7/ATRAC9.
-- Extrator integrado, cruzamento exato de IDs oficiais Steam, consulta de
+- Mapeamento de analógico para teclas e mouse em jogos sem suporte nativo a controle.
+- Extrator integrado, com candidatos Unity IL2CPP e arquivos serializados, cruzamento exato de IDs oficiais Steam, consulta de
   textos oficiais localizados e edição manual.
 - Platina opcional e **Prospero Achievements**, backend independente e
   persistente com interface web.
@@ -104,5 +106,5 @@ Jogos testados:
 [The Coffin of Andy and Leyley, de Kit9 Studio](https://store.steampowered.com/app/2378900/).
 [Kindergarten, de Con Man Games](https://store.steampowered.com/app/589590/).
 [Intravenous 2: Mercenarism, de 
-Explosive Squat Games](https://store.steampowered.com/app/2651330/)
-
+Explosive Squat Games](https://store.steampowered.com/app/2651330/).
+[MiSide, de AIHASTO](https://store.steampowered.com/app/2527500/).

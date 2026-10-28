@@ -52,6 +52,22 @@ Confira a aba Conquistas ao reutilizar outro projeto: o catálogo deste exemplo 
 
 A chave interna `tcoal` é mantida para que o progresso e os dados de instalações anteriores continuem sendo reconhecidos; o nome do exemplo é TCOAAL.
 
+## MiSide — integração validada por trecho
+
+O teste usou Unity 2021.3.35f1/IL2CPP com `dxvk-xinput` e a substituição de
+entrada teclado/mouse descrita no [guia de controles](NEW_GAME.md#5-ajustar-os-controles).
+A busca local e o cruzamento com o AppID Steam 2527500 recuperaram 26 IDs.
+
+A revisão testada grava `Save/Achi <ID>` em seu diretório persistente ao
+concluir uma conquista; os arquivos contêm exatamente CRLF (`0D 0A`). O
+adaptador [file-markers](ACHIEVEMENTS.md#marcadores-de-conclusão-gravados-pelo-jogo)
+confirmou "A Vitória da Mosca", popup, persistência e reabertura sem repetição.
+As regras precisam apontar para os arquivos reais da cópia local; não há
+catálogo comercial ou arquivos de MiSide distribuídos neste exemplo.
+
+A validação cobre os controles básicos e essa condição de conquista. Outras
+condições, minijogos, revisões e a campanha inteira exigem testes próprios.
+
 ## Atualizações dos jogos
 
 Essas receitas descrevem as versões acima. Uma atualização de engine, dos arquivos de dados ou das APIs de conquistas pode exigir outra configuração. Você pode salvar uma cópia do projeto para testar ajustes sem alterar sua configuração anterior.

@@ -38,6 +38,7 @@ class FileMarkerTests(unittest.TestCase):
             self.assertNotIn('int rc=pa_file_bridge_poll(&bridge)',source)
             self.assertTrue((root/'file_markers.h').is_file())
 
+    @unittest.skipUnless((WORKSPACE/'tools/zig-python/ziglang/zig.exe').is_file(), 'Requires the Windows kit Zig compiler')
     def test_crlf_requires_exact_bytes_and_recovers_previously_missed_marker(self):
         p=self.project();p['file_marker_content']='arbitrary'
         with self.assertRaises(ProjectError):validate(p,WORKSPACE,False)
@@ -82,6 +83,7 @@ int main(int argc,char **argv){
             self.assertEqual(run.returncode,0,run.stderr.decode('utf8','replace'))
             subprocess.run([str(exe),str(prefix)],check=True)
 
+    @unittest.skipUnless((WORKSPACE/'tools/zig-python/ziglang/zig.exe').is_file(), 'Requires the Windows kit Zig compiler')
     def test_durable_baseline_observes_only_new_empty_files_and_retries_queue(self):
         with tempfile.TemporaryDirectory()as td:
             root=Path(td);prefix=root/'prefix';save=prefix/'drive_c/Save';save.mkdir(parents=True)

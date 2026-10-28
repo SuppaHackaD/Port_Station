@@ -44,7 +44,24 @@ own validation. `unity-mono-steam` supports only compatible Unity Mono wrappers.
 
 ## Configure the catalog
 
-### Completion markers written by the game
+Add a name, description, icon and ID for each entry in the **Conquistas** tab.
+The canonical ID identifies the achievement in the backend. **ID emitida pelo
+jogo** (ID emitted by the game) maps a different engine name, such as
+`first_win`, to `FIRST_WIN`.
+
+Enable the completion/platinum option to add an achievement calculated after
+all regular entries are obtained. Adapters must not unlock it directly.
+
+An extracted catalog may lack descriptions. Backend conversion uses
+“Descrição não fornecida” (“Description not provided”) because the protocol
+requires nonempty descriptions. The project and extraction report still
+record that the original text is missing. You can fill it in later without
+inventing an unlock condition.
+
+Increase the catalog version when editing an existing catalog. Preserve IDs
+whose progress should remain. Importing through the UI starts a higher revision.
+
+## Completion markers written by the game
 
 The experimental `file-markers` adapter observes exact-content files the game itself
 creates when an achievement condition is met. Verify that relationship first;
@@ -77,29 +94,13 @@ before delivery. Retries reuse the event ID and should not repeat a confirmed
 unlock popup. Mismatched contents, directories and unmatched paths do not award
 achievements. This adapter neither decodes binary saves nor adds conditions.
 
-Add a name, description, icon and ID for each entry in the **Conquistas** tab.
-The canonical ID identifies the achievement in the backend. **ID emitida pelo
-jogo** (ID emitted by the game) maps a different engine name, such as
-`first_win`, to `FIRST_WIN`.
-
-Enable the completion/platinum option to add an achievement calculated after
-all regular entries are obtained. Adapters must not unlock it directly.
-
-An extracted catalog may lack descriptions. Backend conversion uses
-“Descrição não fornecida” (“Description not provided”) because the protocol
-requires nonempty descriptions. The project and extraction report still
-record that the original text is missing. You can fill it in later without
-inventing an unlock condition.
-
-Increase the catalog version when editing an existing catalog. Preserve IDs
-whose progress should remain. Importing through the UI starts a higher revision.
-
 ## Choose an adapter
 
 | Adapter | Use |
 |---|---|
 | `none` | Play without an achievement catalog or events. |
 | `nwjs-steam` | NW.js games using `Steam.awardAchievement` or `Steam.API.activateAchievement`. The bridge maps IDs and preserves the original call. |
+| `file-markers` | Observes original empty/CRLF completion markers; paths configured in JSON and validated per game. |
 | `unity-mono-steam` | Experimental generic Unity Mono DLL with a conservative Steamworks.NET wrapper integrator. See the [managed bridge](MANAGED_BRIDGE.md). |
 | `file-v1` | File bridge protocol. Includes an automatic producer for the verified Intravenous LÖVE revision; other integrations provide their own producer. |
 | `breath` | The specific integration supplied by the Breath example. |

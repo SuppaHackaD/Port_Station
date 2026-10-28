@@ -21,6 +21,7 @@ jobs:
       - run: python -m unittest port_station.tests.test_nwjs -v
       - run: python -m unittest port_station.tests.test_breath_preparation -v
       - run: python -m unittest port_station.tests.test_catalog_protocol -v
+      - run: python -m unittest port_station.tests.test_keyboard_stick port_station.tests.test_file_markers -v
       - run: node port_station/tests/test_nw_bridge.js
       - run: python release_support/test-prepare-game.py
       - run: python release_support/test-stream-archive.py

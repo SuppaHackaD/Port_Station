@@ -20,6 +20,7 @@ class KeyboardStickTests(unittest.TestCase):
         p['profile_options']['input']['mode']='xinput'
         with self.assertRaises(ProjectError):validate(p,WORKSPACE,False)
 
+    @unittest.skipUnless((WORKSPACE/'tools/zig-python/ziglang/zig.exe').is_file(), 'Requires the Windows kit Zig compiler')
     def test_edges_hysteresis_physical_merge_diagonals_and_disconnect(self):
         with tempfile.TemporaryDirectory()as td:
             root=Path(td);source=root/'test.c';exe=root/'test.exe'

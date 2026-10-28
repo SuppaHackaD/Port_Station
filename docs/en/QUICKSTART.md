@@ -9,7 +9,7 @@ in bold and explains their meaning in English.
 
 On Windows x64, install Python 3.13 with **Tcl/Tk** and extract the **Windows
 kit** from the [latest release](https://github.com/SuppaHackaD/Port_Station/releases/latest).
-Run `Port_Station.cmd`.
+After extracting the 0.4.0 kit, apply the [October 28 cumulative update](https://github.com/SuppaHackaD/Port_Station/releases/download/v0.4.0/Port-Station-v0.4.0-update-20261028.zip) over the kit folder. It includes the previous fixes. Run `Port_Station.cmd`.
 
 Use the Windows kit to build game packages. GitHub's source download is for
 development and does not include the runtime binaries.

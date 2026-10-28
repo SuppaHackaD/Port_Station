@@ -25,7 +25,15 @@ A extração é integrada à interface, mas o adaptador de eventos continua send
 
 ## Configurar o catálogo
 
-### Marcadores de conclusão gravados pelo jogo
+Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada item. A ID canônica identifica a conquista no backend. **ID emitida pelo jogo** permite associar um nome diferente vindo da engine, por exemplo `first_win` a `FIRST_WIN`.
+
+Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.
+
+Uma lista extraída pode não ter descrições. Na conversão para o backend, esses campos recebem o texto de exibição “Descrição não fornecida”, pois o protocolo exige uma descrição não vazia. O projeto e o relatório da extração mantêm a ausência do texto original; você pode preencher os campos depois, sem inventar condições de desbloqueio.
+
+Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
+
+## Marcadores de conclusão gravados pelo jogo
 
 O adaptador experimental `file-markers` observa arquivos de conteúdo exato que o próprio
 jogo cria ao concluir uma conquista. Use somente depois de verificar a relação
@@ -59,20 +67,13 @@ usam a mesma ID de evento e não devem repetir o popup após confirmação. Arqu
 com conteúdo diferente, diretórios e caminhos que não correspondem às regras não concedem
 conquistas. Este adaptador não interpreta saves binários nem adiciona condições.
 
-Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada item. A ID canônica identifica a conquista no backend. **ID emitida pelo jogo** permite associar um nome diferente vindo da engine, por exemplo `first_win` a `FIRST_WIN`.
-
-Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.
-
-Uma lista extraída pode não ter descrições. Na conversão para o backend, esses campos recebem o texto de exibição “Descrição não fornecida”, pois o protocolo exige uma descrição não vazia. O projeto e o relatório da extração mantêm a ausência do texto original; você pode preencher os campos depois, sem inventar condições de desbloqueio.
-
-Se você editar um catálogo já usado, aumente sua versão. Preserve as IDs das conquistas que devem conservar progresso. Importar um catálogo pela interface inicia uma revisão maior.
-
 ## Escolher o adaptador
 
 | Adaptador | Uso |
 |---|---|
 | `none` | Jogar sem catálogo ou eventos de conquistas. |
 | `nwjs-steam` | Jogos NW.js que usem `Steam.awardAchievement` ou `Steam.API.activateAchievement`. A ponte associa as IDs e conserva a chamada original. |
+| `file-markers` | Observa marcadores originais com conteúdo exato vazio/CRLF; caminhos configurados no JSON e validados por jogo. |
 | `unity-mono-steam` | DLL genérica experimental para Unity Mono, com integrador conservador de wrappers Steamworks.NET. Veja [SDK gerenciado](../sdk/prospero-achievements/managed/README.md). |
 | `file-v1` | Protocolo da ponte de arquivos. Inclui produtor automático para a revisão LÖVE verificada de Intravenous; outras integrações fornecem seu produtor. |
 | `breath` | Integração específica da receita de Breath. |
