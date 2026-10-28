@@ -84,6 +84,7 @@ def generate(p, out, catalog=None, resources=None, blob=None, managed_files=None
             (out/'file_markers.h').write_bytes((R/'port_station/templates/file_markers.h').read_bytes())
             rows=','.join('{'+c_string(i)+','+c_string(p['file_markers'][i])+','+c_string('marker-'+hashlib.sha256(i.encode()).hexdigest()[:32])+'}'for i in sorted(p['file_markers']))
             identity=hashlib.sha256(json.dumps([game,sorted(p['file_markers'].items())],ensure_ascii=True,separators=(',',':')).encode()).hexdigest()
+            content=c_string('\r\n'if p.get('file_marker_content','empty')=='crlf'else'')
             declaration='''
 #include "file_markers.h"
 static StationMarkers marker_state;
@@ -98,7 +99,7 @@ static int marker_enqueue(void *context,const char *id,const char *event){
             worker=worker.replace(anchor,anchor+declaration)
             anchor='pthread_t thread;pthread_attr_t attr;'
             if worker.count(anchor)!=1:raise ProjectError('Template de marcadores incompatível: inicialização.')
-            worker=worker.replace(anchor,'int marker_rc=station_markers_open(&marker_state,prefix,marker_rules,sizeof(marker_rules)/sizeof(marker_rules[0]),'+c_string(identity)+'); if(marker_rc){PS5LOG_LOG("Port Station PA markers open rc=%d",marker_rc);return marker_rc;}\n    unsigned marker_ignored=0;for(unsigned i=0;i<marker_state.count;i++)marker_ignored+=marker_state.state[i]==2;\n    PS5LOG_LOG("Port Station PA markers count=%u ignored=%u armed=%u",marker_state.count,marker_ignored,marker_state.count-marker_ignored);\n    '+anchor)
+            worker=worker.replace(anchor,'int marker_rc=station_markers_open(&marker_state,prefix,marker_rules,sizeof(marker_rules)/sizeof(marker_rules[0]),'+c_string(identity)+','+content+'); if(marker_rc){PS5LOG_LOG("Port Station PA markers open rc=%d",marker_rc);return marker_rc;}\n    unsigned marker_ignored=0;for(unsigned i=0;i<marker_state.count;i++)marker_ignored+=marker_state.state[i]==2;\n    PS5LOG_LOG("Port Station PA markers count=%u ignored=%u armed=%u content_bytes=%zu",marker_state.count,marker_ignored,marker_state.count-marker_ignored,strlen(marker_state.content));\n    '+anchor)
             worker=worker.replace('int rc=pa_file_bridge_poll(&bridge);','int rc=station_markers_poll(&marker_state,marker_rules,marker_enqueue,&sdk);')
             worker=worker.replace('if(ready)(void)pa_file_bridge_poll(&bridge);','if(ready)(void)station_markers_poll(&marker_state,marker_rules,marker_enqueue,&sdk);')
         (out/'studio_pa.c').write_text(worker,encoding='utf8',newline='\n')

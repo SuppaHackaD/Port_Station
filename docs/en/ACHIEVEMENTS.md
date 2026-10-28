@@ -46,7 +46,7 @@ own validation. `unity-mono-steam` supports only compatible Unity Mono wrappers.
 
 ### Completion markers written by the game
 
-The experimental `file-markers` adapter observes empty files the game itself
+The experimental `file-markers` adapter observes exact-content files the game itself
 creates when an achievement condition is met. Verify that relationship first;
 a similar filename is not evidence of the original condition. The adapter
 does not modify game code, saves or Steam integration.
@@ -59,19 +59,22 @@ in the project JSON:
   "adapter": "file-markers",
   "file_markers": {
     "FIRST_WIN": "users/prospero/AppData/LocalLow/OwnedStudio/OwnedGame/Save/FirstWin"
-  }
+  },
+  "file_marker_content": "empty"
 }
 ```
 
 This example requires a `FIRST_WIN` catalog entry. All regular entries need
 distinct paths; completion/platinum remains calculated by the backend. Rules
 are configured in the project file and preserved by the UI.
+`file_marker_content` accepts `empty` (zero bytes, default) or `crlf` (exactly
+the two bytes `0D 0A`). Verify the actual marker content before choosing.
 
 Before starting Wine, the launcher saves its own baseline and ignores files
-already present. A new regular empty file, observed twice, queues a durable SDK
+already present. A new regular file with the configured content, observed twice, queues a durable SDK
 event. The baseline recovers an event after queue storage errors or closing
 before delivery. Retries reuse the event ID and should not repeat a confirmed
-unlock popup. Nonempty files, directories and unmatched paths do not award
+unlock popup. Mismatched contents, directories and unmatched paths do not award
 achievements. This adapter neither decodes binary saves nor adds conditions.
 
 Add a name, description, icon and ID for each entry in the **Conquistas** tab.

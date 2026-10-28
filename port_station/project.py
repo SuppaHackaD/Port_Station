@@ -20,7 +20,7 @@ def default_project():
                 icon="", background="", launch_background="", sound="", audio_start=0.0, audio_duration=15.0,
                 platinum=False, platinum_id="PLATINUM", platinum_title="Conjunto completo",
                 platinum_description="Obtenha todas as outras conquistas.", platinum_icon="",
-                achievements=[], overlays=[], profile_options={}, file_markers={}, age=0)
+                achievements=[], overlays=[], profile_options={}, file_markers={}, file_marker_content='empty', age=0)
 
 def read_project(path):
     try:
@@ -119,6 +119,10 @@ def validate(project, base, files=True):
     if p["adapter"] == "breath" and ids != BREATH_IDS: raise ProjectError("O adaptador Breath requer as 11 IDs originais de conquistas; a ID do jogo pode ser personalizada.")
     if p["adapter"] == "nwjs-steam" and p["profile"] != "nwjs-canvas": raise ProjectError("Adaptador NW.js requer o perfil nwjs-canvas.")
     markers=p.get('file_markers',{})
+    if p.get('file_marker_content','empty') not in ('empty','crlf'):
+        raise ProjectError('file_marker_content deve ser empty ou crlf.')
+    if p.get('file_marker_content','empty')!='empty' and p['adapter']!='file-markers':
+        raise ProjectError('file_marker_content exige o adaptador file-markers.')
     if not isinstance(markers,dict):raise ProjectError('file_markers deve mapear IDs para caminhos relativos dentro de drive_c.')
     if p['adapter']=='file-markers':
         if set(markers)!=ids:raise ProjectError('file-markers exige um caminho para cada ID regular do catálogo.')
