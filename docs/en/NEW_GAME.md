@@ -193,6 +193,13 @@ changing game versions; changing only arguments does not require that procedure.
 
 ## Common problems
 
+In `auto` mode, OpenGL/DXVK follow the console output up to 4K. Canvas/GDI
+use a 1920×1080 ceiling to reduce memory consumption from software surfaces.
+TCOAAL 3.0.13 was validated on the console at 720p and 1080p; a 4K virtual
+desktop caused memory-mapping failure and process exit. This automatic policy
+does not change the PS5's physical output mode. An explicit resolution still
+takes priority and must be validated with the game.
+
 | Symptom | First things to check |
 |---|---|
 | Build does not start | Folder path, selected `.exe`, icon and diagnostics. |

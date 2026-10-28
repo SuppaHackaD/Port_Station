@@ -30835,7 +30835,7 @@
     "build/port-studio/managed/managed.lock.json": "c042489cff0420ba8c12d77819dd36ef6fd01bda8aa762f77dc255db9548b6a0",
     "achievement_extractor/bin/AchievementScanner.exe": "a7b92ce028240c3919ef4006be98ad29991cc590a87ec33680e8c2112b6501a1",
     "achievement_extractor/bin/helper.lock.json": "46261998ade64a32d65c371f13a93034dd4957ae5a71d27c70fdae902189f889",
-    "port_station/templates/display_policy.h": "660672616cb5c21b5f172b5918cc89d33f3ff02399f644526c66d9c430c546b2",
+    "port_station/templates/display_policy.h": "031473dc85c7817d3871793b326b2b3ad018ae55aaaf3754c6c19c583cb21965",
     "release_support/mesa-wgl/runtime.json": "906b9597795a2bebca10db83a16d0eee085382ee9a7c3f055dc0062c7f714fa4",
     "release_support/mesa-wgl/build.py": "86aec8015317decbc541b506caa341b1ded629d1649bd380f27fc14785a7e380",
     "release_support/mesa-wgl/diagnostics.py": "e3b751e3f58996c87c54cb9ad26459628648cdf22ed10f6d9136599ff880f4f9",
