@@ -25,6 +25,37 @@ A extração é integrada à interface, mas o adaptador de eventos continua send
 
 ## Configurar o catálogo
 
+### Marcadores de conclusão gravados pelo jogo
+
+O adaptador experimental `file-markers` observa arquivos vazios que o próprio
+jogo cria ao concluir uma conquista. Use somente depois de verificar a relação
+entre a condição original e esse arquivo; a presença de um nome parecido não
+comprova a condição. Ele não modifica o jogo, os saves ou a integração Steam.
+
+No JSON do projeto, associe cada ID regular do catálogo a um caminho relativo
+a `drive_c` do prefixo Wine:
+
+```json
+{
+  "adapter": "file-markers",
+  "file_markers": {
+    "FIRST_WIN": "users/prospero/AppData/LocalLow/OwnedStudio/OwnedGame/Save/FirstWin"
+  }
+}
+```
+
+Esse exemplo exige um item `FIRST_WIN` no catálogo. Todos os itens regulares
+precisam de caminhos distintos; a platina continua sendo calculada pelo backend.
+As regras são configuradas no arquivo do projeto e preservadas pela interface.
+
+Antes de iniciar o jogo, o launcher salva uma linha de base própria: arquivos
+já presentes são ignorados. Um novo arquivo regular vazio, observado duas vezes,
+gera um evento na fila persistente do SDK. A linha de base permite recuperar um
+evento se o jogo fechar antes do envio ou se a gravação da fila falhar. Reenvios
+usam a mesma ID de evento e não devem repetir o popup após confirmação. Arquivos
+com conteúdo, diretórios e caminhos que não correspondem às regras não concedem
+conquistas. Este adaptador não interpreta saves binários nem adiciona condições.
+
 Na aba **Conquistas**, adicione nome, descrição, ícone e uma ID para cada item. A ID canônica identifica a conquista no backend. **ID emitida pelo jogo** permite associar um nome diferente vindo da engine, por exemplo `first_win` a `FIRST_WIN`.
 
 Marque a opção de platina para acrescentar um item calculado quando todas as conquistas regulares forem obtidas. O adaptador não deve tentar desbloquear a platina diretamente.

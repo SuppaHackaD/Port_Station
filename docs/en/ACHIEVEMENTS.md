@@ -44,6 +44,36 @@ own validation. `unity-mono-steam` supports only compatible Unity Mono wrappers.
 
 ## Configure the catalog
 
+### Completion markers written by the game
+
+The experimental `file-markers` adapter observes empty files the game itself
+creates when an achievement condition is met. Verify that relationship first;
+a similar filename is not evidence of the original condition. The adapter
+does not modify game code, saves or Steam integration.
+
+Map every regular catalog ID to a path relative to the Wine prefix's `drive_c`
+in the project JSON:
+
+```json
+{
+  "adapter": "file-markers",
+  "file_markers": {
+    "FIRST_WIN": "users/prospero/AppData/LocalLow/OwnedStudio/OwnedGame/Save/FirstWin"
+  }
+}
+```
+
+This example requires a `FIRST_WIN` catalog entry. All regular entries need
+distinct paths; completion/platinum remains calculated by the backend. Rules
+are configured in the project file and preserved by the UI.
+
+Before starting Wine, the launcher saves its own baseline and ignores files
+already present. A new regular empty file, observed twice, queues a durable SDK
+event. The baseline recovers an event after queue storage errors or closing
+before delivery. Retries reuse the event ID and should not repeat a confirmed
+unlock popup. Nonempty files, directories and unmatched paths do not award
+achievements. This adapter neither decodes binary saves nor adds conditions.
+
 Add a name, description, icon and ID for each entry in the **Conquistas** tab.
 The canonical ID identifies the achievement in the backend. **ID emitida pelo
 jogo** (ID emitted by the game) maps a different engine name, such as

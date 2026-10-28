@@ -7,7 +7,7 @@ from pathlib import Path, PurePosixPath
 
 WORKSPACE = Path(__file__).resolve().parents[1]
 PROFILES = ("dxvk-xinput", "opengl-xinput", "nwjs-canvas", "gdi-keyboard")
-ADAPTERS = ("none", "file-v1", "unity-mono-steam", "nwjs-steam", "breath")
+ADAPTERS = ("none", "file-v1", "file-markers", "unity-mono-steam", "nwjs-steam", "breath")
 BREATH_IDS = {"COROA", "OCULOS", "SONIC", "OLHOSARANHA", "ARANHA", "ENGUIA", "MORCEGO", "TARTARUGA", "THEEND", "BUG", "SPEEDRUN"}
 
 class ProjectError(ValueError):
@@ -20,7 +20,7 @@ def default_project():
                 icon="", background="", launch_background="", sound="", audio_start=0.0, audio_duration=15.0,
                 platinum=False, platinum_id="PLATINUM", platinum_title="Conjunto completo",
                 platinum_description="Obtenha todas as outras conquistas.", platinum_icon="",
-                achievements=[], overlays=[], profile_options={}, age=0)
+                achievements=[], overlays=[], profile_options={}, file_markers={}, age=0)
 
 def read_project(path):
     try:
@@ -118,6 +118,16 @@ def validate(project, base, files=True):
     if p["adapter"] == "none" and ids: raise ProjectError("Escolha um adaptador para enviar o catálogo/conquistas.")
     if p["adapter"] == "breath" and ids != BREATH_IDS: raise ProjectError("O adaptador Breath requer as 11 IDs originais de conquistas; a ID do jogo pode ser personalizada.")
     if p["adapter"] == "nwjs-steam" and p["profile"] != "nwjs-canvas": raise ProjectError("Adaptador NW.js requer o perfil nwjs-canvas.")
+    markers=p.get('file_markers',{})
+    if not isinstance(markers,dict):raise ProjectError('file_markers deve mapear IDs para caminhos relativos dentro de drive_c.')
+    if p['adapter']=='file-markers':
+        if set(markers)!=ids:raise ProjectError('file-markers exige um caminho para cada ID regular do catálogo.')
+        paths=set()
+        for name in markers.values():
+            relative_file(name)
+            if name.casefold()in paths:raise ProjectError('Marcadores de conquistas devem ter caminhos distintos.')
+            paths.add(name.casefold())
+    elif markers:raise ProjectError('file_markers exige o adaptador file-markers.')
     options = p["profile_options"]
     if not isinstance(options, dict): raise ProjectError("profile_options deve ser objeto JSON.")
     allowed = {"application": {"dll_overrides"}, "display": {"desktop", "scaling", "view", "show_fps"}, "input": {"mode", "mouse", "mouse_speed", "left_stick", "cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "l3", "r3", "up", "down", "left", "right", "options", "create", "touchpad"}, "runtime": {"thread_scheduling", "cpu"}, "debug": {"winedebug"}}

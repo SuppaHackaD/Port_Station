@@ -24,6 +24,7 @@ class KeyboardStickTests(unittest.TestCase):
         with tempfile.TemporaryDirectory()as td:
             root=Path(td);source=root/'test.c';exe=root/'test.exe'
             source.write_text('''#include "keyboard_stick.h"
+#undef NDEBUG
 #include <assert.h>
 int main(void){
  StationKeyboardStick s={0,0};uint32_t p,r;
